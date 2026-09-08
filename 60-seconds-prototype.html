@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>60 SECONDS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0B0B0A;
+  --cream:#F2ECDE;
+  --cream-dim:#E7DFCB;
+  --coral:#FF4438;
+  --line: rgba(11,11,10,.14);
+  --black-60: rgba(11,11,10,.6);
+  --black-40: rgba(11,11,10,.4);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none;}
+html,body{margin:0;padding:0;height:100%;background:var(--black);overscroll-behavior:none;}
+#stage{min-height:100vh;background:var(--black);display:flex;align-items:center;justify-content:center;}
+#app{width:100%;max-width:430px;height:100vh;background:var(--cream);position:relative;overflow:hidden;font-family:'Inter',sans-serif;color:var(--black);}
+@media (min-width:440px) and (min-height:700px){
+  #app{border-radius:32px;height:min(92vh,900px);}
+}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;}
+.display{font-family:'Archivo',sans-serif;font-weight:800;letter-spacing:-0.03em;}
+.ui{font-family:'Inter',sans-serif;}
+.label{font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-size:12px;color:var(--black-60);}
+.tap-safe{-webkit-touch-callout:none;}
+
+/* ---- top minimal nav ---- */
+.topnav{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:22px 24px;z-index:5;}
+.navlink{font-family:'Inter',sans-serif;font-weight:600;font-size:11px;letter-spacing:.16em;color:var(--black-40);cursor:pointer;padding:8px;}
+.navlink:active{color:var(--coral);}
+
+/* ---- HOME ---- */
+#screen-home{align-items:center;justify-content:center;gap:0;}
+.home-logo{text-align:center;margin-bottom:64px;}
+.home-num{font-size:clamp(96px,32vw,140px);line-height:.82;}
+.home-word{margin-top:6px;font-weight:600;font-size:13px;letter-spacing:.55em;padding-left:.55em;color:var(--black-60);}
+.play-btn{width:168px;height:168px;border-radius:50%;background:var(--coral);border:none;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-weight:800;font-size:22px;letter-spacing:.04em;color:var(--black);cursor:pointer;transition:transform .12s cubic-bezier(.2,1,.3,1);}
+.play-btn:active{transform:scale(.92);}
+.daily-link{margin-top:36px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--black);display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px;}
+.daily-dot{width:6px;height:6px;border-radius:50%;background:var(--coral);}
+.best-line{position:absolute;bottom:40px;left:0;right:0;text-align:center;font-size:12px;letter-spacing:.14em;color:var(--black-40);font-weight:500;}
+.best-line b{color:var(--black-60);font-weight:700;}
+
+/* ---- COUNTDOWN ---- */
+#screen-countdown{align-items:center;justify-content:center;}
+.cd-pretitle{font-size:14px;letter-spacing:.3em;color:var(--black-60);font-weight:600;margin-bottom:18px;}
+.cd-number{font-size:clamp(160px,50vw,220px);line-height:1;}
+.cd-go{color:var(--coral);}
+
+/* ---- GAMEPLAY ---- */
+#screen-gameplay{align-items:center;padding-top:12vh;}
+.timer{font-size:clamp(52px,15vw,66px);transition:color .15s ease;}
+.timer.tense{color:var(--coral);}
+.timer.critical{animation:pulseCritical .45s infinite;}
+@keyframes pulseCritical{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+#challengeArea{flex:1;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:0 28px 8vh;}
+.chal-label{margin-bottom:2px;}
+.chal-big{font-size:clamp(40px,13vw,58px);text-align:center;}
+
+/* tap challenge */
+.tap-target{width:120px;height:120px;border-radius:50%;background:none;border:3px solid var(--black);cursor:pointer;transition:transform .06s cubic-bezier(.2,1,.4,1),background .08s;}
+.tap-target.hit{background:var(--coral);border-color:var(--coral);}
+.tap-count{font-size:15px;letter-spacing:.1em;color:var(--black-60);font-weight:600;}
+
+/* math / keypad buttons */
+.opt-list{display:flex;flex-direction:column;gap:10px;width:100%;max-width:220px;}
+.opt-btn{padding:16px 0;text-align:center;border:1.5px solid var(--black);background:transparent;font-family:'Archivo',sans-serif;font-weight:700;font-size:22px;border-radius:0;cursor:pointer;}
+.opt-btn.right{background:var(--coral);border-color:var(--coral);}
+.opt-btn.wrong{background:var(--black);border-color:var(--black);color:var(--cream);}
+
+/* timing */
+.stop-btn{width:140px;height:140px;border-radius:50%;background:var(--coral);border:none;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.14em;font-size:14px;color:var(--black);cursor:pointer;}
+.stop-btn:active{transform:scale(.94);}
+
+/* odd one out */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.dot{width:100%;aspect-ratio:1;border-radius:50%;border:2.5px solid var(--black);}
+.dot.filled{background:var(--black);border-color:var(--black);}
+.dot.target{outline:3px solid var(--coral);outline-offset:2px;}
+
+/* reaction */
+.reaction-full{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.reaction-full.wait{background:var(--black);}
+.reaction-full.now{background:var(--coral);}
+.reaction-text{font-family:'Archivo',sans-serif;font-weight:800;font-size:44px;letter-spacing:-.02em;}
+.wait .reaction-text{color:var(--cream-dim);}
+.now .reaction-text{color:var(--black);}
+
+/* memory */
+.mem-digits{display:flex;gap:14px;}
+.mem-digit{font-size:44px;}
+.mem-slots{display:flex;gap:14px;}
+.mem-slot{width:36px;text-align:center;font-size:34px;border-bottom:3px solid var(--black);min-height:44px;}
+.mem-slot.filled{border-color:var(--coral);}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:230px;}
+.key{padding:14px 0;text-align:center;border:1.5px solid var(--black);font-family:'Archivo',sans-serif;font-weight:700;font-size:20px;background:transparent;cursor:pointer;}
+.key:active{background:var(--coral);border-color:var(--coral);}
+
+/* feedback flash */
+.feedback{font-size:clamp(38px,11vw,48px);letter-spacing:-.01em;}
+.feedback.good{color:var(--black);}
+.feedback.insane{color:var(--coral);}
+.feedback.bad{color:var(--black-40);}
+
+/* ---- GAMEOVER / SCORE ---- */
+#screen-end{align-items:center;justify-content:center;gap:6px;}
+.end-label{margin-bottom:8px;}
+.end-score{font-size:clamp(64px,20vw,92px);line-height:1;}
+.end-delta{margin-top:22px;font-size:15px;letter-spacing:.1em;color:var(--black-60);font-weight:600;opacity:0;transition:opacity .3s;}
+.end-delta.show{opacity:1;}
+.end-delta.new{color:var(--coral);font-weight:700;}
+.again-btn{margin-top:56px;padding:18px 46px;background:var(--black);color:var(--cream);border:none;font-family:'Archivo',sans-serif;font-weight:800;font-size:16px;letter-spacing:.08em;cursor:pointer;opacity:0;transition:opacity .3s,transform .12s;}
+.again-btn.show{opacity:1;}
+.again-btn:active{transform:scale(.95);}
+.home-link{margin-top:20px;font-size:12px;letter-spacing:.14em;color:var(--black-40);font-weight:600;cursor:pointer;opacity:0;transition:opacity .3s;}
+.home-link.show{opacity:1;}
+
+/* ---- SCORES ---- */
+#screen-scores{padding:90px 28px 40px;}
+.scores-title{font-size:34px;margin-bottom:30px;}
+.score-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--line);}
+.score-row.me{color:var(--coral);}
+.score-row .rank{font-family:'Inter',sans-serif;font-weight:600;font-size:13px;color:var(--black-40);width:24px;}
+.score-row.me .rank{color:var(--coral);}
+.score-row .name{flex:1;font-family:'Inter',sans-serif;font-weight:600;font-size:14px;letter-spacing:.04em;}
+.score-row .val{font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;}
+
+/* ---- SETTINGS ---- */
+#screen-settings{padding:90px 28px 40px;}
+.settings-title{font-size:34px;margin-bottom:30px;}
+.set-row{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:1px solid var(--line);}
+.set-name{font-weight:600;font-size:14px;letter-spacing:.04em;}
+.toggle{width:46px;height:26px;border-radius:14px;background:var(--black-40);position:relative;cursor:pointer;transition:background .15s;flex-shrink:0;}
+.toggle.on{background:var(--coral);}
+.toggle .knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--cream);transition:transform .15s cubic-bezier(.2,1,.4,1);}
+.toggle.on .knob{transform:translateX(20px);}
+
+/* ---- DAILY BADGE reused in gameplay header ---- */
+.mode-badge{position:absolute;top:22px;left:0;right:0;text-align:center;font-size:11px;letter-spacing:.2em;color:var(--coral);font-weight:700;}
+</style>
+</head>
+<body>
+<div id="stage"><div id="app"></div></div>
+
+<script>
+const app = document.getElementById('app');
+
+/* ===================== STATE ===================== */
+const G = {
+  screen:'home', mode:'normal', score:0, best:0, sound:true, reduceMotion:false,
+  endTime:0, raf:null, lastSecMark:null, chalTimeout:null, dailySeq:[], dailyIdx:0, lastType:null,
+  reactionTimer:null, memTimer:null, tapTimer:null, timingInterval:null
+};
+const CHALLENGE_TYPES = ['tap','math','timing','oddoneout','reaction','memory'];
+
+/* ===================== AUDIO ===================== */
+let actx=null;
+function ctx(){ if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)(); return actx; }
+function beep({freq=440,dur=.05,type='sine',gain=.15,glideTo=null}){
+  if(!G.sound) return;
+  try{
+    const c=ctx(); const o=c.createOscillator(); const g=c.createGain();
+    o.type=type; o.frequency.value=freq; g.gain.value=gain;
+    o.connect(g); g.connect(c.destination);
+    const now=c.currentTime;
+    g.gain.setValueAtTime(gain, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now+dur);
+    if(glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, now+dur);
+    o.start(now); o.stop(now+dur+0.02);
+  }catch(e){}
+}
+const sTick=()=>beep({freq:1500,dur:.03,type:'square',gain:.05});
+const sPop=()=>beep({freq:620,dur:.06,type:'sine',gain:.12,glideTo:1000});
+const sSuccess=()=>beep({freq:800,dur:.09,type:'sine',gain:.16,glideTo:1400});
+const sInsane=()=>{beep({freq:650,dur:.12,type:'sine',gain:.18,glideTo:1800}); setTimeout(()=>beep({freq:1300,dur:.09,gain:.15,glideTo:2100}),55);};
+const sError=()=>beep({freq:180,dur:.18,type:'sawtooth',gain:.14,glideTo:70});
+const sCountdown=()=>beep({freq:520,dur:.08,type:'square',gain:.16});
+const sGo=()=>beep({freq:900,dur:.16,type:'square',gain:.2,glideTo:1500});
+const sTension=()=>beep({freq:2000,dur:.02,type:'square',gain:.05});
+const sImpact=()=>beep({freq:100,dur:.35,type:'sine',gain:.28});
+
+/* ===================== HELPERS ===================== */
+function fmt(n){ return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'\u202F'); }
+function rand(min,max){ return Math.random()*(max-min)+min; }
+function ri(min,max){ return Math.floor(rand(min,max+1)); }
+function clearGameTimers(){
+  cancelAnimationFrame(G.raf);
+  clearTimeout(G.chalTimeout); clearTimeout(G.reactionTimer); clearTimeout(G.memTimer); clearTimeout(G.tapTimer);
+  clearInterval(G.timingInterval);
+}
+function mulberry32(a){ return function(){ a|=0;a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function seedFromDate(){ const d=new Date(); return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate(); }
+function buildDailySeq(){
+  const rnd = mulberry32(seedFromDate());
+  const seq=[];
+  for(let i=0;i<24;i++){ seq.push(CHALLENGE_TYPES[Math.floor(rnd()*CHALLENGE_TYPES.length)]); }
+  return seq;
+}
+
+/* ===================== HOME ===================== */
+function renderHome(){
+  G.screen='home';
+  app.innerHTML = `
+    <div class="screen" id="screen-home">
+      <div class="topnav">
+        <div class="navlink" id="nav-scores">SCORES</div>
+        <div class="navlink" id="nav-settings">SETTINGS</div>
+      </div>
+      <div class="home-logo">
+        <div class="home-num display">60</div>
+        <div class="home-word">SECONDS</div>
+      </div>
+      <button class="play-btn tap-safe" id="playBtn">PLAY</button>
+      <div class="daily-link" id="dailyBtn"><span class="daily-dot"></span>TODAY'S 60</div>
+      <div class="best-line">MEILLEUR SCORE&nbsp; <b>${fmt(G.best)}</b></div>
+    </div>`;
+  document.getElementById('playBtn').onclick=()=>{ ctx(); startCountdown('normal'); };
+  document.getElementById('dailyBtn').onclick=()=>{ ctx(); startCountdown('daily'); };
+  document.getElementById('nav-scores').onclick=renderScores;
+  document.getElementById('nav-settings').onclick=renderSettings;
+}
+
+/* ===================== COUNTDOWN ===================== */
+function startCountdown(mode){
+  G.mode=mode; G.screen='countdown';
+  app.innerHTML = `
+    <div class="screen" id="screen-countdown">
+      <div class="cd-pretitle">${mode==='daily'?"TODAY'S 60":'60 SECONDS'}</div>
+      <div class="cd-number display" id="cdNum">3</div>
+    </div>`;
+  const el=document.getElementById('cdNum');
+  const seq=['3','2','1','GO'];
+  let i=0;
+  function step(){
+    el.textContent=seq[i];
+    el.classList.toggle('cd-go', seq[i]==='GO');
+    el.style.transform='scale(.7)'; el.style.opacity='0';
+    requestAnimationFrame(()=>{ el.style.transition='transform .18s cubic-bezier(.2,1.4,.4,1), opacity .12s'; el.style.transform='scale(1)'; el.style.opacity='1'; });
+    if(seq[i]==='GO') sGo(); else sCountdown();
+    i++;
+    if(i<seq.length){ setTimeout(step,650); } else { setTimeout(startPlay,550); }
+  }
+  step();
+}
+
+/* ===================== GAMEPLAY ===================== */
+function startPlay(){
+  G.screen='gameplay'; G.score=0; G.lastSecMark=null; G.lastType=null;
+  if(G.mode==='daily'){ G.dailySeq=buildDailySeq(); G.dailyIdx=0; }
+  G.endTime = performance.now()+60000;
+  app.innerHTML = `
+    <div class="screen" id="screen-gameplay">
+      ${G.mode==='daily'?'<div class="mode-badge">TODAY\'S 60</div>':''}
+      <div class="timer display" id="timerNum">60.00</div>
+      <div id="challengeArea"></div>
+    </div>`;
+  tickTimer();
+  nextChallenge();
+}
+function tickTimer(){
+  const remain = Math.max(0,(G.endTime-performance.now())/1000);
+  const el=document.getElementById('timerNum');
+  if(el){
+    el.textContent=remain.toFixed(2);
+    el.classList.toggle('tense', remain<=10);
+    el.classList.toggle('critical', remain<=3);
+  }
+  const sec=Math.ceil(remain);
+  if(sec!==G.lastSecMark && sec<=10 && sec>=1){ G.lastSecMark=sec; sTension(); }
+  if(remain<=0){ endGame(); return; }
+  G.raf=requestAnimationFrame(tickTimer);
+}
+function pickType(){
+  if(G.mode==='daily'){ const t=G.dailySeq[G.dailyIdx % G.dailySeq.length]; G.dailyIdx++; return t; }
+  let t; do{ t=CHALLENGE_TYPES[ri(0,CHALLENGE_TYPES.length-1)]; }while(t===G.lastType);
+  G.lastType=t; return t;
+}
+function nextChallenge(){
+  if(performance.now()>=G.endTime) return;
+  const area=document.getElementById('challengeArea');
+  if(!area) return;
+  area.style.background=''; area.innerHTML='';
+  CHALLENGES[pickType()](area);
+}
+function resultFlash(kind, points, cb){
+  G.score += points;
+  const area=document.getElementById('challengeArea');
+  if(!area) return;
+  const text = kind==='insane'?'INSANE':(kind==='good'?'PERFECT':'NOPE');
+  area.style.background='';
+  area.innerHTML = `<div class="feedback display ${kind==='insane'?'insane':(kind==='good'?'good':'bad')}">${text}</div>`;
+  if(kind==='insane') sInsane(); else if(kind==='good') sSuccess(); else sError();
+  clearGameTimers.chal=null;
+  setTimeout(()=>{ if(performance.now()<G.endTime) nextChallenge(); else endGame(); }, kind==='bad'?420:500);
+}
+
+/* ---- individual mini-games ---- */
+const CHALLENGES = {
+  tap(area){
+    const target = ri(8,13); let count=0;
+    const budget = 3300;
+    area.innerHTML = `<div class="chal-label label">TAP</div>
+      <button class="tap-target tap-safe" id="tapBtn"></button>
+      <div class="tap-count ui" id="tapCount">0 / ${target}</div>`;
+    const btn=document.getElementById('tapBtn'); const cnt=document.getElementById('tapCount');
+    const start=performance.now();
+    G.chalTimeout=setTimeout(()=>resultFlash('bad',0), budget);
+    btn.onpointerdown=()=>{
+      count++; cnt.textContent=`${count} / ${target}`;
+      btn.classList.add('hit'); sPop();
+      setTimeout(()=>btn.classList.remove('hit'),70);
+      if(count>=target){
+        clearTimeout(G.chalTimeout);
+        const elapsed=performance.now()-start;
+        const ratio = elapsed/budget;
+        resultFlash(ratio<0.55?'insane':'good', ratio<0.55?260:150);
+      }
+    };
+  },
+  math(area){
+    const a=ri(2,9), b=ri(2,9); const correct=a*b;
+    let opts=[correct];
+    while(opts.length<3){ const d=correct+ri(-12,12)*(Math.random()<.5?1:-1); if(d>0 && !opts.includes(d)) opts.push(d); }
+    opts.sort(()=>Math.random()-.5);
+    area.innerHTML = `<div class="chal-label label">MATH</div>
+      <div class="chal-big display">${a} × ${b}</div>
+      <div class="opt-list">${opts.map(o=>`<button class="opt-btn" data-v="${o}">${o}</button>`).join('')}</div>`;
+    const start=performance.now();
+    G.chalTimeout=setTimeout(()=>resultFlash('bad',0), 3400);
+    area.querySelectorAll('.opt-btn').forEach(b=>{
+      b.onpointerdown=()=>{
+        clearTimeout(G.chalTimeout);
+        const val=parseInt(b.dataset.v);
+        if(val===correct){
+          b.classList.add('right');
+          const elapsed=performance.now()-start;
+          resultFlash(elapsed<900?'insane':'good', elapsed<900?260:150);
+        } else {
+          b.classList.add('wrong');
+          resultFlash('bad',0);
+        }
+      };
+    });
+  },
+  timing(area){
+    const target = parseFloat(rand(1.5,3.4).toFixed(2));
+    area.innerHTML = `<div class="chal-label label">TAP AT ${target.toFixed(2)}</div>
+      <div class="chal-big display" id="runNum">0.00</div>
+      <button class="stop-btn tap-safe" id="stopBtn">STOP</button>`;
+    const start=performance.now();
+    const num=document.getElementById('runNum');
+    G.timingInterval=setInterval(()=>{ num.textContent=((performance.now()-start)/1000).toFixed(2); },10);
+    G.chalTimeout=setTimeout(()=>{ clearInterval(G.timingInterval); resultFlash('bad',0); }, target*1000+1800);
+    document.getElementById('stopBtn').onpointerdown=()=>{
+      clearInterval(G.timingInterval); clearTimeout(G.chalTimeout);
+      const elapsed=(performance.now()-start)/1000;
+      const diff=Math.abs(elapsed-target);
+      if(diff<0.05) resultFlash('insane',320);
+      else if(diff<0.18) resultFlash('good',180);
+      else resultFlash('bad',0);
+    };
+  },
+  oddoneout(area){
+    const n=16; const oddIdx=ri(0,n-1);
+    let html=`<div class="chal-label label">FIND THE ODD ONE</div><div class="grid4">`;
+    for(let i=0;i<n;i++){ html+=`<div class="dot ${i===oddIdx?'filled':''}" data-i="${i}"></div>`; }
+    html+='</div>';
+    area.innerHTML=html;
+    const start=performance.now();
+    G.chalTimeout=setTimeout(()=>resultFlash('bad',0), 3000);
+    area.querySelectorAll('.dot').forEach(d=>{
+      d.onpointerdown=()=>{
+        clearTimeout(G.chalTimeout);
+        if(parseInt(d.dataset.i)===oddIdx){
+          const elapsed=performance.now()-start;
+          resultFlash(elapsed<900?'insane':'good', elapsed<900?260:150);
+        } else { resultFlash('bad',0); }
+      };
+    });
+  },
+  reaction(area){
+    area.innerHTML = `<div class="reaction-full wait" id="reacBox"><div class="reaction-text">WAIT</div></div>`;
+    const box=document.getElementById('reacBox');
+    let started=false, tooSoon=false;
+    box.onpointerdown=()=>{
+      if(!started){ tooSoon=true; clearTimeout(G.reactionTimer); resultFlash('bad',0); }
+    };
+    const delay=ri(900,2400);
+    G.reactionTimer=setTimeout(()=>{
+      if(tooSoon) return;
+      started=true;
+      box.classList.remove('wait'); box.classList.add('now');
+      box.querySelector('.reaction-text').textContent='NOW';
+      const t0=performance.now();
+      G.chalTimeout=setTimeout(()=>resultFlash('bad',0), 1500);
+      box.onpointerdown=()=>{
+        clearTimeout(G.chalTimeout);
+        const rt=performance.now()-t0;
+        if(rt<250) resultFlash('insane',300);
+        else if(rt<550) resultFlash('good',170);
+        else resultFlash('bad',0);
+      };
+    }, delay);
+  },
+  memory(area){
+    const seq=[ri(0,9),ri(0,9),ri(0,9),ri(0,9)];
+    area.innerHTML = `<div class="chal-label label">MEMORIZE</div>
+      <div class="mem-digits display" id="memDigits">${seq.join(' ')}</div>`;
+    G.memTimer=setTimeout(()=>{
+      const input=[];
+      area.innerHTML = `<div class="chal-label label">REPEAT</div>
+        <div class="mem-slots" id="memSlots">${seq.map(()=>'<div class="mem-slot"></div>').join('')}</div>
+        <div class="keypad" id="memKeys">${[1,2,3,4,5,6,7,8,9,'',0,''].map(k=>k===''?'<div></div>':`<button class="key" data-k="${k}">${k}</button>`).join('')}</div>`;
+      const start=performance.now();
+      G.chalTimeout=setTimeout(()=>resultFlash('bad',0), 4600);
+      const slots=area.querySelectorAll('.mem-slot');
+      area.querySelectorAll('.key').forEach(k=>{
+        k.onpointerdown=()=>{
+          const v=parseInt(k.dataset.k);
+          const idx=input.length;
+          if(v!==seq[idx]){ clearTimeout(G.chalTimeout); resultFlash('bad',0); return; }
+          input.push(v); slots[idx].textContent=v; slots[idx].classList.add('filled');
+          sTick();
+          if(input.length===seq.length){
+            clearTimeout(G.chalTimeout);
+            const elapsed=performance.now()-start;
+            resultFlash(elapsed<2200?'insane':'good', elapsed<2200?300:200);
+          }
+        };
+      });
+    }, 1450);
+  }
+};
+
+/* ===================== END / SCORE ===================== */
+function endGame(){
+  clearGameTimers();
+  G.screen='end';
+  app.innerHTML = `<div class="screen" id="screen-end"></div>`;
+  sImpact();
+  setTimeout(()=>{
+    const isNew = G.score>G.best;
+    const delta = G.score-G.best;
+    const el=document.getElementById('screen-end');
+    el.innerHTML = `
+      <div class="end-label label">SCORE</div>
+      <div class="end-score display" id="scoreNum">0</div>
+      <div class="end-delta ui" id="deltaLine">${isNew?'NEW BEST':(G.best>0?`${delta>=0?'+':''}${fmt(delta)} VS TON MEILLEUR SCORE`:'PREMIER SCORE')}</div>
+      <button class="again-btn" id="againBtn">PLAY AGAIN</button>
+      <div class="home-link" id="homeLink">HOME</div>`;
+    if(isNew) el.querySelector('#deltaLine').classList.add('new');
+    if(G.score>G.best) G.best=G.score;
+    animateScore(document.getElementById('scoreNum'), G.score, ()=>{
+      document.getElementById('deltaLine').classList.add('show');
+      setTimeout(()=>{
+        document.getElementById('againBtn').classList.add('show');
+        document.getElementById('homeLink').classList.add('show');
+      },250);
+    });
+    document.getElementById('againBtn').onclick=()=>startCountdown(G.mode);
+    document.getElementById('homeLink').onclick=renderHome;
+  }, 650);
+}
+function animateScore(el, target, done){
+  const dur=900; const t0=performance.now();
+  function step(){
+    const p=Math.min(1,(performance.now()-t0)/dur);
+    const eased=1-Math.pow(1-p,3);
+    el.textContent=fmt(target*eased);
+    if(p<1) requestAnimationFrame(step); else { el.textContent=fmt(target); done&&done(); }
+  }
+  step();
+}
+
+/* ===================== SCORES ===================== */
+function renderScores(){
+  G.screen='scores';
+  const mock=[
+    {n:'M. ARNAUD',v:58210},{n:'J. PELLETIER',v:52940},
+    {n:'TOI',v:G.best,me:true},{n:'S. KOVACS',v:41870},{n:'A. DIALLO',v:38520}
+  ].sort((a,b)=>b.v-a.v);
+  app.innerHTML = `
+    <div class="screen" id="screen-scores">
+      <div class="topnav"><div class="navlink" id="backHome">← HOME</div><div></div></div>
+      <div class="scores-title display">SCORES</div>
+      ${mock.map((r,i)=>`<div class="score-row ${r.me?'me':''}"><div class="rank ui">${i+1}</div><div class="name ui">${r.n}</div><div class="val display">${fmt(r.v)}</div></div>`).join('')}
+    </div>`;
+  document.getElementById('backHome').onclick=renderHome;
+}
+
+/* ===================== SETTINGS ===================== */
+function renderSettings(){
+  G.screen='settings';
+  app.innerHTML = `
+    <div class="screen" id="screen-settings">
+      <div class="topnav"><div class="navlink" id="backHome2">← HOME</div><div></div></div>
+      <div class="settings-title display">SETTINGS</div>
+      <div class="set-row"><div class="set-name ui">SON</div><div class="toggle ${G.sound?'on':''}" id="tgSound"><div class="knob"></div></div></div>
+      <div class="set-row"><div class="set-name ui">RÉDUIRE LES ANIMATIONS</div><div class="toggle ${G.reduceMotion?'on':''}" id="tgMotion"><div class="knob"></div></div></div>
+      <div class="set-row"><div class="set-name ui">À PROPOS</div><div class="ui" style="font-size:12px;color:var(--black-40);">60 SECONDS · v0.1</div></div>
+    </div>`;
+  document.getElementById('backHome2').onclick=renderHome;
+  document.getElementById('tgSound').onclick=(e)=>{ G.sound=!G.sound; e.currentTarget.classList.toggle('on',G.sound); if(G.sound) sPop(); };
+  document.getElementById('tgMotion').onclick=(e)=>{
+    G.reduceMotion=!G.reduceMotion; e.currentTarget.classList.toggle('on',G.reduceMotion);
+    document.body.style.setProperty('--reduce', G.reduceMotion?'1':'0');
+    document.documentElement.style.setProperty('scroll-behavior', G.reduceMotion?'auto':'smooth');
+  };
+}
+
+/* ===================== BOOT ===================== */
+renderHome();
+</script>
+</body>
+</html>
