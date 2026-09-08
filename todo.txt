@@ -10,33 +10,39 @@ E16       pseudo local
           60seconds_username
           écran de choix au premier lancement
           modification dans RÉGLAGES
+E17       classements backend Normal + Daily
+          table leaderboard + RLS
+          envoi du score en fin de partie (END)
+E18       écran SCORES
+          GÉNÉRAL = Top 50 des scores (toutes parties, 1 ligne / partie)
+          DU JOUR = Top 50 des scores daily du jour
+          un joueur peut occuper plusieurs places
+          hors Top 50 → meilleur score + rang réel en bas
+          SQL : supabase/migrations/002_leaderboard_best.sql
+Accessibilité  RÉDUIRE LES ANIMATIONS (A+B)
+          cosmétique seulement, timings de partie inchangés
+          prefers-reduced-motion + override localStorage
+Daily      1× / jour, séquence seed date
+          accueil : SCORE DU 60 DU JOUR : xxx
 
-EN COURS — E17 classements backend Normal + Daily
-Code prêt côté app :
-  src/leaderboard/leaderboard.js
-  envoi du score en fin de partie (END, non bloquant)
-  SQL : supabase/migrations/001_leaderboard.sql
-  .env.example
-
-PAS ENCORE VALIDÉ — action manuelle Supabase restante :
-  1. créer un projet Supabase
-  2. exécuter le SQL dans l’éditeur SQL
-  3. copier Project URL + clé anon (pas service_role) dans .env.local
-  4. relancer npm run dev
-  5. tester insert/lecture Normal + Daily
-
-L’écran SCORES affiche encore des données mockées.
+Mini-jeux validés (14 / 15 max)
+  tap           TAPOTE
+  math          CALCUL
+  timing        TAPE À
+  oddoneout     TROUVE L'INTRUS
+  reaction      ATTENDS / MAINTENANT
+  memory        RETIENS
+  greater       PLUS GRAND
+  count         COMBIEN
+  evenodd       PAIR OU IMPAIR
+  leftright     GAUCHE DROITE
+  goNoGo        TAPE / N’Y TOUCHE PAS   (vague 2)
+  sequence      LA SUITE                 (vague 2)
+  direction     SENS                     (vague 2)
+  stroop        COULEUR                  (vague 2)
 
 SUIVANT
-E18  brancher l’écran SCORES sur le vrai Top 50
-     Normal et Daily séparés
-     éventuellement la position du joueur (#12)
-     ne pas toucher au record personnel local (E15)
-
-PLUS TARD
-nouveaux mini-jeux (6 aujourd’hui → viser 10–15)
-  tap, math, timing, oddoneout, reaction, memory
-  puis une entrée dans le registry
+15e mini-jeu : seulement si le playtest des 14 le justifie
 
 HORS SUJET POUR L’INSTANT
 compte / login

@@ -1,7 +1,11 @@
+import { G } from './state.js';
+
 const KEYS = {
   normal: '60seconds_best_normal',
   daily: '60seconds_best_daily',
-  username: '60seconds_username'
+  username: '60seconds_username',
+  reduceMotion: '60seconds_reduce_motion',
+  dailyRun: '60seconds_daily_run'
 };
 
 function keyFor(mode){
@@ -60,4 +64,62 @@ export function saveUsername(username){
   }catch{
     return false;
   }
+}
+
+function osPrefersReducedMotion(){
+  try{
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }catch{
+    return false;
+  }
+}
+
+export function getReduceMotion(){
+  try{
+    const raw = localStorage.getItem(KEYS.reduceMotion);
+    if(raw === 'true') return true;
+    if(raw === 'false') return false;
+  }catch{}
+  return osPrefersReducedMotion();
+}
+
+export function applyReduceMotion(value = getReduceMotion()){
+  const on = !!value;
+  G.reduceMotion = on;
+  try{ document.documentElement.classList.toggle('reduce', on); }catch{}
+  return on;
+}
+
+export function saveReduceMotion(value){
+  const on = !!value;
+  try{ localStorage.setItem(KEYS.reduceMotion, on ? 'true' : 'false'); }catch{}
+  return applyReduceMotion(on);
+}
+
+function todayKey(now = new Date()){
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+export function getTodayDailyRun(){
+  try{
+    const raw = localStorage.getItem(KEYS.dailyRun);
+    if(!raw) return null;
+    const data = JSON.parse(raw);
+    if(!data || data.date !== todayKey()) return null;
+    const score = Number(data.score);
+    return { date: data.date, score: Number.isFinite(score) && score >= 0 ? score : 0 };
+  }catch{
+    return null;
+  }
+}
+
+export function saveTodayDailyRun(score){
+  const n = Number(score);
+  const safe = Number.isFinite(n) && n >= 0 ? Math.round(n) : 0;
+  try{
+    localStorage.setItem(KEYS.dailyRun, JSON.stringify({ date: todayKey(), score: safe }));
+  }catch{}
 }

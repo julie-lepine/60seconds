@@ -14,8 +14,11 @@ export function tap(area){
   G.chalTimeout=setTimeout(()=>resultFlash('bad',0), budget);
   btn.onpointerdown=()=>{
     count++; cnt.textContent=`${count} / ${target}`;
-    btn.classList.add('hit'); sPop();
-    setTimeout(()=>btn.classList.remove('hit'),70);
+    if(!G.reduceMotion){
+      btn.classList.add('hit');
+      setTimeout(()=>btn.classList.remove('hit'),70);
+    }
+    sPop();
     if(count>=target){
       clearTimeout(G.chalTimeout);
       const elapsed=performance.now()-start;

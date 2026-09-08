@@ -1,7 +1,7 @@
 import { G } from '../state.js';
 import { fmt, clearGameTimers } from '../utils.js';
 import { sImpact } from '../audio.js';
-import { saveBestScore } from '../storage.js';
+import { saveBestScore, saveTodayDailyRun } from '../storage.js';
 import { submitLeaderboardScore } from '../leaderboard/leaderboard.js';
 import { startCountdown } from './countdown.js';
 import { renderHome } from './home.js';
@@ -15,6 +15,7 @@ export function endGame(){
   const delta = G.score-G.best;
   const previousBest = G.best;
   if(isNew){ G.best=G.score; saveBestScore(G.mode, G.score); }
+  if(G.mode==='daily') saveTodayDailyRun(G.score);
   submitLeaderboardScore(G.mode, G.score);
   app.innerHTML = `<div class="screen" id="screen-end"></div>`;
   sImpact();
@@ -28,15 +29,26 @@ export function endGame(){
       <button class="again-btn" id="againBtn">REJOUER</button>
       <div class="home-link" id="homeLink">ACCUEIL</div>`;
     if(isNew) el.querySelector('#deltaLine').classList.add('new');
-    animateScore(document.getElementById('scoreNum'), G.score, ()=>{
+    const scoreEl=document.getElementById('scoreNum');
+    if(G.reduceMotion){
+      if(scoreEl) scoreEl.textContent=fmt(G.score);
       document.getElementById('deltaLine')?.classList.add('show');
-      setTimeout(()=>{
-        document.getElementById('againBtn')?.classList.add('show');
-        document.getElementById('homeLink')?.classList.add('show');
-      },250);
-    });
+      document.getElementById('againBtn')?.classList.add('show');
+      document.getElementById('homeLink')?.classList.add('show');
+    }else{
+      animateScore(scoreEl, G.score, ()=>{
+        document.getElementById('deltaLine')?.classList.add('show');
+        setTimeout(()=>{
+          document.getElementById('againBtn')?.classList.add('show');
+          document.getElementById('homeLink')?.classList.add('show');
+        },250);
+      });
+    }
     document.getElementById('againBtn').onclick=()=>startCountdown(G.mode);
     document.getElementById('homeLink').onclick=renderHome;
+    if(G.mode==='daily'){
+      document.getElementById('againBtn')?.remove();
+    }
   }, 650);
 }
 function animateScore(el, target, done){

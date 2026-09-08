@@ -31,7 +31,7 @@ export function localDailyDate(now = new Date()){
 async function supabaseFetch(path, options = {}){
   const url = publicEnv('VITE_SUPABASE_URL').replace(/\/$/, '');
   const key = publicEnv('VITE_SUPABASE_ANON_KEY');
-  if(!url || !key) return { ok: false, data: null, error: 'not-configured' };
+  if(!url || !key) return { ok: false, status: 0, data: null, error: 'not-configured' };
   const res = await fetch(`${url}/rest/v1/${path}`, {
     ...options,
     headers: {
@@ -46,8 +46,17 @@ async function supabaseFetch(path, options = {}){
   if(text){
     try{ data = JSON.parse(text); }catch{ data = text; }
   }
-  if(!res.ok) return { ok: false, data: null, error: data?.message || res.statusText || 'request-failed' };
-  return { ok: true, data, error: null };
+  const contentRange = res.headers.get('content-range');
+  if(!res.ok && res.status !== 416) return { ok: false, status: res.status, data: null, error: data?.message || res.statusText || 'request-failed', contentRange };
+  return { ok: true, status: res.status, data, error: null, contentRange };
+}
+
+function boardArgs(mode, dailyDate){
+  const isDaily = mode === 'daily';
+  return {
+    p_mode: isDaily ? 'daily' : 'normal',
+    p_daily_date: isDaily ? (dailyDate || localDailyDate()) : null
+  };
 }
 
 export function buildLeaderboardRow(mode, score){
@@ -84,20 +93,36 @@ export async function submitLeaderboardScore(mode, score){
 
 export async function getLeaderboard(mode, dailyDate){
   try{
-    if(!configured()) return [];
-    const isDaily = mode === 'daily';
-    const params = new URLSearchParams();
-    params.set('select', 'id,username,score,mode,daily_date,created_at');
-    params.set('mode', `eq.${isDaily ? 'daily' : 'normal'}`);
-    if(isDaily) params.set('daily_date', `eq.${dailyDate || localDailyDate()}`);
-    else params.set('daily_date', 'is.null');
-    params.set('order', 'score.desc,created_at.asc');
-    params.set('limit', '50');
-    const { ok, data, error } = await supabaseFetch(`leaderboard?${params.toString()}`, { method: 'GET' });
-    if(!ok){ logDev('fetch failed', error); return []; }
-    return Array.isArray(data) ? data : [];
+    if(!configured()) return { rows: [], error: 'not-configured' };
+    const { ok, data, error } = await supabaseFetch('rpc/leaderboard_top', {
+      method: 'POST',
+      body: JSON.stringify({ ...boardArgs(mode, dailyDate), p_limit: 50 })
+    });
+    if(!ok){ logDev('fetch failed', error); return { rows: [], error: error || 'request-failed' }; }
+    return { rows: Array.isArray(data) ? data : [], error: null };
   }catch(err){
     logDev('fetch failed', err);
-    return [];
+    return { rows: [], error: 'request-failed' };
+  }
+}
+
+export async function getPlayerRank(mode, dailyDate){
+  try{
+    const username = getUsername();
+    if(!configured() || !username) return null;
+    const { ok, data, error } = await supabaseFetch('rpc/leaderboard_player_rank', {
+      method: 'POST',
+      body: JSON.stringify({ ...boardArgs(mode, dailyDate), p_username: username })
+    });
+    if(!ok){ logDev('rank failed', error); return null; }
+    const row = Array.isArray(data) ? data[0] : null;
+    if(!row) return null;
+    const score = Number(row.score);
+    const rank = Number(row.rank);
+    if(!Number.isFinite(score) || !Number.isFinite(rank) || rank < 1) return null;
+    return { score, rank };
+  }catch(err){
+    logDev('rank failed', err);
+    return null;
   }
 }

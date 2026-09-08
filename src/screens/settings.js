@@ -1,6 +1,6 @@
 import { G } from '../state.js';
 import { sPop } from '../audio.js';
-import { getUsername } from '../storage.js';
+import { getUsername, saveReduceMotion } from '../storage.js';
 import { renderHome } from './home.js';
 import { renderUsername } from './username.js';
 
@@ -34,8 +34,7 @@ export function renderSettings(){
   document.getElementById('backHome2').onclick=renderHome;
   document.getElementById('tgSound').onclick=(e)=>{ G.sound=!G.sound; e.currentTarget.classList.toggle('on',G.sound); if(G.sound) sPop(); };
   document.getElementById('tgMotion').onclick=(e)=>{
-    G.reduceMotion=!G.reduceMotion; e.currentTarget.classList.toggle('on',G.reduceMotion);
-    document.body.style.setProperty('--reduce', G.reduceMotion?'1':'0');
-    document.documentElement.style.setProperty('scroll-behavior', G.reduceMotion?'auto':'smooth');
+    const on=saveReduceMotion(!G.reduceMotion);
+    e.currentTarget.classList.toggle('on', on);
   };
 }
