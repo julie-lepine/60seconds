@@ -2,6 +2,7 @@ import { G } from '../state.js';
 import { fmt, clearGameTimers } from '../utils.js';
 import { sImpact } from '../audio.js';
 import { saveBestScore } from '../storage.js';
+import { submitLeaderboardScore } from '../leaderboard/leaderboard.js';
 import { startCountdown } from './countdown.js';
 import { renderHome } from './home.js';
 
@@ -14,6 +15,7 @@ export function endGame(){
   const delta = G.score-G.best;
   const previousBest = G.best;
   if(isNew){ G.best=G.score; saveBestScore(G.mode, G.score); }
+  submitLeaderboardScore(G.mode, G.score);
   app.innerHTML = `<div class="screen" id="screen-end"></div>`;
   sImpact();
   setTimeout(()=>{

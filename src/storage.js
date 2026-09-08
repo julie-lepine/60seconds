@@ -1,6 +1,7 @@
 const KEYS = {
   normal: '60seconds_best_normal',
-  daily: '60seconds_best_daily'
+  daily: '60seconds_best_daily',
+  username: '60seconds_username'
 };
 
 function keyFor(mode){
@@ -29,4 +30,34 @@ export function saveBestScore(mode, score){
   try{
     localStorage.setItem(keyFor(mode), String(n));
   }catch{}
+}
+
+export function normalizeUsername(raw){
+  return String(raw ?? '').trim();
+}
+
+export function isValidUsername(raw){
+  const name = normalizeUsername(raw);
+  if(name.length < 3 || name.length > 16) return false;
+  return /^[\p{L}\p{N}]+(?: +[\p{L}\p{N}]+)*$/u.test(name);
+}
+
+export function getUsername(){
+  try{
+    const name = normalizeUsername(localStorage.getItem(KEYS.username));
+    return isValidUsername(name) ? name : '';
+  }catch{
+    return '';
+  }
+}
+
+export function saveUsername(username){
+  const name = normalizeUsername(username);
+  if(!isValidUsername(name)) return false;
+  try{
+    localStorage.setItem(KEYS.username, name);
+    return true;
+  }catch{
+    return false;
+  }
 }

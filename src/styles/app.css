@@ -8,6 +8,7 @@
   --black-40: rgba(11,11,10,.4);
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none;}
+input, textarea{user-select:text; -webkit-user-select:text;}
 html,body{margin:0;padding:0;height:100%;background:var(--black);overscroll-behavior:none;}
 #stage{min-height:100vh;background:var(--black);display:flex;align-items:center;justify-content:center;}
 #app{width:100%;max-width:430px;height:100vh;background:var(--cream);position:relative;overflow:hidden;font-family:'Inter',sans-serif;color:var(--black);}
@@ -131,6 +132,18 @@ html,body{margin:0;padding:0;height:100%;background:var(--black);overscroll-beha
 .toggle.on{background:var(--coral);}
 .toggle .knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--cream);transition:transform .15s cubic-bezier(.2,1,.4,1);}
 .toggle.on .knob{transform:translateX(20px);}
+.pseudo-value{margin-top:6px;font-size:22px;letter-spacing:-.02em;}
+
+/* ---- USERNAME ---- */
+#screen-username{align-items:center;justify-content:center;padding:0 36px 8vh;}
+.pseudo-title{margin-bottom:36px;text-align:center;}
+#pseudoForm{display:flex;flex-direction:column;align-items:center;width:100%;max-width:320px;}
+.pseudo-input{width:100%;background:transparent;border:none;border-bottom:3px solid var(--black);padding:8px 4px 14px;text-align:center;font-size:clamp(32px,10vw,44px);color:var(--black);caret-color:var(--coral);outline:none;border-radius:0;}
+.pseudo-input:focus{border-bottom-color:var(--coral);}
+.pseudo-input.invalid{border-bottom-color:var(--coral);}
+.pseudo-btn{margin-top:48px;padding:18px 46px;background:var(--black);color:var(--cream);border:none;font-family:'Archivo',sans-serif;font-weight:800;font-size:16px;letter-spacing:.08em;cursor:pointer;}
+.pseudo-btn:active{transform:scale(.95);}
+.pseudo-btn.off{opacity:.35;}
 
 /* ---- DAILY BADGE reused in gameplay header ---- */
 .mode-badge{position:absolute;top:22px;left:0;right:0;text-align:center;font-size:11px;letter-spacing:.2em;color:var(--coral);font-weight:700;}
