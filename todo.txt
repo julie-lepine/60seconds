@@ -1,0 +1,125 @@
+Roadmap que je te recommande
+1. 💾 Scores personnels sur l'appareil
+
+On ajoute une persistance locale :
+
+meilleur score
+éventuellement historique local si utile plus tard
+le score survit au rechargement / fermeture de l'app
+aucun compte nécessaire
+localStorage est parfaitement adapté ici
+
+Ça transforme immédiatement le BEST actuel, qui est seulement en mémoire, en vrai record personnel.
+
+2. 👤 Choix du pseudo
+
+Avant de pouvoir apparaître dans le classement mondial :
+
+premier lancement → choix d'un pseudo
+pseudo stocké localement
+possibilité de le modifier dans Réglages
+longueur limitée
+caractères contrôlés
+pas besoin de compte
+
+Je mettrais probablement un écran très simple :
+
+CHOISIS TON PSEUDO
+[ JULIE________ ]
+CONTINUER
+
+Pas d'onboarding lourd.
+
+3. 🌍 E17 — Top 50 Normal + Top 50 Daily
+
+Là, on passe au backend.
+
+Puisque tu utilises déjà Supabase sur REVEAL, Supabase est un choix naturel pour 60 SECONDS aussi.
+
+Architecture minimale :
+
+Joueur
+  ↓
+score final + pseudo
+  ↓
+Supabase
+  ↓
+TOP 50
+
+Avec une table du genre :
+
+leaderboard
+├── id
+├── pseudo
+├── score
+├── created_at
+└── ...
+
+Et surtout : on ne récupère pas 10 000 scores pour trier côté client.
+
+Le serveur ne renvoie que :
+
+TOP 50
+
+Triés par score décroissant.
+
+Je prévoirais également dès le départ une distinction entre :
+
+Record personnel → local
+Classement mondial → Supabase
+
+C'est beaucoup plus propre.
+
+4. 🏆 Écran SCORES réel
+
+Le mock actuel :
+
+JULIE 12 430
+MAX 11 820
+...
+
+devient un vrai classement :
+
+SCORES
+
+01  JULIE       18 420
+02  MAX         17 960
+03  LÉA         17 430
+...
+50  TOM          8 240
+
+Et si le joueur vient de faire un score :
+
+#12
+
+avec éventuellement une petite mise en avant de sa position.
+
+5. 🎮 Ajouter de nouveaux jeux
+
+Et là seulement, je recommencerais à enrichir le catalogue.
+
+Actuellement :
+
+6 jeux
+
+TAP
+MATH
+TIMING
+ODD ONE OUT
+REACTION
+MEMORY
+
+On peut progressivement arriver à 10–15 micro-jeux, ce qui donnera beaucoup plus de variété aux 60 secondes.
+
+Et surtout, maintenant que l'architecture est propre, ajouter un jeu est devenu très simple :
+
+src/challenges/
+    tap.js
+    math.js
+    timing.js
+    oddoneout.js
+    reaction.js
+    memory.js
+    newgame.js
+
+puis une entrée dans le registry.

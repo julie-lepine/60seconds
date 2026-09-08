@@ -1,11 +1,12 @@
 import { G } from '../state.js';
 import { sCountdown, sGo } from '../audio.js';
+import { getBestScore } from '../storage.js';
 import { startPlay } from './gameplay.js';
 
 const app = document.getElementById('app');
 
 export function startCountdown(mode){
-  G.mode=mode; G.screen='countdown';
+  G.mode=mode; G.best=getBestScore(mode); G.screen='countdown';
   app.innerHTML = `
     <div class="screen" id="screen-countdown">
       <div class="cd-pretitle">${mode==='daily'?"LES 60 DU JOUR":'60 SECONDES'}</div>

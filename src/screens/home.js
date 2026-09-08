@@ -1,6 +1,7 @@
 import { G } from '../state.js';
 import { fmt } from '../utils.js';
 import { ctx } from '../audio.js';
+import { getBestScore } from '../storage.js';
 import { startCountdown } from './countdown.js';
 import { renderScores } from './scores.js';
 import { renderSettings } from './settings.js';
@@ -9,6 +10,7 @@ const app = document.getElementById('app');
 
 export function renderHome(){
   G.screen='home';
+  G.best = getBestScore('normal');
   app.innerHTML = `
     <div class="screen" id="screen-home">
       <div class="topnav">
