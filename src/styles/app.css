@@ -174,7 +174,7 @@ html.is-native .ad-placeholder{visibility:hidden;}
 .score-row .val{font-family:'Archivo',sans-serif;font-weight:800;font-size:18px;}
 
 /* ---- SETTINGS ---- */
-#screen-settings{padding:90px 28px 40px;}
+#screen-settings{padding:90px 28px 40px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .settings-title{font-size:34px;margin-bottom:30px;}
 .set-row{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:1px solid var(--line);}
 .set-name{font-weight:600;font-size:14px;letter-spacing:.04em;}
@@ -194,6 +194,15 @@ html.is-native .ad-placeholder{visibility:hidden;}
 .pseudo-btn{margin-top:48px;padding:18px 46px;background:var(--black);color:var(--cream);border:none;font-family:'Archivo',sans-serif;font-weight:800;font-size:16px;letter-spacing:.08em;cursor:pointer;}
 .pseudo-btn:active{transform:scale(.95);}
 .pseudo-btn.off{opacity:.35;}
+
+/* ---- CONSENT ---- */
+#screen-consent{padding:90px 32px 28px;}
+#screen-consent.consent-first{padding-top:48px;}
+.consent-copy{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.consent-copy p{margin:0 0 16px;font-size:14px;line-height:1.55;font-weight:500;color:var(--black-60);}
+.consent-actions{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:20px;flex-shrink:0;}
+.consent-actions .pseudo-btn{margin-top:0;}
+.consent-actions .navlink{letter-spacing:.08em;text-align:center;}
 
 /* ---- DAILY BADGE reused in gameplay header ---- */
 .mode-badge{position:absolute;top:22px;left:0;right:0;text-align:center;font-size:11px;letter-spacing:.2em;color:var(--coral);font-weight:700;}

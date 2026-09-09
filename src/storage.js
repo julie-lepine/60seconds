@@ -5,7 +5,9 @@ const KEYS = {
   daily: '60seconds_best_daily',
   username: '60seconds_username',
   reduceMotion: '60seconds_reduce_motion',
-  dailyRun: '60seconds_daily_run'
+  dailyRun: '60seconds_daily_run',
+  privacyNotice: '60seconds_privacy_notice',
+  adsTracking: '60seconds_ads_tracking'
 };
 
 function keyFor(mode){
@@ -122,4 +124,34 @@ export function saveTodayDailyRun(score){
   try{
     localStorage.setItem(KEYS.dailyRun, JSON.stringify({ date: todayKey(), score: safe }));
   }catch{}
+}
+
+export function hasPrivacyNotice(){
+  try{
+    return localStorage.getItem(KEYS.privacyNotice) === '1';
+  }catch{
+    return false;
+  }
+}
+
+export function savePrivacyNotice(){
+  try{
+    localStorage.setItem(KEYS.privacyNotice, '1');
+  }catch{}
+}
+
+export function getAdsTracking(){
+  try{
+    return localStorage.getItem(KEYS.adsTracking) !== 'false';
+  }catch{
+    return true;
+  }
+}
+
+export function saveAdsTracking(value){
+  const on = !!value;
+  try{
+    localStorage.setItem(KEYS.adsTracking, on ? 'true' : 'false');
+  }catch{}
+  return on;
 }

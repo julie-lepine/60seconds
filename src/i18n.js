@@ -62,7 +62,18 @@ const STRINGS = {
     inkCoral: 'CORAIL',
     flashInsane: 'FURIEUX',
     flashGood: 'PARFAIT',
-    flashBad: 'RATÉ'
+    flashBad: 'RATÉ',
+    consentTitle: 'DONNÉES',
+    consentLeaderboard: 'Pour le classement, ton pseudo et tes scores sont envoyés sur nos serveurs.',
+    consentAds: 'Pour les publicités, Google AdMob peut utiliser l’identifiant publicitaire, une localisation approximative (via l’adresse IP) et tes interactions dans l’app, afin d’afficher des pubs, mesurer leur performance et limiter la fraude.',
+    consentChoice: 'Le suivi publicitaire est facultatif. Tu peux le refuser ici, ou le modifier plus tard dans les réglages.',
+    consentAccept: 'ACCEPTER',
+    consentDecline: 'CONTINUER SANS SUIVI PUB',
+    adsTracking: 'SUIVI PUBLICITAIRE',
+    privacy: 'CONFIDENTIALITÉ',
+    privacyView: 'VOIR',
+    privacyManage: 'CHOIX PUBLICITAIRES',
+    privacyManageAction: 'GÉRER'
   },
   en: {
     ad: 'Advertisement',
@@ -125,7 +136,18 @@ const STRINGS = {
     inkCoral: 'CORAL',
     flashInsane: 'INSANE',
     flashGood: 'PERFECT',
-    flashBad: 'MISS'
+    flashBad: 'MISS',
+    consentTitle: 'DATA',
+    consentLeaderboard: 'For the leaderboard, your name and scores are sent to our servers.',
+    consentAds: 'For ads, Google AdMob may use the advertising ID, approximate location (from IP address), and in-app interactions to show ads, measure performance, and prevent fraud.',
+    consentChoice: 'Ad tracking is optional. You can turn it off here, or change it later in Settings.',
+    consentAccept: 'ACCEPT',
+    consentDecline: 'CONTINUE WITHOUT AD TRACKING',
+    adsTracking: 'AD TRACKING',
+    privacy: 'PRIVACY',
+    privacyView: 'VIEW',
+    privacyManage: 'AD CHOICES',
+    privacyManageAction: 'MANAGE'
   },
   es: {
     ad: 'Publicidad',
@@ -188,7 +210,18 @@ const STRINGS = {
     inkCoral: 'CORAL',
     flashInsane: 'FURIOSO',
     flashGood: 'PERFECTO',
-    flashBad: 'FALLO'
+    flashBad: 'FALLO',
+    consentTitle: 'DATOS',
+    consentLeaderboard: 'Para la clasificación, tu apodo y tus puntos se envían a nuestros servidores.',
+    consentAds: 'Para los anuncios, Google AdMob puede usar el identificador publicitario, una ubicación aproximada (a través de la IP) y tus interacciones en la app, para mostrar anuncios, medir su rendimiento y limitar el fraude.',
+    consentChoice: 'El seguimiento publicitario es opcional. Puedes rechazarlo aquí o cambiarlo más tarde en Ajustes.',
+    consentAccept: 'ACEPTAR',
+    consentDecline: 'CONTINUAR SIN SEGUIMIENTO',
+    adsTracking: 'SEGUIMIENTO PUBLICITARIO',
+    privacy: 'PRIVACIDAD',
+    privacyView: 'VER',
+    privacyManage: 'OPCIONES DE ANUNCIOS',
+    privacyManageAction: 'GESTIONAR'
   },
   de: {
     ad: 'Werbung',
@@ -251,7 +284,18 @@ const STRINGS = {
     inkCoral: 'KORALLE',
     flashInsane: 'WAHNSINN',
     flashGood: 'PERFEKT',
-    flashBad: 'DANEBEN'
+    flashBad: 'DANEBEN',
+    consentTitle: 'DATEN',
+    consentLeaderboard: 'Für die Rangliste werden dein Name und deine Punkte an unsere Server gesendet.',
+    consentAds: 'Für Werbung kann Google AdMob die Werbe-ID, ungefähren Standort (über die IP-Adresse) und App-Interaktionen nutzen, um Anzeigen zu zeigen, ihre Leistung zu messen und Betrug zu begrenzen.',
+    consentChoice: 'Das Werbe-Tracking ist optional. Du kannst es hier ablehnen oder später in den Optionen ändern.',
+    consentAccept: 'AKZEPTIEREN',
+    consentDecline: 'OHNE TRACKING FORTFAHREN',
+    adsTracking: 'WERBE-TRACKING',
+    privacy: 'DATENSCHUTZ',
+    privacyView: 'ANSEHEN',
+    privacyManage: 'WERBEOPTIONEN',
+    privacyManageAction: 'VERWALTEN'
   }
 };
 
