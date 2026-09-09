@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { CHALLENGE_TYPES } from '../constants.js';
 import { ri, clearGameTimers } from '../utils.js';
@@ -21,7 +22,7 @@ export function resultFlash(kind, points, cb){
   G.score += points;
   const area=document.getElementById('challengeArea');
   if(!area) return;
-  const text = kind==='insane'?'FURIEUX':(kind==='good'?'PARFAIT':'RATÉ');
+  const text = kind==='insane'?t('flashInsane'):(kind==='good'?t('flashGood'):t('flashBad'));
   area.style.background='';
   area.innerHTML = `<div class="feedback display ${kind==='insane'?'insane':(kind==='good'?'good':'bad')}">${text}</div>`;
   if(kind==='insane') sInsane(); else if(kind==='good') sSuccess(); else sError();

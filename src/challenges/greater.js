@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
@@ -6,7 +7,7 @@ export function greater(area){
   let a=ri(1,99), b=ri(1,99);
   while(b===a) b=ri(1,99);
   const max=Math.max(a,b);
-  area.innerHTML = `<div class="chal-label label">PLUS GRAND</div>
+  area.innerHTML = `<div class="chal-label label">${t('greater')}</div>
     <div class="choice-row">
       <button class="choice-btn tap-safe display" data-v="${a}">${a}</button>
       <button class="choice-btn tap-safe display" data-v="${b}">${b}</button>

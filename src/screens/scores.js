@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { escapeHtml, fmt } from '../utils.js';
 import { getUsername } from '../storage.js';
@@ -20,11 +21,11 @@ export function renderScores(){
 
   view.innerHTML = `
     <div class="screen" id="screen-scores">
-      <div class="topnav"><div class="navlink" id="backHome">← ACCUEIL</div><div></div></div>
-      <div class="scores-title display">SCORES</div>
+      <div class="topnav"><div class="navlink" id="backHome">← ${t('home')}</div><div></div></div>
+      <div class="scores-title display">${t('scores')}</div>
       <div class="scores-tabs">
-        <button type="button" class="scores-tab" id="tabGeneral">GÉNÉRAL</button>
-        <button type="button" class="scores-tab" id="tabDaily">DU JOUR</button>
+        <button type="button" class="scores-tab" id="tabGeneral">${t('tabGeneral')}</button>
+        <button type="button" class="scores-tab" id="tabDaily">${t('tabDaily')}</button>
       </div>
       <div class="scores-list" id="scoresBody"></div>
     </div>`;
@@ -41,7 +42,7 @@ export function renderScores(){
   function paintList(rows, me){
     const username = getUsername();
     if(!rows.length){
-      body.innerHTML = statusHtml('AUCUN SCORE');
+      body.innerHTML = statusHtml(t('noScores'));
       return;
     }
     const mineInList = username ? rows.some(r => r.username === username) : false;
@@ -54,14 +55,14 @@ export function renderScores(){
 
   async function load(){
     const id = ++loadId;
-    body.innerHTML = statusHtml('CHARGEMENT');
+    body.innerHTML = statusHtml(t('loading'));
     const [{ rows, error }, me] = await Promise.all([
       getLeaderboard(mode),
       getPlayerRank(mode)
     ]);
     if(id !== loadId || G.screen !== 'scores') return;
     if(error){
-      body.innerHTML = statusHtml('CLASSEMENT INDISPONIBLE');
+      body.innerHTML = statusHtml(t('leaderboardUnavailable'));
       return;
     }
     paintList(rows, me);

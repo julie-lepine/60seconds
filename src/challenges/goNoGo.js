@@ -1,10 +1,11 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
 
 export function goNoGo(area){
   const go=ri(0,1)===0;
-  area.innerHTML = `<div class="chal-label label">${go?'TAPE':'N’Y TOUCHE PAS'}</div>
+  area.innerHTML = `<div class="chal-label label">${go?t('tapGo'):t('dontTouch')}</div>
     <button type="button" class="gono-hit tap-safe">
       <span class="gono-stim ${go?'go':'nogo'}"></span>
     </button>`;

@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
@@ -11,7 +12,7 @@ const DIRS=[
 
 export function direction(area){
   const target=DIRS[ri(0,DIRS.length-1)];
-  area.innerHTML = `<div class="chal-label label">SENS</div>
+  area.innerHTML = `<div class="chal-label label">${t('direction')}</div>
     <div class="chal-big display dir-stim">${target.glyph}</div>
     <div class="dir-grid">
       <button class="choice-btn tap-safe display" data-d="up">↑</button>

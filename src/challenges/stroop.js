@@ -1,18 +1,14 @@
+import { inkColors, t } from '../i18n.js';
 import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
 
-const INKS=[
-  { id:'black', word:'NOIR' },
-  { id:'cream', word:'CRÈME' },
-  { id:'coral', word:'CORAIL' }
-];
-
 export function stroop(area){
+  const INKS=inkColors();
   const word=INKS[ri(0,INKS.length-1)];
   let ink=INKS[ri(0,INKS.length-1)];
   while(ink.id===word.id) ink=INKS[ri(0,INKS.length-1)];
-  area.innerHTML = `<div class="chal-label label">COULEUR</div>
+  area.innerHTML = `<div class="chal-label label">${t('color')}</div>
     <div class="chal-big display stroop-word ink-${ink.id}">${word.word}</div>
     <div class="count-opts stroop-opts">
       ${INKS.map(c=>`<button class="opt-btn tap-safe" data-ink="${c.id}">${c.word}</button>`).join('')}

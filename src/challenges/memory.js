@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { sTick } from '../audio.js';
@@ -5,11 +6,11 @@ import { resultFlash } from '../game/engine.js';
 
 export function memory(area){
   const seq=[ri(0,9),ri(0,9),ri(0,9),ri(0,9)];
-  area.innerHTML = `<div class="chal-label label">RETIENS</div>
+  area.innerHTML = `<div class="chal-label label">${t('remember')}</div>
     <div class="mem-digits display" id="memDigits">${seq.join(' ')}</div>`;
   G.memTimer=setTimeout(()=>{
     const input=[];
-    area.innerHTML = `<div class="chal-label label">RÉPÈTE</div>
+    area.innerHTML = `<div class="chal-label label">${t('repeat')}</div>
       <div class="mem-slots" id="memSlots">${seq.map(()=>'<div class="mem-slot"></div>').join('')}</div>
       <div class="keypad" id="memKeys">${[1,2,3,4,5,6,7,8,9,'',0,''].map(k=>k===''?'<div></div>':`<button class="key" data-k="${k}">${k}</button>`).join('')}</div>`;
     const start=performance.now();

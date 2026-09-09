@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { sPop } from '../audio.js';
@@ -6,7 +7,7 @@ import { resultFlash } from '../game/engine.js';
 export function tap(area){
   const target = ri(8,13); let count=0;
   const budget = 3300;
-  area.innerHTML = `<div class="chal-label label">TAPOTE</div>
+  area.innerHTML = `<div class="chal-label label">${t('tap')}</div>
     <button class="tap-target tap-safe" id="tapBtn"></button>
     <div class="tap-count ui" id="tapCount">0 / ${target}</div>`;
   const btn=document.getElementById('tapBtn'); const cnt=document.getElementById('tapCount');

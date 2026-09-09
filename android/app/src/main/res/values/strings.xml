@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">60 SECONDS</string>
     <string name="title_activity_main">60 SECONDS</string>
-    <string name="package_name">com.julielepine.sixtyseconds</string>
-    <string name="custom_url_scheme">com.julielepine.sixtyseconds</string>
+    <string name="package_name">com.hfc.sixtyseconds</string>
+    <string name="custom_url_scheme">com.hfc.sixtyseconds</string>
     <string name="admob_app_id">ca-app-pub-6332424645114129~3273007461</string>
 </resources>

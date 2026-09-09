@@ -1,10 +1,11 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
 
 export function oddoneout(area){
   const n=16; const oddIdx=ri(0,n-1);
-  let html=`<div class="chal-label label">TROUVE L'INTRUS</div><div class="grid4">`;
+  let html=`<div class="chal-label label">${t('oddoneout')}</div><div class="grid4">`;
   for(let i=0;i<n;i++){ html+=`<div class="dot ${i===oddIdx?'filled':''}" data-i="${i}"></div>`; }
   html+='</div>';
   area.innerHTML=html;

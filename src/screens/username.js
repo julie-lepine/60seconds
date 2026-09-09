@@ -1,12 +1,15 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { isValidUsername, saveUsername } from '../storage.js';
 import { view } from '../dom.js';
 
-export function renderUsername({ onDone, onBack, initial='', title='CHOISIS TON PSEUDO', submitLabel='CONTINUER' }={}){
+export function renderUsername({ onDone, onBack, initial='', title, submitLabel }={}){
+  title = title ?? t('chooseUsername');
+  submitLabel = submitLabel ?? t('continue');
   G.screen='username';
   view.innerHTML = `
     <div class="screen" id="screen-username">
-      ${onBack?`<div class="topnav"><div class="navlink" id="pseudoBack">← RETOUR</div><div></div></div>`:''}
+      ${onBack?`<div class="topnav"><div class="navlink" id="pseudoBack">← ${t('back')}</div><div></div></div>`:''}
       <div class="pseudo-title label">${title}</div>
       <form id="pseudoForm" autocomplete="off">
         <input class="pseudo-input display" id="pseudoInput" type="text" inputmode="text" enterkeyhint="done" autocomplete="nickname" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="32" value="">

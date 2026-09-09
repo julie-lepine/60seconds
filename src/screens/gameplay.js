@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { buildDailySeq } from '../game/daily.js';
 import { nextChallenge } from '../game/engine.js';
@@ -10,7 +11,7 @@ export function startPlay(){
   G.endTime = performance.now()+60000;
   view.innerHTML = `
     <div class="screen" id="screen-gameplay">
-      ${G.mode==='daily'?'<div class="mode-badge">LES 60 DU JOUR</div>':''}
+      ${G.mode==='daily'?`<div class="mode-badge">${t('daily')}</div>`:''}
       <div class="timer display" id="timerNum">60.00</div>
       <div id="challengeArea"></div>
     </div>`;

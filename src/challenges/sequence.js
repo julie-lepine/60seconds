@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
@@ -31,7 +32,7 @@ function nearbyOpts(missing, step){
 export function sequence(area){
   const { shown, missing, step }=makeSeq();
   const opts=nearbyOpts(missing, step);
-  area.innerHTML = `<div class="chal-label label">LA SUITE</div>
+  area.innerHTML = `<div class="chal-label label">${t('sequence')}</div>
     <div class="chal-big display">${shown.join('  ')}  ?</div>
     <div class="count-opts">${opts.map(o=>`<button class="opt-btn tap-safe" data-v="${o}">${o}</button>`).join('')}</div>`;
   const start=performance.now();

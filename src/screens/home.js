@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { fmt } from '../utils.js';
 import { ctx } from '../audio.js';
@@ -14,18 +15,18 @@ export function renderHome(){
   view.innerHTML = `
     <div class="screen" id="screen-home">
       <div class="topnav">
-        <div class="navlink" id="nav-scores">SCORES</div>
-        <div class="navlink" id="nav-settings">RÉGLAGES</div>
+        <div class="navlink" id="nav-scores">${t('navScores')}</div>
+        <div class="navlink" id="nav-settings">${t('navSettings')}</div>
       </div>
       <div class="home-logo">
         <div class="home-num display">60</div>
-        <div class="home-word">SECONDES</div>
+        <div class="home-word">${t('seconds')}</div>
       </div>
-      <button class="play-btn tap-safe" id="playBtn">JOUER</button>
+      <button class="play-btn tap-safe" id="playBtn">${t('play')}</button>
       ${dailyRun
-        ? `<div class="daily-link done">SCORE DU 60 DU JOUR&nbsp;:&nbsp;<b>${fmt(dailyRun.score)}</b></div>`
-        : `<div class="daily-link" id="dailyBtn"><span class="daily-dot"></span>LES 60 DU JOUR</div>`}
-      <div class="best-line">RECORD&nbsp; <b>${fmt(G.best)}</b></div>
+        ? `<div class="daily-link done">${t('dailyDone', { score: fmt(dailyRun.score) })}</div>`
+        : `<div class="daily-link" id="dailyBtn"><span class="daily-dot"></span>${t('daily')}</div>`}
+      <div class="best-line">${t('record')}&nbsp; <b>${fmt(G.best)}</b></div>
     </div>`;
   document.getElementById('playBtn').onclick=()=>{ ctx(); startCountdown('normal'); };
   document.getElementById('dailyBtn')?.addEventListener('click', ()=>{ ctx(); startCountdown('daily'); });

@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
@@ -34,7 +35,7 @@ export function count(area){
   const n=ri(5,9);
   const pts=scatter(n);
   const opts=nearbyOpts(n);
-  area.innerHTML = `<div class="chal-label label">COMBIEN</div>
+  area.innerHTML = `<div class="chal-label label">${t('count')}</div>
     <div class="count-field">${pts.map(p=>`<span class="count-pip" style="left:${(p.x/260)*100}%;top:${(p.y/148)*100}%"></span>`).join('')}</div>
     <div class="count-opts">${opts.map(o=>`<button class="opt-btn tap-safe" data-v="${o}">${o}</button>`).join('')}</div>`;
   const start=performance.now();

@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
@@ -5,11 +6,11 @@ import { resultFlash } from '../game/engine.js';
 export function evenodd(area){
   const n=ri(10,999);
   const even=n%2===0;
-  area.innerHTML = `<div class="chal-label label">PAIR OU IMPAIR</div>
+  area.innerHTML = `<div class="chal-label label">${t('evenOdd')}</div>
     <div class="chal-big display">${n}</div>
     <div class="choice-row">
-      <button class="choice-btn tap-safe" data-even="1"><span class="choice-caption ui">PAIR</span></button>
-      <button class="choice-btn tap-safe" data-even="0"><span class="choice-caption ui">IMPAIR</span></button>
+      <button class="choice-btn tap-safe" data-even="1"><span class="choice-caption ui">${t('even')}</span></button>
+      <button class="choice-btn tap-safe" data-even="0"><span class="choice-caption ui">${t('odd')}</span></button>
     </div>`;
   const start=performance.now();
   let locked=false;

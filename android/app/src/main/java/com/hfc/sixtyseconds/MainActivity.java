@@ -1,4 +1,4 @@
-package com.julielepine.sixtyseconds;
+package com.hfc.sixtyseconds;
 
 import com.getcapacitor.BridgeActivity;
 

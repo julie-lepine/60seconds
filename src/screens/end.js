@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { fmt, clearGameTimers } from '../utils.js';
 import { sImpact } from '../audio.js';
@@ -22,11 +23,11 @@ export function endGame(){
     const el=document.getElementById('screen-end');
     if(!el) return;
     el.innerHTML = `
-      <div class="end-label label">SCORE</div>
+      <div class="end-label label">${t('score')}</div>
       <div class="end-score display" id="scoreNum">0</div>
-      <div class="end-delta ui" id="deltaLine">${isNew?'NOUVEAU RECORD':(previousBest>0?`${delta>=0?'+':''}${fmt(delta)} VS TON RECORD`:'PREMIER SCORE')}</div>
-      <button class="again-btn" id="againBtn">REJOUER</button>
-      <div class="home-link" id="homeLink">ACCUEIL</div>`;
+      <div class="end-delta ui" id="deltaLine">${isNew?t('newRecord'):(previousBest>0?t('vsRecord',{delta:`${delta>=0?'+':''}${fmt(delta)}`}):t('firstScore'))}</div>
+      <button class="again-btn" id="againBtn">${t('playAgain')}</button>
+      <div class="home-link" id="homeLink">${t('home')}</div>`;
     if(isNew) el.querySelector('#deltaLine').classList.add('new');
     const scoreEl=document.getElementById('scoreNum');
     if(G.reduceMotion){
