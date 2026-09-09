@@ -2,9 +2,8 @@ import { G } from '../state.js';
 import { escapeHtml, fmt } from '../utils.js';
 import { getUsername } from '../storage.js';
 import { getLeaderboard, getPlayerRank } from '../leaderboard/leaderboard.js';
+import { view } from '../dom.js';
 import { renderHome } from './home.js';
-
-const app = document.getElementById('app');
 
 function scoreRow(rank, name, score, me){
   return `<div class="score-row ${me ? 'me' : ''}"><div class="rank ui">${rank}</div><div class="name ui">${escapeHtml(name)}</div><div class="val display">${fmt(score)}</div></div>`;
@@ -19,7 +18,7 @@ export function renderScores(){
   let mode = G.mode === 'daily' ? 'daily' : 'normal';
   let loadId = 0;
 
-  app.innerHTML = `
+  view.innerHTML = `
     <div class="screen" id="screen-scores">
       <div class="topnav"><div class="navlink" id="backHome">← ACCUEIL</div><div></div></div>
       <div class="scores-title display">SCORES</div>

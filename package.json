@@ -6,9 +6,19 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:native": "vite build",
+    "cap:sync": "npm run build:native && npx cap sync",
+    "cap:open:android": "npx cap open android",
+    "android:open": "npx cap open android",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.1",
     "vite": "^8.2.2"
+  },
+  "dependencies": {
+    "@capacitor-community/admob": "^8.1.0",
+    "@capacitor/android": "^8.5.1",
+    "@capacitor/core": "^8.5.1"
   }
 }

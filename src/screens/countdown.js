@@ -1,14 +1,13 @@
 import { G } from '../state.js';
 import { sCountdown, sGo } from '../audio.js';
 import { getBestScore, getTodayDailyRun } from '../storage.js';
+import { view } from '../dom.js';
 import { startPlay } from './gameplay.js';
-
-const app = document.getElementById('app');
 
 export function startCountdown(mode){
   if(mode==='daily' && getTodayDailyRun()) return;
   G.mode=mode; G.best=getBestScore(mode); G.screen='countdown';
-  app.innerHTML = `
+  view.innerHTML = `
     <div class="screen" id="screen-countdown">
       <div class="cd-pretitle">${mode==='daily'?"LES 60 DU JOUR":'60 SECONDES'}</div>
       <div class="cd-number display" id="cdNum">3</div>

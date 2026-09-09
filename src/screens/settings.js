@@ -1,14 +1,13 @@
 import { G } from '../state.js';
 import { sPop } from '../audio.js';
 import { getUsername, saveReduceMotion } from '../storage.js';
+import { view } from '../dom.js';
 import { renderHome } from './home.js';
 import { renderUsername } from './username.js';
 
-const app = document.getElementById('app');
-
 export function renderSettings(){
   G.screen='settings';
-  app.innerHTML = `
+  view.innerHTML = `
     <div class="screen" id="screen-settings">
       <div class="topnav"><div class="navlink" id="backHome2">← ACCUEIL</div><div></div></div>
       <div class="settings-title display">RÉGLAGES</div>

@@ -17,7 +17,7 @@ function configured(){
 
 function logDev(message, detail){
   try{
-    if(import.meta.env?.DEV) console.warn('[leaderboard]', message, detail ?? '');
+    console.warn('[leaderboard]', message, detail ?? '');
   }catch{}
 }
 
@@ -75,7 +75,10 @@ export function buildLeaderboardRow(mode, score){
 
 export async function submitLeaderboardScore(mode, score){
   try{
-    if(!configured()) return null;
+    if(!configured()){
+      logDev('submit skipped', 'not-configured');
+      return null;
+    }
     const row = buildLeaderboardRow(mode, score);
     if(!row) return null;
     const { ok, error } = await supabaseFetch('leaderboard', {

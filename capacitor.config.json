@@ -1,0 +1,8 @@
+{
+  "appId": "com.julielepine.sixtyseconds",
+  "appName": "60 SECONDS",
+  "webDir": "dist",
+  "android": {
+    "adjustMarginsForEdgeToEdge": "auto"
+  }
+}

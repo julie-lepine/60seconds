@@ -3,10 +3,9 @@ import { fmt, clearGameTimers } from '../utils.js';
 import { sImpact } from '../audio.js';
 import { saveBestScore, saveTodayDailyRun } from '../storage.js';
 import { submitLeaderboardScore } from '../leaderboard/leaderboard.js';
+import { view } from '../dom.js';
 import { startCountdown } from './countdown.js';
 import { renderHome } from './home.js';
-
-const app = document.getElementById('app');
 
 export function endGame(){
   clearGameTimers();
@@ -17,7 +16,7 @@ export function endGame(){
   if(isNew){ G.best=G.score; saveBestScore(G.mode, G.score); }
   if(G.mode==='daily') saveTodayDailyRun(G.score);
   submitLeaderboardScore(G.mode, G.score);
-  app.innerHTML = `<div class="screen" id="screen-end"></div>`;
+  view.innerHTML = `<div class="screen" id="screen-end"></div>`;
   sImpact();
   setTimeout(()=>{
     const el=document.getElementById('screen-end');

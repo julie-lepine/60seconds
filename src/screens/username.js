@@ -1,11 +1,10 @@
 import { G } from '../state.js';
 import { isValidUsername, saveUsername } from '../storage.js';
-
-const app = document.getElementById('app');
+import { view } from '../dom.js';
 
 export function renderUsername({ onDone, onBack, initial='', title='CHOISIS TON PSEUDO', submitLabel='CONTINUER' }={}){
   G.screen='username';
-  app.innerHTML = `
+  view.innerHTML = `
     <div class="screen" id="screen-username">
       ${onBack?`<div class="topnav"><div class="navlink" id="pseudoBack">← RETOUR</div><div></div></div>`:''}
       <div class="pseudo-title label">${title}</div>
