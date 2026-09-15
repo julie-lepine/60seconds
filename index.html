@@ -20,6 +20,38 @@
     <div id="view"></div>
   </div>
 </div>
+<script>
+(function(){
+  var KEY = '60seconds_lang';
+  var SUPPORTED = ['fr', 'en', 'es', 'de'];
+  var TAGS = { en: 'en-US', es: 'es-ES', de: 'de-DE', fr: 'fr-FR' };
+  function normalize(raw){
+    var code = String(raw || '').slice(0, 2).toLowerCase();
+    return SUPPORTED.indexOf(code) >= 0 ? code : '';
+  }
+  function spoof(code){
+    var tag = TAGS[code] || code;
+    try{
+      Object.defineProperty(navigator, 'language', { configurable: true, get: function(){ return tag; } });
+      Object.defineProperty(navigator, 'languages', { configurable: true, get: function(){ return [tag, code]; } });
+      Object.defineProperty(navigator, 'userLanguage', { configurable: true, get: function(){ return tag; } });
+    }catch(e){}
+  }
+  window.setLang = function setLang(code){
+    var next = normalize(code);
+    if(!next){
+      console.warn('Langues supportées : fr, en, es, de');
+      return;
+    }
+    localStorage.setItem(KEY, next);
+    location.reload();
+  };
+  window.clearLang = function clearLang(){
+    localStorage.removeItem(KEY);
+    location.reload();
+  };
+  var override = normalize(localStorage.getItem(KEY));
+  if(override) spoof(override);
+})();
+</script>
 <script type="module" src="./src/main.js"></script>
-</body>
-</html>

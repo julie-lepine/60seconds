@@ -299,7 +299,36 @@ const STRINGS = {
   }
 };
 
+const LANG_KEY = '60seconds_lang';
+
+function normalizeLang(raw){
+  const code = String(raw || '').slice(0, 2).toLowerCase();
+  return SUPPORTED.includes(code) ? code : '';
+}
+
+function readLangOverride(){
+  try{
+    return normalizeLang(localStorage.getItem(LANG_KEY));
+  }catch{
+    return '';
+  }
+}
+
+function spoofBrowserLang(code){
+  const tag = ({ en: 'en-US', es: 'es-ES', de: 'de-DE', fr: 'fr-FR' })[code] || `${code}-${code.toUpperCase()}`;
+  try{
+    Object.defineProperty(navigator, 'language', { configurable: true, get: () => tag });
+    Object.defineProperty(navigator, 'languages', { configurable: true, get: () => [tag, code] });
+    Object.defineProperty(navigator, 'userLanguage', { configurable: true, get: () => tag });
+  }catch{}
+}
+
 function detectLang(){
+  const override = readLangOverride();
+  if(override){
+    spoofBrowserLang(override);
+    return override;
+  }
   const candidates = [
     ...(navigator.languages || []),
     navigator.language,
@@ -307,8 +336,8 @@ function detectLang(){
   ].filter(Boolean);
   try{ candidates.push(Intl.DateTimeFormat().resolvedOptions().locale); }catch{}
   for(const raw of candidates){
-    const code = String(raw).slice(0, 2).toLowerCase();
-    if(SUPPORTED.includes(code)) return code;
+    const code = normalizeLang(raw);
+    if(code) return code;
   }
   return 'fr';
 }

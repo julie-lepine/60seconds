@@ -4,5 +4,9 @@
   "webDir": "dist",
   "android": {
     "adjustMarginsForEdgeToEdge": "auto"
+  },
+  "ios": {
+    "contentInset": "never",
+    "preferredContentMode": "mobile"
   }
 }

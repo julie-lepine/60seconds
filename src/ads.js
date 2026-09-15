@@ -15,6 +15,17 @@ function publicEnv(name){
   return '';
 }
 
+function bannerAdId(){
+  const platform = Capacitor.getPlatform();
+  if(platform === 'ios'){
+    return publicEnv('VITE_ADMOB_BANNER_ID_IOS') || publicEnv('VITE_ADMOB_BANNER_ID');
+  }
+  if(platform === 'android'){
+    return publicEnv('VITE_ADMOB_BANNER_ID_ANDROID') || publicEnv('VITE_ADMOB_BANNER_ID');
+  }
+  return publicEnv('VITE_ADMOB_BANNER_ID');
+}
+
 let started = false;
 
 async function requestTrackingIfNeeded(){
@@ -38,7 +49,7 @@ async function requestUmpConsent(){
 }
 
 async function showBanner(){
-  const bannerId = publicEnv('VITE_ADMOB_BANNER_ID');
+  const bannerId = bannerAdId();
   if(!bannerId || !started) return;
   const isTesting = !import.meta.env.PROD && publicEnv('VITE_ADMOB_TESTING') === '1';
   await AdMob.showBanner({
@@ -56,7 +67,7 @@ export async function initAds(){
 
   document.documentElement.classList.add('is-native');
 
-  if(!publicEnv('VITE_ADMOB_BANNER_ID')) return;
+  if(!bannerAdId()) return;
 
   try{
     await AdMob.initialize();
