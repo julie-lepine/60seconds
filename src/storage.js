@@ -7,7 +7,8 @@ const KEYS = {
   reduceMotion: '60seconds_reduce_motion',
   dailyRun: '60seconds_daily_run',
   privacyNotice: '60seconds_privacy_notice',
-  adsTracking: '60seconds_ads_tracking'
+  adsTracking: '60seconds_ads_tracking',
+  sound: '60seconds_sound'
 };
 
 function keyFor(mode){
@@ -98,10 +99,30 @@ export function saveReduceMotion(value){
   return applyReduceMotion(on);
 }
 
+export function getSound(){
+  try{
+    const raw = localStorage.getItem(KEYS.sound);
+    if(raw === 'true') return true;
+    if(raw === 'false') return false;
+  }catch{}
+  return true;
+}
+
+export function applySound(value = getSound()){
+  G.sound = !!value;
+  return G.sound;
+}
+
+export function saveSound(value){
+  const on = !!value;
+  try{ localStorage.setItem(KEYS.sound, on ? 'true' : 'false'); }catch{}
+  return applySound(on);
+}
+
 function todayKey(now = new Date()){
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, '0');
-  const d = String(now.getDate()).padStart(2, '0');
+  const y = now.getUTCFullYear();
+  const m = String(now.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(now.getUTCDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
 

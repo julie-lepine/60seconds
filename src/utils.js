@@ -8,8 +8,16 @@ export function escapeHtml(s){
 }
 export function rand(min,max){ return Math.random()*(max-min)+min; }
 export function ri(min,max){ return Math.floor(rand(min,max+1)); }
+export function clearChallengeTimers(){
+  clearTimeout(G.chalTimeout); G.chalTimeout=null;
+  clearTimeout(G.reactionTimer); G.reactionTimer=null;
+  clearTimeout(G.memTimer); G.memTimer=null;
+  clearTimeout(G.flashTimeout); G.flashTimeout=null;
+  clearInterval(G.timingInterval); G.timingInterval=null;
+  G.flashLock=false;
+}
 export function clearGameTimers(){
   cancelAnimationFrame(G.raf);
-  clearTimeout(G.chalTimeout); clearTimeout(G.reactionTimer); clearTimeout(G.memTimer); clearTimeout(G.tapTimer);
-  clearInterval(G.timingInterval);
+  G.raf=null;
+  clearChallengeTimers();
 }

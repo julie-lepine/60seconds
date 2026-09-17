@@ -2,7 +2,7 @@ import { Capacitor } from '@capacitor/core';
 import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { sPop } from '../audio.js';
-import { getUsername, saveReduceMotion, getAdsTracking, saveAdsTracking } from '../storage.js';
+import { getUsername, saveReduceMotion, saveSound, getAdsTracking, saveAdsTracking } from '../storage.js';
 import { refreshAds, openPrivacyOptions } from '../ads.js';
 import { view } from '../dom.js';
 import { renderHome } from './home.js';
@@ -46,7 +46,11 @@ export function renderSettings(){
     onBack: renderSettings
   });
   document.getElementById('backHome2').onclick=renderHome;
-  document.getElementById('tgSound').onclick=(e)=>{ G.sound=!G.sound; e.currentTarget.classList.toggle('on',G.sound); if(G.sound) sPop(); };
+  document.getElementById('tgSound').onclick=(e)=>{
+    const on=saveSound(!G.sound);
+    e.currentTarget.classList.toggle('on', on);
+    if(on) sPop();
+  };
   document.getElementById('tgMotion').onclick=(e)=>{
     const on=saveReduceMotion(!G.reduceMotion);
     e.currentTarget.classList.toggle('on', on);

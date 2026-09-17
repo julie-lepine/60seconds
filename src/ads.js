@@ -85,6 +85,7 @@ export async function refreshAds(){
   if(!Capacitor.isNativePlatform() || !started) return;
   try{ await AdMob.removeBanner(); }catch{}
   try{
+    await requestTrackingIfNeeded();
     const canRequestAds = await requestUmpConsent();
     if(!canRequestAds) return;
     await showBanner();

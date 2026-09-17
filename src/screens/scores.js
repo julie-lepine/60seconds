@@ -42,6 +42,10 @@ export function renderScores(){
   function paintList(rows, me){
     const username = getUsername();
     if(!rows.length){
+      if(me?.rank && username){
+        body.innerHTML = `<div class="scores-rest">${scoreRow(me.rank, username, me.score, true)}</div>`;
+        return;
+      }
       body.innerHTML = statusHtml(t('noScores'));
       return;
     }

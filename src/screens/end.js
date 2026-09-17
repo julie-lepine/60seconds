@@ -9,6 +9,7 @@ import { startCountdown } from './countdown.js';
 import { renderHome } from './home.js';
 
 export function endGame(){
+  if(G.screen==='end') return;
   clearGameTimers();
   G.screen='end';
   const isNew = G.score>G.best;
@@ -22,11 +23,12 @@ export function endGame(){
   setTimeout(()=>{
     const el=document.getElementById('screen-end');
     if(!el) return;
+    const again = G.mode==='daily' ? '' : `<button class="again-btn" id="againBtn">${t('playAgain')}</button>`;
     el.innerHTML = `
       <div class="end-label label">${t('score')}</div>
       <div class="end-score display" id="scoreNum">0</div>
       <div class="end-delta ui" id="deltaLine">${isNew?t('newRecord'):(previousBest>0?t('vsRecord',{delta:`${delta>=0?'+':''}${fmt(delta)}`}):t('firstScore'))}</div>
-      <button class="again-btn" id="againBtn">${t('playAgain')}</button>
+      ${again}
       <div class="home-link" id="homeLink">${t('home')}</div>`;
     if(isNew) el.querySelector('#deltaLine').classList.add('new');
     const scoreEl=document.getElementById('scoreNum');
@@ -44,11 +46,8 @@ export function endGame(){
         },250);
       });
     }
-    document.getElementById('againBtn').onclick=()=>startCountdown(G.mode);
+    document.getElementById('againBtn')?.addEventListener('click', ()=>startCountdown(G.mode));
     document.getElementById('homeLink').onclick=renderHome;
-    if(G.mode==='daily'){
-      document.getElementById('againBtn')?.remove();
-    }
   }, 650);
 }
 function animateScore(el, target, done){

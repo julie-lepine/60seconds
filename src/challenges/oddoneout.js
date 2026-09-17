@@ -14,7 +14,7 @@ export function oddoneout(area){
   area.querySelectorAll('.dot').forEach(d=>{
     d.onpointerdown=()=>{
       clearTimeout(G.chalTimeout);
-      if(parseInt(d.dataset.i)===oddIdx){
+      if(parseInt(d.dataset.i,10)===oddIdx){
         const elapsed=performance.now()-start;
         resultFlash(elapsed<900?'insane':'good', elapsed<900?260:150);
       } else { resultFlash('bad',0); }

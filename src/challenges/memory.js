@@ -18,7 +18,7 @@ export function memory(area){
     const slots=area.querySelectorAll('.mem-slot');
     area.querySelectorAll('.key').forEach(k=>{
       k.onpointerdown=()=>{
-        const v=parseInt(k.dataset.k);
+        const v=parseInt(k.dataset.k,10);
         const idx=input.length;
         if(v!==seq[idx]){ clearTimeout(G.chalTimeout); resultFlash('bad',0); return; }
         input.push(v); slots[idx].textContent=v; slots[idx].classList.add('filled');

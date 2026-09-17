@@ -16,7 +16,7 @@ export function math(area){
   area.querySelectorAll('.opt-btn').forEach(b=>{
     b.onpointerdown=()=>{
       clearTimeout(G.chalTimeout);
-      const val=parseInt(b.dataset.v);
+      const val=parseInt(b.dataset.v,10);
       if(val===correct){
         b.classList.add('right');
         const elapsed=performance.now()-start;

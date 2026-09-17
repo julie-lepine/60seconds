@@ -1,7 +1,11 @@
 import { G } from './state.js';
 
 let actx=null;
-export function ctx(){ if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)(); return actx; }
+export function ctx(){
+  if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+  if(actx.state==='suspended') actx.resume();
+  return actx;
+}
 export function beep({freq=440,dur=.05,type='sine',gain=.15,glideTo=null}){
   if(!G.sound) return;
   try{

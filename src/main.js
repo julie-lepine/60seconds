@@ -1,5 +1,5 @@
 import { applyDocumentLang } from './i18n.js';
-import { applyReduceMotion, getUsername, hasPrivacyNotice } from './storage.js';
+import { applyReduceMotion, applySound, getUsername, hasPrivacyNotice } from './storage.js';
 import { initAds } from './ads.js';
 import { renderHome } from './screens/home.js';
 import { renderUsername } from './screens/username.js';
@@ -7,6 +7,7 @@ import { renderConsent } from './screens/consent.js';
 
 applyDocumentLang();
 applyReduceMotion();
+applySound();
 
 function continueBoot(){
   initAds();

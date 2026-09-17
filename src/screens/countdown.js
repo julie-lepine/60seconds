@@ -6,6 +6,7 @@ import { view } from '../dom.js';
 import { startPlay } from './gameplay.js';
 
 export function startCountdown(mode){
+  if(G.screen==='countdown' || G.screen==='gameplay') return;
   if(mode==='daily' && getTodayDailyRun()) return;
   G.mode=mode; G.best=getBestScore(mode); G.screen='countdown';
   const go = t('go');
@@ -18,6 +19,7 @@ export function startCountdown(mode){
   const seq=['3','2','1',go];
   let i=0;
   function step(){
+    if(!el) return;
     el.textContent=seq[i];
     el.classList.toggle('cd-go', seq[i]===go);
     if(!G.reduceMotion){
