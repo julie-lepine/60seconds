@@ -1,4 +1,5 @@
-const SUPPORTED = ['fr', 'en', 'es', 'de'];
+export const SUPPORTED_LANGUAGES = Object.freeze(['fr', 'en', 'es', 'de']);
+const SUPPORTED = SUPPORTED_LANGUAGES;
 
 const STRINGS = {
   fr: {
@@ -311,6 +312,203 @@ const STRINGS = {
   }
 };
 
+const ACHIEVEMENT_UI_STRINGS = {
+  fr: {
+    achievements: 'SUCCÈS',
+    achievementLocked: 'VERROUILLÉ',
+    achievementUnlockedOn: 'DÉBLOQUÉ LE {date}',
+    achievementUnlocked: 'SUCCÈS DÉBLOQUÉ',
+    achievementsUnlocked: 'SUCCÈS DÉBLOQUÉS',
+    otherAchievements: '+ {count} AUTRES',
+    achievementCategoryConsistency: 'ASSIDUITÉ',
+    achievementCategoryScores: 'SCORES',
+    achievementCategoryMastery: 'MAÎTRISE DU JEU',
+    achievementCategoryExperience: 'EXPÉRIENCE ET LONGÉVITÉ'
+  },
+  en: {
+    achievements: 'ACHIEVEMENTS',
+    achievementLocked: 'LOCKED',
+    achievementUnlockedOn: 'UNLOCKED {date}',
+    achievementUnlocked: 'ACHIEVEMENT UNLOCKED',
+    achievementsUnlocked: 'ACHIEVEMENTS UNLOCKED',
+    otherAchievements: '+ {count} MORE',
+    achievementCategoryConsistency: 'CONSISTENCY',
+    achievementCategoryScores: 'SCORES',
+    achievementCategoryMastery: 'MASTERY',
+    achievementCategoryExperience: 'EXPERIENCE AND LONGEVITY'
+  },
+  es: {
+    achievements: 'LOGROS',
+    achievementLocked: 'BLOQUEADO',
+    achievementUnlockedOn: 'DESBLOQUEADO EL {date}',
+    achievementUnlocked: 'LOGRO DESBLOQUEADO',
+    achievementsUnlocked: 'LOGROS DESBLOQUEADOS',
+    otherAchievements: '+ {count} MÁS',
+    achievementCategoryConsistency: 'CONSTANCIA',
+    achievementCategoryScores: 'PUNTUACIONES',
+    achievementCategoryMastery: 'DOMINIO DEL JUEGO',
+    achievementCategoryExperience: 'EXPERIENCIA Y LONGEVIDAD'
+  },
+  de: {
+    achievements: 'ERFOLGE',
+    achievementLocked: 'GESPERRT',
+    achievementUnlockedOn: 'FREIGESCHALTET AM {date}',
+    achievementUnlocked: 'ERFOLG FREIGESCHALTET',
+    achievementsUnlocked: 'ERFOLGE FREIGESCHALTET',
+    otherAchievements: '+ {count} WEITERE',
+    achievementCategoryConsistency: 'AUSDAUER',
+    achievementCategoryScores: 'PUNKTE',
+    achievementCategoryMastery: 'SPIELBEHERRSCHUNG',
+    achievementCategoryExperience: 'ERFAHRUNG UND LANGZEIT'
+  }
+};
+
+const ACHIEVEMENT_COPY = {
+  fr: {
+    streak_2: ['Départ lancé', 'Atteindre 2 jours de streak.'],
+    streak_7: ['En rythme', 'Atteindre 7 jours de streak.'],
+    streak_14: ['Rituel', 'Atteindre 14 jours de streak.'],
+    streak_30: ['Un mois chrono', 'Atteindre 30 jours de streak.'],
+    streak_60: ['60 à la suite', 'Atteindre 60 jours de streak.'],
+    streak_100: ['100 jours', 'Atteindre 100 jours de streak.'],
+    streak_365: ['À l’année', 'Atteindre 365 jours de streak.'],
+    return_after_7_days: ['Retour en piste', 'Rejouer après une interruption d’au moins 7 jours.'],
+    complete_weekend: ['Week-end complet', 'Jouer samedi et dimanche.'],
+    daily_7: ['Régulier', 'Terminer 7 défis quotidiens, pas nécessairement consécutifs.'],
+    daily_30: ['Fidèle au poste', 'Terminer 30 défis quotidiens au total.'],
+    first_game: ['Première seconde', 'Terminer sa première partie.'],
+    score_1000: ['Échauffement', 'Atteindre 1 000 points.'],
+    score_2500: ['Plein régime', 'Atteindre 2 500 points.'],
+    score_5000: ['Sous tension', 'Atteindre 5 000 points.'],
+    score_8000: ['Ça accélère', 'Atteindre 8 000 points.'],
+    score_12000: ['Hors limites', 'Atteindre 12 000 points.'],
+    new_record: ['Nouveau record', 'Battre son record.'],
+    records_5: ['Record en série', 'Battre son record 5 fois.'],
+    no_error: ['Sans erreur', 'Terminer une partie sans erreur.'],
+    insane_5: ['Fulgurant', 'Obtenir 5 résultats « Furieux » dans une partie.'],
+    all_succeeded_v1: ['Tous terrains', 'Réussir chaque type de défi au moins une fois.'],
+    timing_exact: ['Au centième', 'Réussir parfaitement le défi de timing.'],
+    games_10: ['Habitué', 'Terminer 10 parties.'],
+    games_50: ['Accro', 'Terminer 50 parties.'],
+    games_100: ['Vétéran', 'Terminer 100 parties.'],
+    games_500: ['Inarrêtable', 'Terminer 500 parties.'],
+    seconds_3600: ['Une heure chrono', 'Cumuler 60 minutes de jeu.'],
+    seconds_36000: ['Marathon', 'Cumuler 10 heures de jeu.'],
+    all_seen_v1: ['Tout vu', 'Rencontrer tous les types de défis.']
+  },
+  en: {
+    streak_2: ['Off to a start', 'Reach a 2-day streak.'],
+    streak_7: ['In the groove', 'Reach a 7-day streak.'],
+    streak_14: ['Ritual', 'Reach a 14-day streak.'],
+    streak_30: ['A month on the clock', 'Reach a 30-day streak.'],
+    streak_60: ['60 straight', 'Reach a 60-day streak.'],
+    streak_100: ['100 days', 'Reach a 100-day streak.'],
+    streak_365: ['A full year', 'Reach a 365-day streak.'],
+    return_after_7_days: ['Back in the game', 'Play again after a break of at least 7 days.'],
+    complete_weekend: ['Full weekend', 'Play on Saturday and Sunday.'],
+    daily_7: ['Regular', 'Complete 7 daily challenges, not necessarily in a row.'],
+    daily_30: ['Always there', 'Complete 30 daily challenges in total.'],
+    first_game: ['First second', 'Finish your first game.'],
+    score_1000: ['Warm-up', 'Reach 1,000 points.'],
+    score_2500: ['Full speed', 'Reach 2,500 points.'],
+    score_5000: ['Under pressure', 'Reach 5,000 points.'],
+    score_8000: ['Picking up speed', 'Reach 8,000 points.'],
+    score_12000: ['Beyond limits', 'Reach 12,000 points.'],
+    new_record: ['New record', 'Beat your record.'],
+    records_5: ['Record run', 'Beat your record 5 times.'],
+    no_error: ['Flawless', 'Finish a game without an error.'],
+    insane_5: ['Lightning fast', 'Get 5 “Insane” results in one game.'],
+    all_succeeded_v1: ['All-rounder', 'Succeed at every challenge type at least once.'],
+    timing_exact: ['To the hundredth', 'Complete the timing challenge perfectly.'],
+    games_10: ['Regular player', 'Finish 10 games.'],
+    games_50: ['Hooked', 'Finish 50 games.'],
+    games_100: ['Veteran', 'Finish 100 games.'],
+    games_500: ['Unstoppable', 'Finish 500 games.'],
+    seconds_3600: ['One hour on the clock', 'Accumulate 60 minutes of play.'],
+    seconds_36000: ['Marathon', 'Accumulate 10 hours of play.'],
+    all_seen_v1: ['Seen it all', 'Encounter every challenge type.']
+  },
+  es: {
+    streak_2: ['Buen comienzo', 'Alcanza una racha de 2 días.'],
+    streak_7: ['En ritmo', 'Alcanza una racha de 7 días.'],
+    streak_14: ['Ritual', 'Alcanza una racha de 14 días.'],
+    streak_30: ['Un mes al reloj', 'Alcanza una racha de 30 días.'],
+    streak_60: ['60 seguidos', 'Alcanza una racha de 60 días.'],
+    streak_100: ['100 días', 'Alcanza una racha de 100 días.'],
+    streak_365: ['Un año entero', 'Alcanza una racha de 365 días.'],
+    return_after_7_days: ['De vuelta', 'Vuelve a jugar tras una pausa de al menos 7 días.'],
+    complete_weekend: ['Fin de semana completo', 'Juega el sábado y el domingo.'],
+    daily_7: ['Constante', 'Completa 7 retos diarios, no necesariamente consecutivos.'],
+    daily_30: ['Siempre presente', 'Completa 30 retos diarios en total.'],
+    first_game: ['Primer segundo', 'Termina tu primera partida.'],
+    score_1000: ['Calentamiento', 'Alcanza 1.000 puntos.'],
+    score_2500: ['A toda máquina', 'Alcanza 2.500 puntos.'],
+    score_5000: ['Bajo presión', 'Alcanza 5.000 puntos.'],
+    score_8000: ['Acelerando', 'Alcanza 8.000 puntos.'],
+    score_12000: ['Sin límites', 'Alcanza 12.000 puntos.'],
+    new_record: ['Nuevo récord', 'Supera tu récord.'],
+    records_5: ['Serie de récords', 'Supera tu récord 5 veces.'],
+    no_error: ['Sin errores', 'Termina una partida sin errores.'],
+    insane_5: ['Fulminante', 'Consigue 5 resultados «Furioso» en una partida.'],
+    all_succeeded_v1: ['Todoterreno', 'Supera cada tipo de reto al menos una vez.'],
+    timing_exact: ['A la centésima', 'Completa perfectamente el reto de tiempo.'],
+    games_10: ['Habitual', 'Termina 10 partidas.'],
+    games_50: ['Enganchado', 'Termina 50 partidas.'],
+    games_100: ['Veterano', 'Termina 100 partidas.'],
+    games_500: ['Imparable', 'Termina 500 partidas.'],
+    seconds_3600: ['Una hora al reloj', 'Acumula 60 minutos de juego.'],
+    seconds_36000: ['Maratón', 'Acumula 10 horas de juego.'],
+    all_seen_v1: ['Todo visto', 'Encuentra todos los tipos de reto.']
+  },
+  de: {
+    streak_2: ['Guter Start', 'Erreiche eine Serie von 2 Tagen.'],
+    streak_7: ['Im Rhythmus', 'Erreiche eine Serie von 7 Tagen.'],
+    streak_14: ['Ritual', 'Erreiche eine Serie von 14 Tagen.'],
+    streak_30: ['Ein Monat auf der Uhr', 'Erreiche eine Serie von 30 Tagen.'],
+    streak_60: ['60 am Stück', 'Erreiche eine Serie von 60 Tagen.'],
+    streak_100: ['100 Tage', 'Erreiche eine Serie von 100 Tagen.'],
+    streak_365: ['Ein ganzes Jahr', 'Erreiche eine Serie von 365 Tagen.'],
+    return_after_7_days: ['Zurück im Spiel', 'Spiele nach mindestens 7 Tagen Pause erneut.'],
+    complete_weekend: ['Ganzes Wochenende', 'Spiele am Samstag und am Sonntag.'],
+    daily_7: ['Beständig', 'Schließe 7 Tagesaufgaben ab, nicht zwingend in Folge.'],
+    daily_30: ['Immer dabei', 'Schließe insgesamt 30 Tagesaufgaben ab.'],
+    first_game: ['Erste Sekunde', 'Beende dein erstes Spiel.'],
+    score_1000: ['Aufwärmen', 'Erreiche 1.000 Punkte.'],
+    score_2500: ['Volle Fahrt', 'Erreiche 2.500 Punkte.'],
+    score_5000: ['Unter Druck', 'Erreiche 5.000 Punkte.'],
+    score_8000: ['Es wird schneller', 'Erreiche 8.000 Punkte.'],
+    score_12000: ['Grenzenlos', 'Erreiche 12.000 Punkte.'],
+    new_record: ['Neuer Rekord', 'Überbiete deinen Rekord.'],
+    records_5: ['Rekordserie', 'Überbiete deinen Rekord 5-mal.'],
+    no_error: ['Fehlerfrei', 'Beende ein Spiel ohne Fehler.'],
+    insane_5: ['Blitzschnell', 'Erziele 5 „Wahnsinn“-Ergebnisse in einem Spiel.'],
+    all_succeeded_v1: ['Alleskönner', 'Schaffe jeden Aufgabentyp mindestens einmal.'],
+    timing_exact: ['Auf die Hundertstel', 'Schließe die Zeitaufgabe perfekt ab.'],
+    games_10: ['Stammspieler', 'Beende 10 Spiele.'],
+    games_50: ['Gefesselt', 'Beende 50 Spiele.'],
+    games_100: ['Veteran', 'Beende 100 Spiele.'],
+    games_500: ['Unaufhaltsam', 'Beende 500 Spiele.'],
+    seconds_3600: ['Eine Stunde auf der Uhr', 'Sammle 60 Minuten Spielzeit.'],
+    seconds_36000: ['Marathon', 'Sammle 10 Stunden Spielzeit.'],
+    all_seen_v1: ['Alles gesehen', 'Begegne allen Aufgabentypen.']
+  }
+};
+
+export const ACHIEVEMENT_TRANSLATION_KEYS = Object.freeze(
+  Object.keys(ACHIEVEMENT_COPY.fr).flatMap(id => [
+    `achievement.${id}.title`,
+    `achievement.${id}.description`
+  ])
+);
+
+for(const language of SUPPORTED){
+  Object.assign(STRINGS[language], ACHIEVEMENT_UI_STRINGS[language]);
+  for(const [id, [title, description]] of Object.entries(ACHIEVEMENT_COPY[language])){
+    STRINGS[language][`achievement.${id}.title`] = title;
+    STRINGS[language][`achievement.${id}.description`] = description;
+  }
+}
+
 const LANG_KEY = '60seconds_lang';
 
 function normalizeLang(raw){
@@ -356,13 +554,21 @@ function detectLang(){
 
 export const lang = detectLang();
 
-export function t(key, vars){
-  const dict = STRINGS[lang] || STRINGS.fr;
+export function translateForLanguage(language, key, vars){
+  const dict = STRINGS[language] || STRINGS.fr;
   let s = dict[key] ?? STRINGS.fr[key] ?? key;
   if(vars){
     s = s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? String(vars[k]) : `{${k}}`));
   }
   return s;
+}
+
+export function hasTranslation(language, key){
+  return Object.prototype.hasOwnProperty.call(STRINGS[language] || {}, key);
+}
+
+export function t(key, vars){
+  return translateForLanguage(lang, key, vars);
 }
 
 export function inkColors(){

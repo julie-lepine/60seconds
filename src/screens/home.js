@@ -8,6 +8,7 @@ import { view } from '../dom.js';
 import { startCountdown } from './countdown.js';
 import { renderScores } from './scores.js';
 import { renderSettings } from './settings.js';
+import { renderAchievements } from './achievements.js';
 
 export function renderHome(){
   G.screen='home';
@@ -17,8 +18,9 @@ export function renderHome(){
   const streakText = t(streak.count === 1 ? 'streakDay' : 'streakDays', { count: fmt(streak.count) });
   view.innerHTML = `
     <div class="screen" id="screen-home">
-      <div class="topnav">
+      <div class="topnav home-topnav">
         <div class="navlink" id="nav-scores">${t('navScores')}</div>
+        <div class="navlink" id="nav-achievements">${t('achievements')}</div>
         <div class="navlink" id="nav-settings">${t('navSettings')}</div>
       </div>
       <div class="home-logo">
@@ -44,5 +46,6 @@ export function renderHome(){
   document.getElementById('playBtn').onclick=()=>{ ctx(); startCountdown('normal'); };
   document.getElementById('dailyBtn')?.addEventListener('click', ()=>{ ctx(); startCountdown('daily'); });
   document.getElementById('nav-scores').onclick=renderScores;
+  document.getElementById('nav-achievements').onclick=renderAchievements;
   document.getElementById('nav-settings').onclick=renderSettings;
 }

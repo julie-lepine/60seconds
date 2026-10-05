@@ -1,6 +1,6 @@
 import { t } from '../i18n.js';
 import { G } from '../state.js';
-import { fmt, clearGameTimers } from '../utils.js';
+import { escapeHtml, fmt, clearGameTimers } from '../utils.js';
 import { sImpact } from '../audio.js';
 import {
   saveBestScore,
@@ -27,6 +27,7 @@ import {
   getAchievementProgress,
   persistAchievementProgress
 } from '../achievements/storage.js';
+import { localizeAchievement } from '../achievements/presentation.js';
 
 const defaultFinalizationDependencies = Object.freeze({
   getActiveGameSession,
@@ -121,6 +122,15 @@ function renderCompletedEnd(state){
   streakResult.increased =
     state.previousProgress.stats.lastPlayedLocalDate !== effectiveProgress.stats.lastPlayedLocalDate;
   const streakText = t(streakResult.count === 1 ? 'streakDay' : 'streakDays', { count: fmt(streakResult.count) });
+  const newlyUnlocked = state.evaluated.newlyUnlocked;
+  const visibleUnlocked = newlyUnlocked.slice(0, 3);
+  const remainingUnlocked = Math.max(0, newlyUnlocked.length - visibleUnlocked.length);
+  const unlockedHtml = newlyUnlocked.length ? `
+    <div class="end-achievements">
+      <div class="end-achievements-label ui">${t(newlyUnlocked.length === 1 ? 'achievementUnlocked' : 'achievementsUnlocked')}</div>
+      ${visibleUnlocked.map(item => `<div class="end-achievement-title display">${escapeHtml(localizeAchievement(item).title)}</div>`).join('')}
+      ${remainingUnlocked ? `<div class="end-achievements-more ui">${t('otherAchievements', { count: remainingUnlocked })}</div>` : ''}
+    </div>` : '';
 
   setTimeout(()=>{
     const el=document.getElementById('screen-end');
@@ -131,6 +141,7 @@ function renderCompletedEnd(state){
       <div class="end-score display" id="scoreNum">0</div>
       <div class="end-delta ui" id="deltaLine">${state.isNew?t('newRecord'):(state.previousBest>0?t('vsRecord',{delta:`${state.delta>=0?'+':''}${fmt(state.delta)}`}):t('firstScore'))}</div>
       ${streakResult.increased ? `<div class="end-streak ui" id="streakLine"><span class="streak-flame" aria-hidden="true"></span>${streakText}</div>` : ''}
+      ${unlockedHtml}
       ${again}
       <div class="home-link" id="homeLink">${t('home')}</div>`;
     if(state.isNew) el.querySelector('#deltaLine').classList.add('new');

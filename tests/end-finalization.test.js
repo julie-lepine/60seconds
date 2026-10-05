@@ -75,13 +75,15 @@ const [
   session,
   progress,
   { G },
-  { STORAGE_WRITE_STATUS }
+  { STORAGE_WRITE_STATUS },
+  { ACHIEVEMENTS }
 ] = await Promise.all([
   import('../src/screens/end.js'),
   import('../src/achievements/session.js'),
   import('../src/achievements/progress.js'),
   import('../src/state.js'),
-  import('../src/storage.js')
+  import('../src/storage.js'),
+  import('../src/achievements/catalog.js')
 ]);
 
 function deferred(){
@@ -104,9 +106,14 @@ function makeHarness({
   recordResults = [STORAGE_WRITE_STATUS.saved],
   dailyResults = [STORAGE_WRITE_STATUS.saved],
   completionResults = [true],
-  leaderboard = () => Promise.resolve(null)
+  leaderboard = () => Promise.resolve(null),
+  newlyUnlockedOverride = null,
+  previousUnlocked = []
 } = {}){
   const previous = progress.createEmptyProgress('2026-10-01T00:00:00.000Z');
+  for(const id of previousUnlocked){
+    previous.unlocked[id] = '2026-10-01T12:00:00.000Z';
+  }
   const calls = {
     build: 0,
     evaluate: 0,
@@ -147,7 +154,10 @@ function makeHarness({
     },
     evaluateAchievements: (...args) => {
       calls.evaluate += 1;
-      return realEvaluate(...args);
+      const evaluated = realEvaluate(...args);
+      return newlyUnlockedOverride == null
+        ? evaluated
+        : { ...evaluated, newlyUnlocked: newlyUnlockedOverride };
     },
     persistAchievementProgress: value => {
       calls.order.push('progression');
@@ -229,6 +239,72 @@ test('nominal Daily finalization commits local steps before leaderboard and END'
 
   runEndRender();
   assert.match(screenEnd.innerHTML, /scoreNum/);
+});
+
+test('END renders no achievement block when none was newly unlocked', async () => {
+  makeHarness({ newlyUnlockedOverride: [] });
+  await endScreen.endGame();
+
+  assert.doesNotMatch(view.innerHTML, /end-achievements/);
+  runEndRender();
+  assert.doesNotMatch(screenEnd.innerHTML, /end-achievements/);
+});
+
+test('END renders one and three newly unlocked achievements without delaying completion', async () => {
+  makeHarness({ newlyUnlockedOverride: ACHIEVEMENTS.slice(0, 1) });
+  await endScreen.endGame();
+  runEndRender();
+  assert.equal((screenEnd.innerHTML.match(/end-achievement-title/g) || []).length, 1);
+  assert.doesNotMatch(screenEnd.innerHTML, /end-achievements-more/);
+
+  session.resetGameSessionForTests();
+  endScreen.resetEndGameForTests();
+  scheduled = [];
+  screenEnd.innerHTML = '';
+  makeHarness({ newlyUnlockedOverride: ACHIEVEMENTS.slice(0, 3) });
+  await endScreen.endGame();
+  runEndRender();
+  assert.equal((screenEnd.innerHTML.match(/end-achievement-title/g) || []).length, 3);
+  assert.doesNotMatch(screenEnd.innerHTML, /end-achievements-more/);
+});
+
+test('END limits a multi-unlock block to three titles and summarizes the remainder', async () => {
+  makeHarness({ newlyUnlockedOverride: ACHIEVEMENTS.slice(0, 5) });
+  await endScreen.endGame();
+  runEndRender();
+
+  assert.equal((screenEnd.innerHTML.match(/end-achievement-title/g) || []).length, 3);
+  assert.match(screenEnd.innerHTML, /end-achievements-more/);
+  assert.match(screenEnd.innerHTML, /2/);
+});
+
+test('retry shows no achievement before commit and reuses the same frozen unlock list', async () => {
+  const unlocks = ACHIEVEMENTS.slice(0, 4);
+  makeHarness({
+    persistResults: [false, true],
+    newlyUnlockedOverride: unlocks
+  });
+
+  await endScreen.endGame();
+  const pending = endScreen.getPendingFinalizationForTests();
+  assert.strictEqual(pending.evaluated.newlyUnlocked, unlocks);
+  assert.ok(Object.isFrozen(unlocks));
+  assert.doesNotMatch(view.innerHTML, /end-achievements/);
+
+  await endScreen.endGame();
+  runEndRender();
+  assert.equal((screenEnd.innerHTML.match(/end-achievement-title/g) || []).length, 3);
+  assert.match(screenEnd.innerHTML, /end-achievements-more/);
+});
+
+test('achievements already unlocked in previous progress are not announced again', async () => {
+  makeHarness({
+    previousUnlocked: ACHIEVEMENTS.map(item => item.id)
+  });
+  await endScreen.endGame();
+  runEndRender();
+
+  assert.doesNotMatch(screenEnd.innerHTML, /end-achievements/);
 });
 
 test('two endGame calls during persistence share one candidate and one commit', async () => {
