@@ -33,7 +33,7 @@ const EXPECTED_IDS = [
   'streak_2', 'streak_7', 'streak_14', 'streak_30', 'streak_60',
   'streak_100', 'streak_365', 'return_after_7_days', 'complete_weekend',
   'daily_7', 'daily_30', 'first_game', 'score_1000', 'score_2500',
-  'score_5000', 'score_8000', 'score_12000', 'new_record', 'records_5',
+  'score_4000', 'score_6000', 'score_8000', 'score_12000', 'new_record', 'records_5',
   'no_error', 'insane_5', 'all_succeeded_v1', 'timing_exact', 'games_10',
   'games_50', 'games_100', 'games_500', 'seconds_3600', 'seconds_36000',
   'all_seen_v1'
@@ -41,14 +41,14 @@ const EXPECTED_IDS = [
 
 const EXPECTED_BY_CATEGORY = {
   consistency: EXPECTED_IDS.slice(0, 11),
-  scores: EXPECTED_IDS.slice(11, 19),
-  mastery: EXPECTED_IDS.slice(19, 23),
-  experience: EXPECTED_IDS.slice(23)
+  scores: EXPECTED_IDS.slice(11, 20),
+  mastery: EXPECTED_IDS.slice(20, 24),
+  experience: EXPECTED_IDS.slice(24)
 };
 
-test('catalog contains exactly the 30 approved achievements with stable IDs', () => {
-  assert.equal(ACHIEVEMENTS.length, 30);
-  assert.equal(new Set(ACHIEVEMENTS.map(item => item.id)).size, 30);
+test('catalog contains exactly the 31 approved achievements with stable IDs', () => {
+  assert.equal(ACHIEVEMENTS.length, 31);
+  assert.equal(new Set(ACHIEVEMENTS.map(item => item.id)).size, 31);
   assert.deepEqual(ACHIEVEMENTS.map(item => item.id), EXPECTED_IDS);
   assert.deepEqual(
     ACHIEVEMENTS.map(item => item.title),
@@ -56,7 +56,7 @@ test('catalog contains exactly the 30 approved achievements with stable IDs', ()
       'Départ lancé', 'En rythme', 'Rituel', 'Un mois chrono', '60 à la suite',
       '100 jours', 'À l’année', 'Retour en piste', 'Week-end complet', 'Régulier',
       'Fidèle au poste', 'Première seconde', 'Échauffement', 'Plein régime',
-      'Sous tension', 'Ça accélère', 'Hors limites', 'Nouveau record',
+      'Sous tension', 'Surchauffe', 'Ça accélère', 'Hors limites', 'Nouveau record',
       'Record en série', 'Sans erreur', 'Fulgurant', 'Tous terrains',
       'Au centième', 'Habitué', 'Accro', 'Vétéran', 'Inarrêtable',
       'Une heure chrono', 'Marathon', 'Tout vu'
@@ -68,8 +68,8 @@ test('catalog keeps the approved category keys and exact membership', () => {
   assert.deepEqual(ACHIEVEMENT_CATEGORIES, {
     consistency: 'Assiduité',
     scores: 'Scores',
-    mastery: 'Maîtrise du jeu',
-    experience: 'Expérience et longévité'
+    mastery: 'Panache',
+    experience: 'Au compteur'
   });
   for(const [category, ids] of Object.entries(EXPECTED_BY_CATEGORY)){
     assert.deepEqual(
@@ -107,9 +107,11 @@ test('catalog conditions are known and use the approved thresholds', () => {
     first_game: ['gamesCount', 'count', 1],
     score_1000: ['score', 'score', 1000],
     score_2500: ['score', 'score', 2500],
-    score_5000: ['score', 'score', 5000],
+    score_4000: ['score', 'score', 4000],
+    score_6000: ['score', 'score', 6000],
     score_8000: ['score', 'score', 8000],
     score_12000: ['score', 'score', 12000],
+    new_record: ['recordsCount', 'count', 1],
     records_5: ['recordsCount', 'count', 5],
     games_10: ['gamesCount', 'count', 10],
     games_50: ['gamesCount', 'count', 50],
@@ -129,7 +131,6 @@ test('special achievements keep their approved conditions and scope references',
   const expected = {
     return_after_7_days: ['returnAfterBreak', { missedDays: 7 }],
     complete_weekend: ['completeWeekend', {}],
-    new_record: ['recordBroken', {}],
     no_error: ['noError', {}],
     insane_5: ['insaneCount', { count: 5 }],
     all_succeeded_v1: ['scopeSucceeded', { scopeId: 'challenge_scope_v1' }],
@@ -154,8 +155,8 @@ test('catalog descriptions are non-empty and nuanced product wording stays fixed
   }
   const nuancedDescriptions = {
     return_after_7_days: 'Rejouer après une interruption d’au moins 7 jours.',
-    daily_7: 'Terminer 7 défis quotidiens, pas nécessairement consécutifs.',
-    daily_30: 'Terminer 30 défis quotidiens au total.',
+    daily_7: 'Terminer 7 défis quotidiens.',
+    daily_30: 'Terminer 30 défis quotidiens.',
     no_error: 'Terminer une partie sans erreur.',
     insane_5: 'Obtenir 5 résultats « Furieux » dans une partie.',
     all_succeeded_v1: 'Réussir chaque type de défi au moins une fois.',

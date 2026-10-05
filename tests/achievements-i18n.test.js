@@ -23,9 +23,9 @@ const UI_KEYS = [
   'achievementCategoryExperience'
 ];
 
-test('all 30 achievement titles and descriptions exist in all four languages', () => {
+test('all 31 achievement titles and descriptions exist in all four languages', () => {
   assert.deepEqual([...SUPPORTED_LANGUAGES], ['fr', 'en', 'es', 'de']);
-  assert.equal(ACHIEVEMENT_TRANSLATION_KEYS.length, 60);
+  assert.equal(ACHIEVEMENT_TRANSLATION_KEYS.length, 62);
 
   for(const language of SUPPORTED_LANGUAGES){
     for(const key of ACHIEVEMENT_TRANSLATION_KEYS){
@@ -61,7 +61,7 @@ test('new achievement UI modules contain no hard-coded French product labels', (
     '../src/screens/achievements.js',
     '../src/achievements/presentation.js'
   ];
-  const forbidden = /SUCCÈS|VERROUILLÉ|DÉBLOQUÉ|ASSIDUITÉ|MAÎTRISE DU JEU/;
+  const forbidden = /SUCCÈS|VERROUILLÉ|DÉBLOQUÉ|ASSIDUITÉ|PANACHE|AU COMPTEUR/;
 
   for(const relative of files){
     const source = readFileSync(fileURLToPath(new URL(relative, import.meta.url)), 'utf8');

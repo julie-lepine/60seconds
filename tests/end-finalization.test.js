@@ -76,14 +76,16 @@ const [
   progress,
   { G },
   { STORAGE_WRITE_STATUS },
-  { ACHIEVEMENTS }
+  { ACHIEVEMENTS },
+  { t }
 ] = await Promise.all([
   import('../src/screens/end.js'),
   import('../src/achievements/session.js'),
   import('../src/achievements/progress.js'),
   import('../src/state.js'),
   import('../src/storage.js'),
-  import('../src/achievements/catalog.js')
+  import('../src/achievements/catalog.js'),
+  import('../src/i18n.js')
 ]);
 
 function deferred(){
@@ -108,9 +110,11 @@ function makeHarness({
   completionResults = [true],
   leaderboard = () => Promise.resolve(null),
   newlyUnlockedOverride = null,
-  previousUnlocked = []
+  previousUnlocked = [],
+  recordsBroken = 0
 } = {}){
   const previous = progress.createEmptyProgress('2026-10-01T00:00:00.000Z');
+  previous.stats.recordsBroken = recordsBroken;
   for(const id of previousUnlocked){
     previous.unlocked[id] = '2026-10-01T12:00:00.000Z';
   }
@@ -163,6 +167,7 @@ function makeHarness({
       calls.order.push('progression');
       calls.persist.push(value);
       const next = persistResults.shift();
+      if(next === undefined) return Promise.resolve(true);
       return typeof next === 'function' ? next(value) : Promise.resolve(next);
     },
     saveBestScore: () => {
@@ -223,19 +228,22 @@ test('nominal Daily finalization commits local steps before leaderboard and END'
   const result = await endScreen.endGame();
 
   assert.equal(calls.build, 1);
-  assert.equal(calls.evaluate, 1);
-  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.evaluate, 2);
+  assert.equal(calls.persist.length, 2);
   assert.equal(calls.record, 1);
   assert.equal(calls.daily, 1);
   assert.equal(calls.complete, 1);
   assert.equal(calls.leaderboard, 1);
-  assert.deepEqual(calls.order, ['progression', 'record', 'daily', 'complete', 'leaderboard']);
+  assert.deepEqual(calls.order, ['progression', 'record', 'progression', 'daily', 'complete', 'leaderboard']);
   assert.equal(session.getActiveGameSession().status, 'completed');
   assert.equal(calls.persist[0].stats.gamesCompleted, 1);
   assert.equal(calls.persist[0].stats.playSeconds, 60);
+  assert.equal(calls.persist[0].stats.recordsBroken, 0);
+  assert.equal(calls.persist[1].stats.recordsBroken, 1);
   assert.ok(result.some(item => item.id === 'first_game'));
   assert.ok(Object.isFrozen(calls.candidate));
   assert.ok(Object.isFrozen(calls.persist[0]));
+  assert.ok(Object.isFrozen(calls.persist[1]));
 
   runEndRender();
   assert.match(screenEnd.innerHTML, /scoreNum/);
@@ -336,7 +344,8 @@ test('progression failure blocks every following step and retry reuses the froze
   await endScreen.endGame();
   const pending = endScreen.getPendingFinalizationForTests();
   const candidate = pending.candidate;
-  const evaluated = pending.evaluated.progress;
+  const safe = pending.progressWithoutRecord;
+  const confirmed = pending.evaluated.progress;
 
   assert.equal(session.getActiveGameSession().status, 'finalizing');
   assert.equal(calls.record, 0);
@@ -351,8 +360,11 @@ test('progression failure blocks every following step and retry reuses the froze
 
   assert.equal(calls.build, 1);
   assert.strictEqual(calls.candidate, candidate);
-  assert.strictEqual(calls.persist[0], evaluated);
-  assert.strictEqual(calls.persist[1], evaluated);
+  assert.strictEqual(calls.persist[0], safe);
+  assert.strictEqual(calls.persist[1], safe);
+  assert.strictEqual(calls.persist[2], confirmed);
+  assert.equal(safe.stats.recordsBroken, 0);
+  assert.equal(confirmed.stats.recordsBroken, 1);
   assert.equal(calls.persist[1].stats.gamesCompleted, 1);
   assert.equal(calls.persist[1].stats.playSeconds, 60);
   assert.equal(session.getActiveGameSession().status, 'completed');
@@ -370,15 +382,17 @@ test('record failure retries from record without rewriting progression or starti
   assert.equal(calls.record, 1);
   assert.equal(calls.daily, 0);
   assert.equal(calls.complete, 0);
+  assert.equal(calls.persist[0].stats.recordsBroken, 0);
 
   await endScreen.endGame();
 
   assert.equal(calls.build, 1);
   assert.strictEqual(calls.candidate, candidate);
-  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.persist.length, 2);
   assert.equal(calls.record, 2);
   assert.equal(calls.complete, 1);
-  assert.equal(calls.persist[0].stats.recordsBroken, 1);
+  assert.equal(calls.persist[1].stats.recordsBroken, 1);
+  assert.equal(calls.leaderboard, 1);
 });
 
 test('Daily failure retries only Daily and does not recount progress or record', async () => {
@@ -390,7 +404,7 @@ test('Daily failure retries only Daily and does not recount progress or record',
 
   await endScreen.endGame();
   const candidate = endScreen.getPendingFinalizationForTests().candidate;
-  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.persist.length, 2);
   assert.equal(calls.record, 1);
   assert.equal(calls.daily, 1);
   assert.equal(calls.complete, 0);
@@ -399,13 +413,14 @@ test('Daily failure retries only Daily and does not recount progress or record',
 
   assert.equal(calls.build, 1);
   assert.strictEqual(calls.candidate, candidate);
-  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.persist.length, 2);
   assert.equal(calls.record, 1);
   assert.equal(calls.daily, 2);
   assert.equal(calls.complete, 1);
   assert.equal(calls.persist[0].stats.gamesCompleted, 1);
   assert.equal(calls.persist[0].stats.playSeconds, 60);
   assert.equal(calls.persist[0].stats.dailyCompleted, 1);
+  assert.equal(calls.persist[1].stats.recordsBroken, 1);
 });
 
 test('session completion failure retries only completion', async () => {
@@ -416,7 +431,7 @@ test('session completion failure retries only completion', async () => {
 
   await endScreen.endGame();
   const candidate = endScreen.getPendingFinalizationForTests().candidate;
-  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.persist.length, 2);
   assert.equal(calls.record, 1);
   assert.equal(calls.daily, 1);
   assert.equal(calls.complete, 1);
@@ -426,7 +441,7 @@ test('session completion failure retries only completion', async () => {
 
   assert.equal(calls.build, 1);
   assert.strictEqual(calls.candidate, candidate);
-  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.persist.length, 2);
   assert.equal(calls.record, 1);
   assert.equal(calls.daily, 1);
   assert.equal(calls.complete, 2);
@@ -483,7 +498,131 @@ test('losing the in-memory session while finalizing removes the pending retry', 
   await endScreen.endGame();
 
   assert.equal(calls.build, 2);
-  assert.equal(calls.persist.length, 2);
+  assert.equal(calls.persist.length, 3);
   assert.equal(calls.persist[1].stats.gamesCompleted, 1);
   assert.equal(session.getActiveGameSession().status, 'completed');
+});
+
+test('first score is saved without counting a broken record or showing NOUVEAU RECORD', async () => {
+  const { calls } = makeHarness({ score: 1000, best: 0 });
+
+  const unlocked = await endScreen.endGame();
+  runEndRender();
+
+  assert.equal(G.best, 1000);
+  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.persist[0].stats.recordsBroken, 0);
+  assert.equal(calls.persist[0].unlocked.new_record, undefined);
+  assert.equal(unlocked.some(item => item.id === 'new_record'), false);
+  assert.equal(screenEnd.innerHTML.includes(t('newRecord')), false);
+  assert.equal(screenEnd.innerHTML.includes(t('firstScore')), true);
+  assert.equal(calls.build, 1);
+  assert.equal(calls.leaderboard, 1);
+});
+
+test('a higher score confirms one broken record and shows NOUVEAU RECORD', async () => {
+  const { calls } = makeHarness({ score: 1200, best: 1000 });
+
+  const unlocked = await endScreen.endGame();
+  runEndRender();
+
+  assert.equal(G.best, 1200);
+  assert.equal(calls.persist[0].stats.recordsBroken, 0);
+  assert.equal(calls.persist.at(-1).stats.recordsBroken, 1);
+  assert.ok(calls.persist.at(-1).unlocked.new_record);
+  assert.equal(unlocked.filter(item => item.id === 'new_record').length, 1);
+  assert.equal(screenEnd.innerHTML.includes(t('newRecord')), true);
+  assert.equal(calls.build, 1);
+  assert.equal(calls.leaderboard, 1);
+});
+
+test('an equal score does not break a record', async () => {
+  const { calls } = makeHarness({ score: 1200, best: 1200 });
+
+  await endScreen.endGame();
+
+  assert.equal(calls.record, 0);
+  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.persist[0].stats.recordsBroken, 0);
+  assert.equal(calls.persist[0].unlocked.new_record, undefined);
+});
+
+test('a lower score does not break a record', async () => {
+  const { calls } = makeHarness({ score: 1100, best: 1200 });
+
+  await endScreen.endGame();
+
+  assert.equal(calls.record, 0);
+  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.persist[0].stats.recordsBroken, 0);
+  assert.equal(G.best, 1200);
+});
+
+test('kill after progression and before record keeps the unconfirmed break out of recordsBroken', async () => {
+  const { calls } = makeHarness({
+    score: 1200,
+    best: 1000,
+    recordResults: [STORAGE_WRITE_STATUS.failed]
+  });
+
+  await endScreen.endGame();
+  const durable = calls.persist[0];
+  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.record, 1);
+  assert.equal(durable.stats.recordsBroken, 0);
+  assert.equal(durable.unlocked.new_record, undefined);
+
+  session.resetGameSessionForTests();
+  endScreen.resetEndGameForTests();
+  const reloaded = makeHarness({
+    score: 900,
+    best: 1000,
+    recordsBroken: durable.stats.recordsBroken
+  });
+  await endScreen.endGame();
+
+  assert.equal(reloaded.calls.persist.at(-1).stats.recordsBroken, 0);
+  assert.equal(reloaded.calls.persist.at(-1).unlocked.new_record, undefined);
+});
+
+test('record failure then retry confirms the broken record once', async () => {
+  const { calls } = makeHarness({
+    score: 1200,
+    best: 1000,
+    recordResults: [STORAGE_WRITE_STATUS.failed, STORAGE_WRITE_STATUS.saved]
+  });
+
+  await endScreen.endGame();
+  const pending = endScreen.getPendingFinalizationForTests();
+  assert.equal(calls.build, 1);
+  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.persist[0].stats.recordsBroken, 0);
+  assert.equal(calls.leaderboard, 0);
+
+  await endScreen.endGame();
+
+  assert.equal(calls.build, 1);
+  assert.strictEqual(calls.candidate, pending.candidate);
+  assert.equal(calls.record, 2);
+  assert.equal(calls.persist.length, 2);
+  assert.equal(calls.persist[1].stats.recordsBroken, 1);
+  assert.equal(calls.persist.filter(item => item.stats.recordsBroken === 1).length, 1);
+  assert.equal(calls.persist.filter(item => item.unlocked.new_record).length, 1);
+  assert.equal(calls.leaderboard, 1);
+});
+
+test('an unconfirmed fifth record does not unlock records_5', async () => {
+  const { calls } = makeHarness({
+    score: 1200,
+    best: 1000,
+    recordsBroken: 4,
+    recordResults: [STORAGE_WRITE_STATUS.failed]
+  });
+
+  await endScreen.endGame();
+
+  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.persist[0].stats.recordsBroken, 4);
+  assert.equal(calls.persist[0].unlocked.records_5, undefined);
+  assert.notEqual(calls.persist[0].stats.recordsBroken, 5);
 });

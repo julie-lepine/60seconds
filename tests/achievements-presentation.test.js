@@ -28,17 +28,37 @@ function byId(result, id){
   return result.items.find(item => item.id === id);
 }
 
-test('presentation projects all 30 achievements in catalog and category order', () => {
+const VISIBLE_WHEN_LOCKED = ACHIEVEMENTS
+  .map(item => item.id)
+  .filter(id => id !== 'return_after_7_days');
+
+test('presentation projects visible achievements in catalog and category order', () => {
   const result = project();
   assert.equal(result.items.length, 30);
-  assert.deepEqual(result.items.map(item => item.id), ACHIEVEMENTS.map(item => item.id));
+  assert.equal(byId(result, 'return_after_7_days'), undefined);
+  assert.deepEqual(result.items.map(item => item.id), VISIBLE_WHEN_LOCKED);
   assert.deepEqual(result.categories.map(category => category.id), [
     'consistency', 'scores', 'mastery', 'experience'
   ]);
   assert.equal(result.categories.flatMap(category => category.items).length, 30);
 });
 
-test('global counter uses only persisted unlocked IDs for 0/30 and 30/30', () => {
+test('Retour en piste stays hidden until it is unlocked, then keeps catalog order', () => {
+  const progress = createEmptyProgress();
+  progress.unlocked.return_after_7_days = '2026-10-05T12:00:00.000Z';
+  const result = project(progress);
+  const item = byId(result, 'return_after_7_days');
+
+  assert.equal(result.items.length, 31);
+  assert.equal(item.unlocked, true);
+  assert.equal(item.displayType, 'unlocked');
+  assert.deepEqual(
+    result.items.map(entry => entry.id),
+    ACHIEVEMENTS.map(entry => entry.id)
+  );
+});
+
+test('global counter uses only persisted unlocked IDs for 0/30 and 31/31', () => {
   const empty = project();
   assert.equal(empty.unlockedCount, 0);
   assert.equal(empty.totalCount, 30);
@@ -49,8 +69,8 @@ test('global counter uses only persisted unlocked IDs for 0/30 and 30/30', () =>
   }
   progress.unlocked.unknown_future_id = '2026-10-05T12:00:00.000Z';
   const complete = project(progress);
-  assert.equal(complete.unlockedCount, 30);
-  assert.equal(complete.totalCount, 30);
+  assert.equal(complete.unlockedCount, 31);
+  assert.equal(complete.totalCount, 31);
 });
 
 test('unlocked state and date come directly from persisted progress', () => {
@@ -66,6 +86,17 @@ test('unlocked state and date come directly from persisted progress', () => {
 });
 
 test('approved cumulative families expose bounded progress with catalog targets', () => {
+  const fresh = project();
+  assert.equal(byId(fresh, 'new_record').displayType, 'progress');
+  assert.deepEqual(
+    [byId(fresh, 'new_record').currentValue, byId(fresh, 'new_record').targetValue],
+    [0, 1]
+  );
+  assert.deepEqual(
+    [byId(fresh, 'records_5').currentValue, byId(fresh, 'records_5').targetValue],
+    [0, 5]
+  );
+
   const progress = createEmptyProgress();
   progress.stats.dailyCompleted = 12;
   progress.stats.recordsBroken = 8;
@@ -84,6 +115,10 @@ test('approved cumulative families expose bounded progress with catalog targets'
   assert.deepEqual(
     [byId(result, 'score_12000').currentValue, byId(result, 'score_12000').targetValue],
     [12000, 12000]
+  );
+  assert.deepEqual(
+    [byId(result, 'new_record').currentValue, byId(result, 'new_record').targetValue],
+    [1, 1]
   );
   assert.deepEqual(
     [byId(result, 'records_5').currentValue, byId(result, 'records_5').targetValue],
@@ -143,10 +178,8 @@ test('historical collections remain 0/14, 13/14 and 14/14 with future types igno
 test('binary achievements never expose artificial progress', () => {
   const result = project();
   const binaryIds = [
-    'return_after_7_days',
     'complete_weekend',
     'first_game',
-    'new_record',
     'no_error',
     'insane_5',
     'timing_exact'

@@ -14,9 +14,11 @@ const PROGRESS_SOURCE_BY_ID = Object.freeze({
   daily_30: 'daily',
   score_1000: 'score',
   score_2500: 'score',
-  score_5000: 'score',
+  score_4000: 'score',
+  score_6000: 'score',
   score_8000: 'score',
   score_12000: 'score',
+  new_record: 'records',
   records_5: 'records',
   all_succeeded_v1: 'collectionSucceeded',
   games_10: 'games',
@@ -27,6 +29,8 @@ const PROGRESS_SOURCE_BY_ID = Object.freeze({
   seconds_36000: 'seconds',
   all_seen_v1: 'collectionSeen'
 });
+
+const HIDDEN_UNTIL_UNLOCKED = new Set(['return_after_7_days']);
 
 const CATEGORY_TRANSLATION_KEYS = Object.freeze({
   consistency: 'achievementCategoryConsistency',
@@ -122,7 +126,7 @@ export function buildAchievementPresentation({
     }
   };
 
-  const items = catalog.map(item => {
+  const items = catalog.flatMap(item => {
     const isUnlocked = typeof unlocked[item.id] === 'string';
     const source = PROGRESS_SOURCE_BY_ID[item.id] || null;
     const metric = source ? metricFor(source, item, {
@@ -133,6 +137,7 @@ export function buildAchievementPresentation({
     const total = metric ? safeCount(metric.total) : null;
     const rawCurrent = metric ? safeCount(metric.current) : null;
     const current = metric ? (isUnlocked ? total : Math.min(rawCurrent, total)) : null;
+    if(!isUnlocked && HIDDEN_UNTIL_UNLOCKED.has(item.id)) return [];
     const copy = localizeAchievement(item, translate);
 
     return Object.freeze({

@@ -94,7 +94,8 @@ test('several achievements can unlock from the same finalization', () => {
   assert.ok(ids.includes('first_game'));
   assert.ok(ids.includes('score_1000'));
   assert.ok(ids.includes('score_2500'));
-  assert.ok(ids.includes('score_5000'));
+  assert.ok(ids.includes('score_4000'));
+  assert.equal(ids.includes('score_6000'), false);
   assert.ok(ids.includes('no_error'));
   assert.ok(ids.includes('insane_5'));
   assert.ok(ids.includes('timing_exact'));
@@ -185,7 +186,8 @@ test('migration recovers only certain score and streak achievements', () => {
   assert.ok(migrated.unlocked.first_game);
   assert.ok(migrated.unlocked.score_1000);
   assert.ok(migrated.unlocked.score_2500);
-  assert.ok(migrated.unlocked.score_5000);
+  assert.ok(migrated.unlocked.score_4000);
+  assert.ok(migrated.unlocked.score_6000);
   assert.equal(migrated.unlocked.score_8000, undefined);
   assert.ok(migrated.unlocked.streak_2);
   assert.ok(migrated.unlocked.streak_7);

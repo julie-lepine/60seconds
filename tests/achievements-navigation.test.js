@@ -60,6 +60,7 @@ test('Home opens the complete achievement screen and its back action returns Hom
   assert.equal(G.screen, 'achievements');
   assert.match(view.innerHTML, /id="screen-achievements"/);
   assert.equal((view.innerHTML.match(/data-achievement-id=/g) || []).length, 30);
+  assert.equal(view.innerHTML.includes('return_after_7_days'), false);
   assert.equal((view.innerHTML.match(/data-achievement-category=/g) || []).length, 4);
 
   elements.get('backAchievements').onclick();

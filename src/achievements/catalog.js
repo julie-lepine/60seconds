@@ -12,30 +12,31 @@ function achievement(id, category, title, description, condition, params = {}){
 export const ACHIEVEMENT_CATEGORIES = Object.freeze({
   consistency: 'Assiduité',
   scores: 'Scores',
-  mastery: 'Maîtrise du jeu',
-  experience: 'Expérience et longévité'
+  mastery: 'Panache',
+  experience: 'Au compteur'
 });
 
 export const ACHIEVEMENTS = Object.freeze([
-  achievement('streak_2', 'consistency', 'Départ lancé', 'Atteindre 2 jours de streak.', 'streak', { days: 2 }),
-  achievement('streak_7', 'consistency', 'En rythme', 'Atteindre 7 jours de streak.', 'streak', { days: 7 }),
-  achievement('streak_14', 'consistency', 'Rituel', 'Atteindre 14 jours de streak.', 'streak', { days: 14 }),
-  achievement('streak_30', 'consistency', 'Un mois chrono', 'Atteindre 30 jours de streak.', 'streak', { days: 30 }),
-  achievement('streak_60', 'consistency', '60 à la suite', 'Atteindre 60 jours de streak.', 'streak', { days: 60 }),
-  achievement('streak_100', 'consistency', '100 jours', 'Atteindre 100 jours de streak.', 'streak', { days: 100 }),
-  achievement('streak_365', 'consistency', 'À l’année', 'Atteindre 365 jours de streak.', 'streak', { days: 365 }),
+  achievement('streak_2', 'consistency', 'Départ lancé', 'Atteindre 2 jours de connexion consécutive.', 'streak', { days: 2 }),
+  achievement('streak_7', 'consistency', 'En rythme', 'Atteindre 7 jours de connexion consécutive.', 'streak', { days: 7 }),
+  achievement('streak_14', 'consistency', 'Rituel', 'Atteindre 14 jours de connexion consécutive.', 'streak', { days: 14 }),
+  achievement('streak_30', 'consistency', 'Un mois chrono', 'Atteindre 30 jours de connexion consécutive.', 'streak', { days: 30 }),
+  achievement('streak_60', 'consistency', '60 à la suite', 'Atteindre 60 jours de connexion consécutive.', 'streak', { days: 60 }),
+  achievement('streak_100', 'consistency', '100 jours', 'Atteindre 100 jours de connexion consécutive.', 'streak', { days: 100 }),
+  achievement('streak_365', 'consistency', 'À l’année', 'Atteindre 365 jours de connexion consécutive.', 'streak', { days: 365 }),
   achievement('return_after_7_days', 'consistency', 'Retour en piste', 'Rejouer après une interruption d’au moins 7 jours.', 'returnAfterBreak', { missedDays: 7 }),
   achievement('complete_weekend', 'consistency', 'Week-end complet', 'Jouer samedi et dimanche.', 'completeWeekend'),
-  achievement('daily_7', 'consistency', 'Régulier', 'Terminer 7 défis quotidiens, pas nécessairement consécutifs.', 'dailyCount', { count: 7 }),
-  achievement('daily_30', 'consistency', 'Fidèle au poste', 'Terminer 30 défis quotidiens au total.', 'dailyCount', { count: 30 }),
+  achievement('daily_7', 'consistency', 'Régulier', 'Terminer 7 défis quotidiens.', 'dailyCount', { count: 7 }),
+  achievement('daily_30', 'consistency', 'Fidèle au poste', 'Terminer 30 défis quotidiens.', 'dailyCount', { count: 30 }),
 
   achievement('first_game', 'scores', 'Première seconde', 'Terminer sa première partie.', 'gamesCount', { count: 1 }),
   achievement('score_1000', 'scores', 'Échauffement', 'Atteindre 1 000 points.', 'score', { score: 1000 }),
   achievement('score_2500', 'scores', 'Plein régime', 'Atteindre 2 500 points.', 'score', { score: 2500 }),
-  achievement('score_5000', 'scores', 'Sous tension', 'Atteindre 5 000 points.', 'score', { score: 5000 }),
+  achievement('score_4000', 'scores', 'Sous tension', 'Atteindre 4 000 points.', 'score', { score: 4000 }),
+  achievement('score_6000', 'scores', 'Surchauffe', 'Atteindre 6 000 points.', 'score', { score: 6000 }),
   achievement('score_8000', 'scores', 'Ça accélère', 'Atteindre 8 000 points.', 'score', { score: 8000 }),
   achievement('score_12000', 'scores', 'Hors limites', 'Atteindre 12 000 points.', 'score', { score: 12000 }),
-  achievement('new_record', 'scores', 'Nouveau record', 'Battre son record.', 'recordBroken'),
+  achievement('new_record', 'scores', 'Nouveau record', 'Battre son record.', 'recordsCount', { count: 1 }),
   achievement('records_5', 'scores', 'Record en série', 'Battre son record 5 fois.', 'recordsCount', { count: 5 }),
 
   achievement('no_error', 'mastery', 'Sans erreur', 'Terminer une partie sans erreur.', 'noError'),

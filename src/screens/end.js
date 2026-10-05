@@ -89,10 +89,18 @@ function prepareFinalization(session){
     completedAt: now.toISOString()
   });
   const evaluated = finalizationDependencies.evaluateAchievements(previousProgress, candidate, completedSession);
+  const progressWithoutRecord = completedSession.recordBroken
+    ? finalizationDependencies.evaluateAchievements(previousProgress, {
+        ...candidate,
+        unlocked: { ...candidate.unlocked },
+        stats: { ...candidate.stats, recordsBroken: previousProgress.stats.recordsBroken }
+      }, { ...completedSession, recordBroken: false }).progress
+    : evaluated.progress;
   deepFreeze(candidate);
   deepFreeze(completedSession);
   deepFreeze(evaluated.progress);
   deepFreeze(evaluated.newlyUnlocked);
+  deepFreeze(progressWithoutRecord);
 
   return {
     sessionId: session.sessionId,
@@ -106,8 +114,10 @@ function prepareFinalization(session){
     candidate,
     completedSession,
     evaluated,
+    progressWithoutRecord,
     progressionSaved: false,
     recordSaved: !isNew,
+    recordBreakPersisted: !completedSession.recordBroken,
     dailySaved: session.mode !== 'daily',
     sessionCompleted: false,
     leaderboardSubmitted: false,
@@ -136,15 +146,19 @@ function renderCompletedEnd(state){
     const el=document.getElementById('screen-end');
     if(!el) return;
     const again = state.mode==='daily' ? '' : `<button class="again-btn" id="againBtn">${t('playAgain')}</button>`;
+    const recordBeaten = state.completedSession.recordBroken;
+    const summary = recordBeaten
+      ? t('newRecord')
+      : (state.previousBest>0?t('vsRecord',{delta:`${state.delta>=0?'+':''}${fmt(state.delta)}`}):t('firstScore'));
     el.innerHTML = `
       <div class="end-label label">${t('score')}</div>
       <div class="end-score display" id="scoreNum">0</div>
-      <div class="end-delta ui" id="deltaLine">${state.isNew?t('newRecord'):(state.previousBest>0?t('vsRecord',{delta:`${state.delta>=0?'+':''}${fmt(state.delta)}`}):t('firstScore'))}</div>
+      <div class="end-delta ui" id="deltaLine">${summary}</div>
       ${streakResult.increased ? `<div class="end-streak ui" id="streakLine"><span class="streak-flame" aria-hidden="true"></span>${streakText}</div>` : ''}
       ${unlockedHtml}
       ${again}
       <div class="home-link" id="homeLink">${t('home')}</div>`;
-    if(state.isNew) el.querySelector('#deltaLine').classList.add('new');
+    if(recordBeaten) el.querySelector('#deltaLine').classList.add('new');
     const scoreEl=document.getElementById('scoreNum');
     if(G.reduceMotion){
       if(scoreEl) scoreEl.textContent=fmt(state.score);
@@ -180,7 +194,7 @@ async function runFinalization(state){
 
     if(!state.progressionSaved){
       state.failedStage = 'progression';
-      const saved = await finalizationDependencies.persistAchievementProgress(state.evaluated.progress);
+      const saved = await finalizationDependencies.persistAchievementProgress(state.progressWithoutRecord);
       if(saved !== true) return failFinalization(state, 'progression');
       state.progressionSaved = true;
     }
@@ -194,6 +208,13 @@ async function runFinalization(state){
       }
       state.recordSaved = true;
       G.best = state.score;
+    }
+
+    if(!state.recordBreakPersisted){
+      state.failedStage = 'progression';
+      const saved = await finalizationDependencies.persistAchievementProgress(state.evaluated.progress);
+      if(saved !== true) return failFinalization(state, 'progression');
+      state.recordBreakPersisted = true;
     }
 
     if(!state.dailySaved){
