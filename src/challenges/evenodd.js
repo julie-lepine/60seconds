@@ -3,7 +3,7 @@ import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
 
-export function evenodd(area){
+export function evenodd(area, eventContext){
   const n=ri(10,999);
   const even=n%2===0;
   area.innerHTML = `<div class="chal-label label">${t('evenOdd')}</div>
@@ -19,7 +19,7 @@ export function evenodd(area){
     locked=true;
     clearTimeout(G.chalTimeout);
     if(btn && cls) btn.classList.add(cls);
-    resultFlash(kind, pts);
+    resultFlash(kind, pts, eventContext);
   };
   G.chalTimeout=setTimeout(()=>finish('bad',0), 3400);
   area.querySelectorAll('.choice-btn').forEach(btn=>{

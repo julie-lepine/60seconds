@@ -1,4 +1,5 @@
 import { G } from './state.js';
+import { Preferences } from '@capacitor/preferences';
 
 const KEYS = {
   normal: '60seconds_best_normal',
@@ -8,8 +9,18 @@ const KEYS = {
   dailyRun: '60seconds_daily_run',
   privacyNotice: '60seconds_privacy_notice',
   adsTracking: '60seconds_ads_tracking',
-  sound: '60seconds_sound'
+  sound: '60seconds_sound',
+  streak: '60seconds_streak_v1',
+  legacyStreak: '60seconds_streak'
 };
+
+const EMPTY_STREAK = Object.freeze({
+  version: 1,
+  currentStreak: 0,
+  lastCompletedLocalDate: null
+});
+
+let streak = { ...EMPTY_STREAK };
 
 function keyFor(mode){
   return mode === 'daily' ? KEYS.daily : KEYS.normal;
@@ -145,6 +156,105 @@ export function saveTodayDailyRun(score){
   try{
     localStorage.setItem(KEYS.dailyRun, JSON.stringify({ date: todayKey(), score: safe }));
   }catch{}
+}
+
+export function localDateKey(now = new Date()){
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function dateOrdinal(key){
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(key || ''));
+  if(!match) return null;
+  const y = Number(match[1]);
+  const m = Number(match[2]);
+  const d = Number(match[3]);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  if(date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return null;
+  return Math.floor(date.getTime() / 86400000);
+}
+
+function normalizeStreak(raw){
+  if(!raw || typeof raw !== 'object') return { ...EMPTY_STREAK };
+  const current = Number(raw.currentStreak ?? raw.current ?? 0);
+  const last = raw.lastCompletedLocalDate ?? raw.lastDate ?? null;
+  return {
+    version: 1,
+    currentStreak: Number.isInteger(current) && current > 0 ? current : 0,
+    lastCompletedLocalDate: dateOrdinal(last) == null ? null : String(last)
+  };
+}
+
+function parseStreak(raw){
+  if(!raw) return null;
+  try{
+    return normalizeStreak(JSON.parse(raw));
+  }catch{
+    return null;
+  }
+}
+
+async function readPreference(key){
+  try{
+    const { value } = await Preferences.get({ key });
+    if(value != null) return value;
+  }catch{}
+  try{ return localStorage.getItem(key); }catch{ return null; }
+}
+
+async function persistStreak(){
+  const value = JSON.stringify(streak);
+  try{
+    await Preferences.set({ key: KEYS.streak, value });
+  }catch{
+    try{ localStorage.setItem(KEYS.streak, value); }catch{}
+  }
+}
+
+export async function initializeStreak(){
+  const stored = parseStreak(await readPreference(KEYS.streak));
+  if(stored){
+    streak = stored;
+    return getStreakStatus();
+  }
+
+  const legacy = parseStreak(await readPreference(KEYS.legacyStreak));
+  streak = legacy || { ...EMPTY_STREAK };
+  if(legacy) await persistStreak();
+  return getStreakStatus();
+}
+
+export function getStreakStatus(now = new Date()){
+  const today = dateOrdinal(localDateKey(now));
+  const last = dateOrdinal(streak.lastCompletedLocalDate);
+  const daysSince = today != null && last != null ? today - last : null;
+  const active = daysSince != null && daysSince >= 0 && daysSince <= 1;
+  return {
+    count: active ? streak.currentStreak : 0,
+    completedToday: daysSince === 0,
+    lastCompletedLocalDate: streak.lastCompletedLocalDate
+  };
+}
+
+export function completeStreakDay(now = new Date()){
+  const date = localDateKey(now);
+  const today = dateOrdinal(date);
+  const last = dateOrdinal(streak.lastCompletedLocalDate);
+  const daysSince = today != null && last != null ? today - last : null;
+
+  if(daysSince === 0 || (daysSince != null && daysSince < 0)){
+    return { ...getStreakStatus(now), increased: false };
+  }
+
+  streak = {
+    version: 1,
+    currentStreak: daysSince === 1 ? Math.max(1, streak.currentStreak + 1) : 1,
+    lastCompletedLocalDate: date
+  };
+  void persistStreak();
+  return { ...getStreakStatus(now), increased: true };
 }
 
 export function hasPrivacyNotice(){

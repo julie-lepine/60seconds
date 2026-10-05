@@ -70,17 +70,25 @@ html.is-native .ad-placeholder{visibility:hidden;}
 
 /* ---- HOME ---- */
 #screen-home{align-items:center;justify-content:center;gap:0;}
-.home-logo{text-align:center;margin-bottom:64px;}
+.home-logo{text-align:center;margin-bottom:52px;}
 .home-num{font-size:clamp(96px,32vw,140px);line-height:.82;}
 .home-word{margin-top:6px;font-weight:600;font-size:13px;letter-spacing:.55em;padding-left:.55em;color:var(--black-60);}
 .play-btn{width:168px;height:168px;border-radius:50%;background:var(--coral);border:none;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-weight:800;font-size:22px;letter-spacing:.04em;color:var(--black);cursor:pointer;transition:transform .12s cubic-bezier(.2,1,.3,1);}
 .play-btn:active{transform:scale(.92);}
-.daily-link{margin-top:36px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--black);display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px;}
-.daily-dot{width:6px;height:6px;border-radius:50%;background:var(--coral);}
-.daily-link.done{cursor:default;color:var(--black-40);letter-spacing:.08em;}
-.daily-link.done b{color:var(--black-60);font-weight:700;}
-.best-line{position:absolute;bottom:calc(40px + env(safe-area-inset-bottom, 0px));left:0;right:0;text-align:center;font-size:12px;letter-spacing:.14em;color:var(--black-40);font-weight:500;}
-.best-line b{color:var(--black-60);font-weight:700;}
+.daily-link{margin-top:28px;width:236px;min-height:50px;border:1.5px solid var(--black);background:transparent;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--black);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:12px 16px;}
+.daily-link:active:not(.done){background:var(--black);color:var(--cream);}
+.daily-dot{width:7px;height:7px;border-radius:50%;background:var(--coral);flex:0 0 auto;}
+.daily-check{color:var(--coral);font-size:15px;line-height:1;}
+.daily-link.done{cursor:default;justify-content:flex-start;color:var(--black-40);border-color:var(--line);}
+.daily-done-label{white-space:nowrap;font-size:11px;letter-spacing:.07em;}
+.daily-score{margin-left:auto;color:var(--black-60);font-weight:700;}
+.home-stats{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom, 0px));left:28px;right:28px;display:flex;align-items:center;border-top:1px solid var(--line);padding-top:18px;}
+.home-stat{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;}
+.home-stat-label{font-size:10px;line-height:1;letter-spacing:.2em;color:var(--black-40);font-weight:600;text-transform:uppercase;}
+.home-stat-value{min-height:18px;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Archivo',sans-serif;font-size:15px;line-height:1;letter-spacing:.04em;color:var(--black-60);font-weight:700;}
+.home-stat-divider{width:1px;height:34px;background:var(--line);}
+.streak-flame{position:relative;width:10px;height:14px;display:inline-block;flex:0 0 auto;background:var(--coral);border-radius:70% 30% 65% 35%;transform:rotate(45deg);}
+.streak-flame::after{content:'';position:absolute;width:5px;height:7px;right:1px;bottom:1px;background:var(--cream);border-radius:70% 30% 65% 35%;}
 
 /* ---- COUNTDOWN ---- */
 #screen-countdown{align-items:center;justify-content:center;}
@@ -183,6 +191,9 @@ html.is-native .ad-placeholder{visibility:hidden;}
 .end-delta{margin-top:22px;font-size:15px;letter-spacing:.1em;color:var(--black-60);font-weight:600;opacity:0;transition:opacity .3s;}
 .end-delta.show{opacity:1;}
 .end-delta.new{color:var(--coral);font-weight:700;}
+.end-streak{margin-top:14px;display:flex;align-items:center;gap:8px;font-size:13px;letter-spacing:.14em;color:var(--black-60);font-weight:700;opacity:0;transition:opacity .3s;}
+.end-streak.show{opacity:1;}
+.end-streak + .again-btn{margin-top:38px;}
 .again-btn{margin-top:56px;padding:18px 46px;background:var(--black);color:var(--cream);border:none;font-family:'Archivo',sans-serif;font-weight:800;font-size:16px;letter-spacing:.08em;cursor:pointer;opacity:0;transition:opacity .3s,transform .12s;}
 .again-btn.show{opacity:1;}
 .again-btn:active{transform:scale(.95);}
@@ -249,6 +260,7 @@ html.reduce .timer,
 html.reduce .toggle,
 html.reduce .toggle .knob,
 html.reduce .end-delta,
+html.reduce .end-streak,
 html.reduce .home-link{
   transition:none;
 }

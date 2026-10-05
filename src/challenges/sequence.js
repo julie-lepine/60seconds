@@ -29,7 +29,7 @@ function nearbyOpts(missing, step){
   return opts;
 }
 
-export function sequence(area){
+export function sequence(area, eventContext){
   const { shown, missing, step }=makeSeq();
   const opts=nearbyOpts(missing, step);
   area.innerHTML = `<div class="chal-label label">${t('sequence')}</div>
@@ -42,7 +42,7 @@ export function sequence(area){
     locked=true;
     clearTimeout(G.chalTimeout);
     if(btn && cls) btn.classList.add(cls);
-    resultFlash(kind, pts);
+    resultFlash(kind, pts, eventContext);
   };
   G.chalTimeout=setTimeout(()=>finish('bad',0), 3400);
   area.querySelectorAll('.opt-btn').forEach(btn=>{

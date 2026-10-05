@@ -5,6 +5,7 @@ import { ri, clearChallengeTimers } from '../utils.js';
 import { sInsane, sSuccess, sError } from '../audio.js';
 import { endGame } from '../screens/end.js';
 import { CHALLENGES } from '../challenges/challenges.js';
+import { markChallengeShown, recordChallengeResult } from '../achievements/session.js';
 
 export function pickType(){
   if(G.mode==='daily' && G.dailyPick) return G.dailyPick();
@@ -17,18 +18,18 @@ export function nextChallenge(){
   if(!area) return;
   clearChallengeTimers();
   area.style.background=''; area.innerHTML='';
-  CHALLENGES[pickType()](area);
+  const type=pickType();
+  const eventContext=markChallengeShown(type);
+  CHALLENGES[type](area, eventContext);
 }
-export function resultFlash(kind, points){
+export function resultFlash(kind, points, eventContext, metadata){
   if(G.screen!=='gameplay') return;
   if(G.flashLock) return;
+  const area=document.getElementById('challengeArea');
+  if(!area) return;
+  if(!recordChallengeResult(eventContext, kind, metadata)) return;
   G.flashLock=true;
   G.score += points;
-  const area=document.getElementById('challengeArea');
-  if(!area){
-    G.flashLock=false;
-    return;
-  }
   const text = kind==='insane'?t('flashInsane'):(kind==='good'?t('flashGood'):t('flashBad'));
   area.style.background='';
   area.innerHTML = `<div class="feedback display ${kind==='insane'?'insane':(kind==='good'?'good':'bad')}">${text}</div>`;

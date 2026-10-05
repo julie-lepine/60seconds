@@ -4,12 +4,14 @@ import { initAds } from './ads.js';
 import { renderHome } from './screens/home.js';
 import { renderUsername } from './screens/username.js';
 import { renderConsent } from './screens/consent.js';
+import { initializeAchievementProgress } from './achievements/storage.js';
 
 applyDocumentLang();
 applyReduceMotion();
 applySound();
 
-function continueBoot(){
+async function continueBoot(){
+  await initializeAchievementProgress();
   initAds();
   if(getUsername()) renderHome();
   else renderUsername({ onDone: renderHome });

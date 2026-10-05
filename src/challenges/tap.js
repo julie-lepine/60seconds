@@ -4,7 +4,7 @@ import { ri } from '../utils.js';
 import { sPop } from '../audio.js';
 import { resultFlash } from '../game/engine.js';
 
-export function tap(area){
+export function tap(area, eventContext){
   const target = ri(8,13); let count=0;
   const budget = 3300;
   area.innerHTML = `<div class="chal-label label">${t('tap')}</div>
@@ -12,7 +12,7 @@ export function tap(area){
     <div class="tap-count ui" id="tapCount">0 / ${target}</div>`;
   const btn=document.getElementById('tapBtn'); const cnt=document.getElementById('tapCount');
   const start=performance.now();
-  G.chalTimeout=setTimeout(()=>resultFlash('bad',0), budget);
+  G.chalTimeout=setTimeout(()=>resultFlash('bad',0,eventContext), budget);
   btn.onpointerdown=()=>{
     count++; cnt.textContent=`${count} / ${target}`;
     if(!G.reduceMotion){
@@ -24,7 +24,7 @@ export function tap(area){
       clearTimeout(G.chalTimeout);
       const elapsed=performance.now()-start;
       const ratio = elapsed/budget;
-      resultFlash(ratio<0.55?'insane':'good', ratio<0.55?260:150);
+      resultFlash(ratio<0.55?'insane':'good', ratio<0.55?260:150, eventContext);
     }
   };
 }

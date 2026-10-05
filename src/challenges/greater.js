@@ -3,7 +3,7 @@ import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
 
-export function greater(area){
+export function greater(area, eventContext){
   let a=ri(1,99), b=ri(1,99);
   while(b===a) b=ri(1,99);
   const max=Math.max(a,b);
@@ -19,7 +19,7 @@ export function greater(area){
     locked=true;
     clearTimeout(G.chalTimeout);
     if(btn && cls) btn.classList.add(cls);
-    resultFlash(kind, pts);
+    resultFlash(kind, pts, eventContext);
   };
   G.chalTimeout=setTimeout(()=>finish('bad',0), 3400);
   area.querySelectorAll('.choice-btn').forEach(btn=>{

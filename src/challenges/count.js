@@ -31,7 +31,7 @@ function nearbyOpts(n){
   return opts;
 }
 
-export function count(area){
+export function count(area, eventContext){
   const n=ri(5,9);
   const pts=scatter(n);
   const opts=nearbyOpts(n);
@@ -45,7 +45,7 @@ export function count(area){
     locked=true;
     clearTimeout(G.chalTimeout);
     if(btn && cls) btn.classList.add(cls);
-    resultFlash(kind, pts);
+    resultFlash(kind, pts, eventContext);
   };
   G.chalTimeout=setTimeout(()=>finish('bad',0), 3400);
   area.querySelectorAll('.opt-btn').forEach(btn=>{

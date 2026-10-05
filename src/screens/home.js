@@ -3,6 +3,7 @@ import { G } from '../state.js';
 import { fmt } from '../utils.js';
 import { ctx } from '../audio.js';
 import { getBestScore, getTodayDailyRun } from '../storage.js';
+import { getAchievementStreakStatus } from '../achievements/storage.js';
 import { view } from '../dom.js';
 import { startCountdown } from './countdown.js';
 import { renderScores } from './scores.js';
@@ -12,6 +13,8 @@ export function renderHome(){
   G.screen='home';
   G.best = getBestScore('normal');
   const dailyRun = getTodayDailyRun();
+  const streak = getAchievementStreakStatus();
+  const streakText = t(streak.count === 1 ? 'streakDay' : 'streakDays', { count: fmt(streak.count) });
   view.innerHTML = `
     <div class="screen" id="screen-home">
       <div class="topnav">
@@ -24,9 +27,19 @@ export function renderHome(){
       </div>
       <button class="play-btn tap-safe" id="playBtn">${t('play')}</button>
       ${dailyRun
-        ? `<div class="daily-link done">${t('dailyDone', { score: fmt(dailyRun.score) })}</div>`
-        : `<div class="daily-link" id="dailyBtn"><span class="daily-dot"></span>${t('daily')}</div>`}
-      <div class="best-line">${t('record')}&nbsp; <b>${fmt(G.best)}</b></div>
+        ? `<div class="daily-link done"><span class="daily-check" aria-hidden="true">✓</span><span class="daily-done-label">${t('dailyDone')}</span><b class="daily-score">${fmt(dailyRun.score)}</b></div>`
+        : `<button class="daily-link tap-safe" id="dailyBtn"><span class="daily-dot" aria-hidden="true"></span>${t('daily')}</button>`}
+      <div class="home-stats">
+        <div class="home-stat">
+          <div class="home-stat-label">${t('streak')}</div>
+          <div class="home-stat-value"><span class="streak-flame" aria-hidden="true"></span>${streakText}</div>
+        </div>
+        <div class="home-stat-divider" aria-hidden="true"></div>
+        <div class="home-stat">
+          <div class="home-stat-label">${t('record')}</div>
+          <div class="home-stat-value">${fmt(G.best)}</div>
+        </div>
+      </div>
     </div>`;
   document.getElementById('playBtn').onclick=()=>{ ctx(); startCountdown('normal'); };
   document.getElementById('dailyBtn')?.addEventListener('click', ()=>{ ctx(); startCountdown('daily'); });

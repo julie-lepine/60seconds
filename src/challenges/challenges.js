@@ -12,6 +12,7 @@ import { goNoGo } from './goNoGo.js';
 import { sequence } from './sequence.js';
 import { direction } from './direction.js';
 import { stroop } from './stroop.js';
+import { validateChallengeScopes } from '../achievements/scopes.js';
 
 export const CHALLENGES = {
   tap,
@@ -29,3 +30,5 @@ export const CHALLENGES = {
   direction,
   stroop
 };
+
+validateChallengeScopes(CHALLENGES);

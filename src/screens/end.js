@@ -7,18 +7,63 @@ import { submitLeaderboardScore } from '../leaderboard/leaderboard.js';
 import { view } from '../dom.js';
 import { startCountdown } from './countdown.js';
 import { renderHome } from './home.js';
+import {
+  beginSessionFinalization,
+  completeSessionFinalization,
+  getActiveGameSession
+} from '../achievements/session.js';
+import {
+  buildCompletionCandidate,
+  evaluateAchievements,
+  getEffectiveStreak,
+  localDateKey,
+  utcDateKey
+} from '../achievements/progress.js';
+import {
+  getAchievementProgress,
+  persistAchievementProgress
+} from '../achievements/storage.js';
 
-export function endGame(){
-  if(G.screen==='end') return;
+export async function endGame(){
+  const activeSession = getActiveGameSession();
+  if(!activeSession) return [];
+  const session = beginSessionFinalization(activeSession.sessionId);
+  if(!session) return [];
+
   clearGameTimers();
   G.screen='end';
+  view.innerHTML = `<div class="screen" id="screen-end"></div>`;
+
+  const now = new Date();
   const isNew = G.score>G.best;
   const delta = G.score-G.best;
   const previousBest = G.best;
-  if(isNew){ G.best=G.score; saveBestScore(G.mode, G.score); }
+  const previousProgress = getAchievementProgress();
+  const { candidate, completedSession } = buildCompletionCandidate(previousProgress, session, {
+    score: G.score,
+    previousBest,
+    recordBroken: isNew,
+    localDate: localDateKey(now),
+    dailyDate: utcDateKey(now),
+    completedAt: now.toISOString()
+  });
+  const evaluated = evaluateAchievements(previousProgress, candidate, completedSession);
+  const progressSaved = await persistAchievementProgress(evaluated.progress);
+  const effectiveProgress = progressSaved ? evaluated.progress : previousProgress;
+  const newlyUnlocked = progressSaved ? evaluated.newlyUnlocked : [];
+
+  if(isNew){
+    G.best=G.score;
+    saveBestScore(G.mode, G.score);
+  }
   if(G.mode==='daily') saveTodayDailyRun(G.score);
+  completeSessionFinalization(session.sessionId);
+
+  const streakResult = getEffectiveStreak(effectiveProgress, now);
+  streakResult.increased = progressSaved &&
+    previousProgress.stats.lastPlayedLocalDate !== effectiveProgress.stats.lastPlayedLocalDate;
+  const streakText = t(streakResult.count === 1 ? 'streakDay' : 'streakDays', { count: fmt(streakResult.count) });
   submitLeaderboardScore(G.mode, G.score);
-  view.innerHTML = `<div class="screen" id="screen-end"></div>`;
   sImpact();
   setTimeout(()=>{
     const el=document.getElementById('screen-end');
@@ -28,6 +73,7 @@ export function endGame(){
       <div class="end-label label">${t('score')}</div>
       <div class="end-score display" id="scoreNum">0</div>
       <div class="end-delta ui" id="deltaLine">${isNew?t('newRecord'):(previousBest>0?t('vsRecord',{delta:`${delta>=0?'+':''}${fmt(delta)}`}):t('firstScore'))}</div>
+      ${streakResult.increased ? `<div class="end-streak ui" id="streakLine"><span class="streak-flame" aria-hidden="true"></span>${streakText}</div>` : ''}
       ${again}
       <div class="home-link" id="homeLink">${t('home')}</div>`;
     if(isNew) el.querySelector('#deltaLine').classList.add('new');
@@ -35,11 +81,13 @@ export function endGame(){
     if(G.reduceMotion){
       if(scoreEl) scoreEl.textContent=fmt(G.score);
       document.getElementById('deltaLine')?.classList.add('show');
+      document.getElementById('streakLine')?.classList.add('show');
       document.getElementById('againBtn')?.classList.add('show');
       document.getElementById('homeLink')?.classList.add('show');
     }else{
       animateScore(scoreEl, G.score, ()=>{
         document.getElementById('deltaLine')?.classList.add('show');
+        document.getElementById('streakLine')?.classList.add('show');
         setTimeout(()=>{
           document.getElementById('againBtn')?.classList.add('show');
           document.getElementById('homeLink')?.classList.add('show');
@@ -49,6 +97,7 @@ export function endGame(){
     document.getElementById('againBtn')?.addEventListener('click', ()=>startCountdown(G.mode));
     document.getElementById('homeLink').onclick=renderHome;
   }, 650);
+  return newlyUnlocked;
 }
 function animateScore(el, target, done){
   if(!el){ done&&done(); return; }

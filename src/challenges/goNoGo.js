@@ -3,7 +3,7 @@ import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
 
-export function goNoGo(area){
+export function goNoGo(area, eventContext){
   const go=ri(0,1)===0;
   area.innerHTML = `<div class="chal-label label">${go?t('tapGo'):t('dontTouch')}</div>
     <button type="button" class="gono-hit tap-safe">
@@ -15,7 +15,7 @@ export function goNoGo(area){
     if(locked) return;
     locked=true;
     clearTimeout(G.chalTimeout);
-    resultFlash(kind, pts);
+    resultFlash(kind, pts, eventContext);
   };
   G.chalTimeout=setTimeout(()=>{
     if(go) finish('bad',0);

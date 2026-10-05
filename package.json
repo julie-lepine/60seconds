@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:native": "vite build",
+    "test": "node --test tests/*.test.js",
     "cap:sync": "npm run build:native && npx cap sync",
     "cap:open:android": "npx cap open android",
     "cap:open:ios": "npx cap open ios",
@@ -22,6 +23,7 @@
     "@capacitor-community/admob": "^8.1.0",
     "@capacitor/android": "^8.5.1",
     "@capacitor/core": "^8.5.1",
-    "@capacitor/ios": "^8.5.1"
+    "@capacitor/ios": "^8.5.1",
+    "@capacitor/preferences": "^8.0.1"
   }
 }

@@ -3,7 +3,7 @@ import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
 
-export function stroop(area){
+export function stroop(area, eventContext){
   const INKS=inkColors();
   const word=INKS[ri(0,INKS.length-1)];
   let ink=INKS[ri(0,INKS.length-1)];
@@ -20,7 +20,7 @@ export function stroop(area){
     locked=true;
     clearTimeout(G.chalTimeout);
     if(btn && cls) btn.classList.add(cls);
-    resultFlash(kind, pts);
+    resultFlash(kind, pts, eventContext);
   };
   G.chalTimeout=setTimeout(()=>finish('bad',0), 3400);
   area.querySelectorAll('.opt-btn').forEach(btn=>{

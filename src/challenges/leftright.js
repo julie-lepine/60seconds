@@ -3,7 +3,7 @@ import { G } from '../state.js';
 import { ri } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
 
-export function leftright(area){
+export function leftright(area, eventContext){
   const left=ri(0,1)===0;
   area.innerHTML = `<div class="chal-label label">${t('leftRight')}</div>
     <div class="choice-row">
@@ -23,7 +23,7 @@ export function leftright(area){
     locked=true;
     clearTimeout(G.chalTimeout);
     if(btn && cls) btn.classList.add(cls);
-    resultFlash(kind, pts);
+    resultFlash(kind, pts, eventContext);
   };
   G.chalTimeout=setTimeout(()=>finish('bad',0), 3400);
   area.querySelectorAll('.choice-btn').forEach(btn=>{

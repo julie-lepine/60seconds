@@ -10,7 +10,7 @@ const DIRS=[
   { id:'left', glyph:'←' }
 ];
 
-export function direction(area){
+export function direction(area, eventContext){
   const target=DIRS[ri(0,DIRS.length-1)];
   area.innerHTML = `<div class="chal-label label">${t('direction')}</div>
     <div class="chal-big display dir-stim">${target.glyph}</div>
@@ -27,7 +27,7 @@ export function direction(area){
     locked=true;
     clearTimeout(G.chalTimeout);
     if(btn && cls) btn.classList.add(cls);
-    resultFlash(kind, pts);
+    resultFlash(kind, pts, eventContext);
   };
   G.chalTimeout=setTimeout(()=>finish('bad',0), 3400);
   area.querySelectorAll('.choice-btn').forEach(btn=>{

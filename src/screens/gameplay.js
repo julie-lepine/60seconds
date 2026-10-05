@@ -5,12 +5,14 @@ import { nextChallenge } from '../game/engine.js';
 import { tickTimer } from '../game/timer.js';
 import { view } from '../dom.js';
 import { clearGameTimers } from '../utils.js';
+import { createGameSession } from '../achievements/session.js';
 
 export function startPlay(){
   if(G.screen==='gameplay') return;
   clearGameTimers();
   G.screen='gameplay'; G.score=0; G.lastSecMark=null; G.lastType=null;
   G.dailyPick = G.mode==='daily' ? makeDailyPicker() : null;
+  createGameSession(G.mode);
   G.endTime = performance.now()+60000;
   view.innerHTML = `
     <div class="screen" id="screen-gameplay">
