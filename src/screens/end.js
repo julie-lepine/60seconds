@@ -2,7 +2,11 @@ import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { fmt, clearGameTimers } from '../utils.js';
 import { sImpact } from '../audio.js';
-import { saveBestScore, saveTodayDailyRun } from '../storage.js';
+import {
+  saveBestScore,
+  saveTodayDailyRun,
+  STORAGE_WRITE_STATUS
+} from '../storage.js';
 import { submitLeaderboardScore } from '../leaderboard/leaderboard.js';
 import { view } from '../dom.js';
 import { startCountdown } from './countdown.js';
@@ -24,68 +28,121 @@ import {
   persistAchievementProgress
 } from '../achievements/storage.js';
 
-export async function endGame(){
-  const activeSession = getActiveGameSession();
-  if(!activeSession) return [];
-  const session = beginSessionFinalization(activeSession.sessionId);
-  if(!session) return [];
+const defaultFinalizationDependencies = Object.freeze({
+  getActiveGameSession,
+  beginSessionFinalization,
+  completeSessionFinalization,
+  buildCompletionCandidate,
+  evaluateAchievements,
+  getAchievementProgress,
+  persistAchievementProgress,
+  saveBestScore,
+  saveTodayDailyRun,
+  submitLeaderboardScore
+});
 
+let finalizationDependencies = defaultFinalizationDependencies;
+let pendingFinalization = null;
+
+function deepFreeze(value, seen = new WeakSet()){
+  if(!value || typeof value !== 'object' || seen.has(value)) return value;
+  seen.add(value);
+  for(const child of Object.values(value)) deepFreeze(child, seen);
+  return Object.freeze(value);
+}
+
+function renderSaving(state){
+  view.innerHTML = `<div class="screen" id="screen-end">
+    <div class="end-label label">${t('score')}</div>
+    <div class="end-score display">${fmt(state.score)}</div>
+    <div class="end-delta ui show">SAUVEGARDE…</div>
+  </div>`;
+}
+
+function renderSaveError(state){
+  view.innerHTML = `<div class="screen" id="screen-end">
+    <div class="end-label label">${t('score')}</div>
+    <div class="end-score display">${fmt(state.score)}</div>
+    <div class="end-delta ui show">ÉCHEC DE LA SAUVEGARDE</div>
+    <button class="again-btn show" id="retryFinalizeBtn">RÉESSAYER</button>
+  </div>`;
+  const retry = document.getElementById('retryFinalizeBtn');
+  if(retry) retry.onclick = () => { void endGame(); };
+}
+
+function prepareFinalization(session){
   clearGameTimers();
   G.screen='end';
-  view.innerHTML = `<div class="screen" id="screen-end"></div>`;
 
   const now = new Date();
   const isNew = G.score>G.best;
-  const delta = G.score-G.best;
+  const score = G.score;
   const previousBest = G.best;
-  const previousProgress = getAchievementProgress();
-  const { candidate, completedSession } = buildCompletionCandidate(previousProgress, session, {
-    score: G.score,
+  const previousProgress = finalizationDependencies.getAchievementProgress();
+  const { candidate, completedSession } = finalizationDependencies.buildCompletionCandidate(previousProgress, session, {
+    score,
     previousBest,
     recordBroken: isNew,
     localDate: localDateKey(now),
     dailyDate: utcDateKey(now),
     completedAt: now.toISOString()
   });
-  const evaluated = evaluateAchievements(previousProgress, candidate, completedSession);
-  const progressSaved = await persistAchievementProgress(evaluated.progress);
-  const effectiveProgress = progressSaved ? evaluated.progress : previousProgress;
-  const newlyUnlocked = progressSaved ? evaluated.newlyUnlocked : [];
+  const evaluated = finalizationDependencies.evaluateAchievements(previousProgress, candidate, completedSession);
+  deepFreeze(candidate);
+  deepFreeze(completedSession);
+  deepFreeze(evaluated.progress);
+  deepFreeze(evaluated.newlyUnlocked);
 
-  if(isNew){
-    G.best=G.score;
-    saveBestScore(G.mode, G.score);
-  }
-  if(G.mode==='daily') saveTodayDailyRun(G.score);
-  completeSessionFinalization(session.sessionId);
+  return {
+    sessionId: session.sessionId,
+    mode: session.mode,
+    score,
+    previousBest,
+    isNew,
+    delta: score - previousBest,
+    now,
+    previousProgress,
+    candidate,
+    completedSession,
+    evaluated,
+    progressionSaved: false,
+    recordSaved: !isNew,
+    dailySaved: session.mode !== 'daily',
+    sessionCompleted: false,
+    leaderboardSubmitted: false,
+    failedStage: null,
+    inFlight: null
+  };
+}
 
-  const streakResult = getEffectiveStreak(effectiveProgress, now);
-  streakResult.increased = progressSaved &&
-    previousProgress.stats.lastPlayedLocalDate !== effectiveProgress.stats.lastPlayedLocalDate;
+function renderCompletedEnd(state){
+  const effectiveProgress = state.evaluated.progress;
+  const streakResult = getEffectiveStreak(effectiveProgress, state.now);
+  streakResult.increased =
+    state.previousProgress.stats.lastPlayedLocalDate !== effectiveProgress.stats.lastPlayedLocalDate;
   const streakText = t(streakResult.count === 1 ? 'streakDay' : 'streakDays', { count: fmt(streakResult.count) });
-  submitLeaderboardScore(G.mode, G.score);
-  sImpact();
+
   setTimeout(()=>{
     const el=document.getElementById('screen-end');
     if(!el) return;
-    const again = G.mode==='daily' ? '' : `<button class="again-btn" id="againBtn">${t('playAgain')}</button>`;
+    const again = state.mode==='daily' ? '' : `<button class="again-btn" id="againBtn">${t('playAgain')}</button>`;
     el.innerHTML = `
       <div class="end-label label">${t('score')}</div>
       <div class="end-score display" id="scoreNum">0</div>
-      <div class="end-delta ui" id="deltaLine">${isNew?t('newRecord'):(previousBest>0?t('vsRecord',{delta:`${delta>=0?'+':''}${fmt(delta)}`}):t('firstScore'))}</div>
+      <div class="end-delta ui" id="deltaLine">${state.isNew?t('newRecord'):(state.previousBest>0?t('vsRecord',{delta:`${state.delta>=0?'+':''}${fmt(state.delta)}`}):t('firstScore'))}</div>
       ${streakResult.increased ? `<div class="end-streak ui" id="streakLine"><span class="streak-flame" aria-hidden="true"></span>${streakText}</div>` : ''}
       ${again}
       <div class="home-link" id="homeLink">${t('home')}</div>`;
-    if(isNew) el.querySelector('#deltaLine').classList.add('new');
+    if(state.isNew) el.querySelector('#deltaLine').classList.add('new');
     const scoreEl=document.getElementById('scoreNum');
     if(G.reduceMotion){
-      if(scoreEl) scoreEl.textContent=fmt(G.score);
+      if(scoreEl) scoreEl.textContent=fmt(state.score);
       document.getElementById('deltaLine')?.classList.add('show');
       document.getElementById('streakLine')?.classList.add('show');
       document.getElementById('againBtn')?.classList.add('show');
       document.getElementById('homeLink')?.classList.add('show');
     }else{
-      animateScore(scoreEl, G.score, ()=>{
+      animateScore(scoreEl, state.score, ()=>{
         document.getElementById('deltaLine')?.classList.add('show');
         document.getElementById('streakLine')?.classList.add('show');
         setTimeout(()=>{
@@ -94,10 +151,120 @@ export async function endGame(){
         },250);
       });
     }
-    document.getElementById('againBtn')?.addEventListener('click', ()=>startCountdown(G.mode));
+    document.getElementById('againBtn')?.addEventListener('click', ()=>startCountdown(state.mode));
     document.getElementById('homeLink').onclick=renderHome;
   }, 650);
-  return newlyUnlocked;
+}
+
+function failFinalization(state, stage){
+  state.failedStage = stage;
+  renderSaveError(state);
+  return [];
+}
+
+async function runFinalization(state){
+  try{
+    state.failedStage = null;
+    renderSaving(state);
+
+    if(!state.progressionSaved){
+      state.failedStage = 'progression';
+      const saved = await finalizationDependencies.persistAchievementProgress(state.evaluated.progress);
+      if(saved !== true) return failFinalization(state, 'progression');
+      state.progressionSaved = true;
+    }
+
+    if(!state.recordSaved){
+      state.failedStage = 'record';
+      const status = finalizationDependencies.saveBestScore(state.mode, state.score);
+      if(status === STORAGE_WRITE_STATUS.failed) return failFinalization(state, 'record');
+      if(status !== STORAGE_WRITE_STATUS.saved && status !== STORAGE_WRITE_STATUS.unchanged){
+        return failFinalization(state, 'record');
+      }
+      state.recordSaved = true;
+      G.best = state.score;
+    }
+
+    if(!state.dailySaved){
+      state.failedStage = 'daily';
+      const status = finalizationDependencies.saveTodayDailyRun(state.score);
+      if(status === STORAGE_WRITE_STATUS.failed) return failFinalization(state, 'daily');
+      if(status !== STORAGE_WRITE_STATUS.saved && status !== STORAGE_WRITE_STATUS.unchanged){
+        return failFinalization(state, 'daily');
+      }
+      state.dailySaved = true;
+    }
+
+    if(!state.sessionCompleted){
+      state.failedStage = 'session';
+      const completed = finalizationDependencies.completeSessionFinalization(state.sessionId);
+      if(completed !== true) return failFinalization(state, 'session');
+      state.sessionCompleted = true;
+    }
+
+    state.failedStage = null;
+    if(!state.leaderboardSubmitted){
+      state.leaderboardSubmitted = true;
+      try{
+        void Promise.resolve(
+          finalizationDependencies.submitLeaderboardScore(state.mode, state.score)
+        ).catch(() => null);
+      }catch{}
+    }
+
+    sImpact();
+    renderCompletedEnd(state);
+    pendingFinalization = null;
+    return state.evaluated.newlyUnlocked;
+  }catch{
+    return failFinalization(state, state.failedStage || 'unknown');
+  }finally{
+    if(pendingFinalization === state) state.inFlight = null;
+  }
+}
+
+function startFinalization(state){
+  const operation = runFinalization(state);
+  state.inFlight = operation;
+  return operation;
+}
+
+export function endGame(){
+  const activeSession = finalizationDependencies.getActiveGameSession();
+
+  if(pendingFinalization){
+    if(pendingFinalization.inFlight) return pendingFinalization.inFlight;
+    if(
+      !activeSession ||
+      activeSession.sessionId !== pendingFinalization.sessionId ||
+      activeSession.status !== 'finalizing'
+    ){
+      pendingFinalization = null;
+      return Promise.resolve([]);
+    }
+    return startFinalization(pendingFinalization);
+  }
+
+  if(!activeSession) return Promise.resolve([]);
+  const session = finalizationDependencies.beginSessionFinalization(activeSession.sessionId);
+  if(!session) return Promise.resolve([]);
+
+  pendingFinalization = prepareFinalization(session);
+  renderSaving(pendingFinalization);
+  return startFinalization(pendingFinalization);
+}
+
+export function setEndGameDependenciesForTests(overrides = {}){
+  finalizationDependencies = { ...defaultFinalizationDependencies, ...overrides };
+}
+
+export function getPendingFinalizationForTests(){
+  return pendingFinalization;
+}
+
+export function resetEndGameForTests(){
+  pendingFinalization = null;
+  finalizationDependencies = defaultFinalizationDependencies;
 }
 function animateScore(el, target, done){
   if(!el){ done&&done(); return; }

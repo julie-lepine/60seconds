@@ -14,6 +14,12 @@ const KEYS = {
   legacyStreak: '60seconds_streak'
 };
 
+export const STORAGE_WRITE_STATUS = Object.freeze({
+  saved: 'saved',
+  unchanged: 'unchanged',
+  failed: 'failed'
+});
+
 const EMPTY_STREAK = Object.freeze({
   version: 1,
   currentStreak: 0,
@@ -43,11 +49,22 @@ export function getBestScore(mode){
 
 export function saveBestScore(mode, score){
   const n = Number(score);
-  if(!Number.isFinite(n) || n < 0) return;
-  if(n <= getBestScore(mode)) return;
+  if(!Number.isFinite(n) || n < 0) return STORAGE_WRITE_STATUS.failed;
+  const key = keyFor(mode);
+  let current;
   try{
-    localStorage.setItem(keyFor(mode), String(n));
-  }catch{}
+    current = parseStored(localStorage.getItem(key));
+  }catch{
+    return STORAGE_WRITE_STATUS.failed;
+  }
+  if(n <= current) return STORAGE_WRITE_STATUS.unchanged;
+  try{
+    localStorage.setItem(key, String(n));
+    const stored = parseStored(localStorage.getItem(key));
+    return stored >= n ? STORAGE_WRITE_STATUS.saved : STORAGE_WRITE_STATUS.failed;
+  }catch{
+    return STORAGE_WRITE_STATUS.failed;
+  }
 }
 
 export function normalizeUsername(raw){
@@ -153,9 +170,30 @@ export function getTodayDailyRun(){
 export function saveTodayDailyRun(score){
   const n = Number(score);
   const safe = Number.isFinite(n) && n >= 0 ? Math.round(n) : 0;
+  const expected = { date: todayKey(), score: safe };
+  let raw;
   try{
-    localStorage.setItem(KEYS.dailyRun, JSON.stringify({ date: todayKey(), score: safe }));
-  }catch{}
+    raw = localStorage.getItem(KEYS.dailyRun);
+  }catch{
+    return STORAGE_WRITE_STATUS.failed;
+  }
+  if(raw){
+    try{
+      const current = JSON.parse(raw);
+      if(current?.date === expected.date && Number(current.score) === expected.score){
+        return STORAGE_WRITE_STATUS.unchanged;
+      }
+    }catch{}
+  }
+  try{
+    localStorage.setItem(KEYS.dailyRun, JSON.stringify(expected));
+    const stored = JSON.parse(localStorage.getItem(KEYS.dailyRun) || 'null');
+    return stored?.date === expected.date && Number(stored.score) === expected.score
+      ? STORAGE_WRITE_STATUS.saved
+      : STORAGE_WRITE_STATUS.failed;
+  }catch{
+    return STORAGE_WRITE_STATUS.failed;
+  }
 }
 
 export function localDateKey(now = new Date()){
