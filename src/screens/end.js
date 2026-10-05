@@ -3,6 +3,7 @@ import { G } from '../state.js';
 import { escapeHtml, fmt, clearGameTimers } from '../utils.js';
 import { sImpact } from '../audio.js';
 import {
+  getBestScore,
   saveBestScore,
   saveTodayDailyRun,
   STORAGE_WRITE_STATUS
@@ -37,6 +38,7 @@ const defaultFinalizationDependencies = Object.freeze({
   evaluateAchievements,
   getAchievementProgress,
   persistAchievementProgress,
+  getBestScore,
   saveBestScore,
   saveTodayDailyRun,
   submitLeaderboardScore
@@ -76,14 +78,17 @@ function prepareFinalization(session){
   G.screen='end';
 
   const now = new Date();
-  const isNew = G.score>G.best;
   const score = G.score;
-  const previousBest = G.best;
+  const modeBest = G.best;
+  const otherBest = finalizationDependencies.getBestScore(session.mode === 'daily' ? 'normal' : 'daily');
+  const previousBest = Math.max(modeBest, otherBest);
+  const isNew = score > modeBest;
+  const beatsRecord = score > previousBest;
   const previousProgress = finalizationDependencies.getAchievementProgress();
   const { candidate, completedSession } = finalizationDependencies.buildCompletionCandidate(previousProgress, session, {
     score,
     previousBest,
-    recordBroken: isNew,
+    recordBroken: beatsRecord,
     localDate: localDateKey(now),
     dailyDate: utcDateKey(now),
     completedAt: now.toISOString()

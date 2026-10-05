@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   getBestScore,
+  getRecordScore,
   getTodayDailyRun,
   saveBestScore,
   saveTodayDailyRun,
@@ -54,6 +55,16 @@ test('best-score writes are verified and lower or equal scores are idempotent', 
 
   assert.equal(saveBestScore('daily', 800), STORAGE_WRITE_STATUS.saved);
   assert.equal(getBestScore('daily'), 800);
+});
+
+test('the player record is the higher score between normal and daily', () => {
+  saveBestScore('normal', 4840);
+  saveBestScore('daily', 6180);
+  assert.equal(getRecordScore(), 6180);
+
+  saveBestScore('normal', 7000);
+  assert.equal(getRecordScore(), 7000);
+  assert.equal(getBestScore('daily'), 6180);
 });
 
 test('best-score read, write and verification failures are explicit', () => {

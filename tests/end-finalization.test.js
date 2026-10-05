@@ -111,7 +111,8 @@ function makeHarness({
   leaderboard = () => Promise.resolve(null),
   newlyUnlockedOverride = null,
   previousUnlocked = [],
-  recordsBroken = 0
+  recordsBroken = 0,
+  otherBest = 0
 } = {}){
   const previous = progress.createEmptyProgress('2026-10-01T00:00:00.000Z');
   previous.stats.recordsBroken = recordsBroken;
@@ -186,6 +187,7 @@ function makeHarness({
       const result = completionResults.shift();
       return result === true ? realComplete(sessionId) : false;
     },
+    getBestScore: requested => requested === mode ? best : otherBest,
     submitLeaderboardScore: (...args) => {
       calls.order.push('leaderboard');
       calls.leaderboard += 1;
@@ -609,6 +611,43 @@ test('record failure then retry confirms the broken record once', async () => {
   assert.equal(calls.persist.filter(item => item.stats.recordsBroken === 1).length, 1);
   assert.equal(calls.persist.filter(item => item.unlocked.new_record).length, 1);
   assert.equal(calls.leaderboard, 1);
+});
+
+test('a daily score above the normal record counts as the player record', async () => {
+  const { calls } = makeHarness({ mode: 'daily', score: 6180, best: 0, otherBest: 4840 });
+
+  await endScreen.endGame();
+  runEndRender();
+
+  assert.equal(calls.record, 1);
+  assert.equal(calls.persist.at(-1).stats.recordsBroken, 1);
+  assert.ok(calls.persist.at(-1).unlocked.new_record);
+  assert.equal(screenEnd.innerHTML.includes(t('newRecord')), true);
+  assert.equal(calls.build, 1);
+});
+
+test('a daily score below the normal record does not break the player record', async () => {
+  const { calls } = makeHarness({ mode: 'daily', score: 3000, best: 2000, otherBest: 4840 });
+
+  await endScreen.endGame();
+  runEndRender();
+
+  assert.equal(calls.record, 1);
+  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.persist[0].stats.recordsBroken, 0);
+  assert.equal(screenEnd.innerHTML.includes(t('newRecord')), false);
+});
+
+test('a normal score below the daily record does not break the player record', async () => {
+  const { calls } = makeHarness({ mode: 'normal', score: 5000, best: 4840, otherBest: 6180 });
+
+  await endScreen.endGame();
+  runEndRender();
+
+  assert.equal(calls.record, 1);
+  assert.equal(calls.persist.length, 1);
+  assert.equal(calls.persist[0].stats.recordsBroken, 0);
+  assert.equal(screenEnd.innerHTML.includes(t('newRecord')), false);
 });
 
 test('an unconfirmed fifth record does not unlock records_5', async () => {

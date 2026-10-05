@@ -47,6 +47,10 @@ export function getBestScore(mode){
   }
 }
 
+export function getRecordScore(){
+  return Math.max(getBestScore('normal'), getBestScore('daily'));
+}
+
 export function saveBestScore(mode, score){
   const n = Number(score);
   if(!Number.isFinite(n) || n < 0) return STORAGE_WRITE_STATUS.failed;

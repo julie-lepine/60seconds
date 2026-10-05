@@ -2,7 +2,7 @@ import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { fmt } from '../utils.js';
 import { ctx } from '../audio.js';
-import { getBestScore, getTodayDailyRun } from '../storage.js';
+import { getRecordScore, getTodayDailyRun } from '../storage.js';
 import { getAchievementStreakStatus } from '../achievements/storage.js';
 import { view } from '../dom.js';
 import { startCountdown } from './countdown.js';
@@ -12,7 +12,7 @@ import { renderAchievements } from './achievements.js';
 
 export function renderHome(){
   G.screen='home';
-  G.best = getBestScore('normal');
+  G.best = getRecordScore();
   const dailyRun = getTodayDailyRun();
   const streak = getAchievementStreakStatus();
   const streakText = t(streak.count === 1 ? 'streakDay' : 'streakDays', { count: fmt(streak.count) });
