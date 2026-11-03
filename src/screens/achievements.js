@@ -49,6 +49,7 @@ export function renderAchievements(){
     progress,
     streakCount: streak.count,
     bestScore,
+    hardcoreBestScore: getBestScore('hardcore'),
     locale: lang
   });
 

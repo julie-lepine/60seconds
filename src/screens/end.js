@@ -73,50 +73,17 @@ function renderSaveError(state){
   if(retry) retry.onclick = () => { void endGame(); };
 }
 
-// HARDCORE : record et classement séparés ; les succès et la série ne sont pas touchés.
-function prepareHardcoreFinalization(session){
-  clearGameTimers();
-  G.screen='end';
-
-  const now = new Date();
-  const score = G.score;
-  const previousBest = finalizationDependencies.getBestScore('hardcore');
-  const isNew = score > previousBest;
-  const previousProgress = finalizationDependencies.getAchievementProgress();
-
-  return {
-    sessionId: session.sessionId,
-    mode: 'hardcore',
-    score,
-    previousBest,
-    isNew,
-    delta: score - previousBest,
-    now,
-    previousProgress,
-    candidate: null,
-    completedSession: { ...session, score, previousBest, recordBroken: isNew },
-    evaluated: { progress: previousProgress, newlyUnlocked: [] },
-    progressWithoutRecord: previousProgress,
-    progressionSaved: true,
-    recordSaved: !isNew,
-    recordBreakPersisted: true,
-    dailySaved: true,
-    sessionCompleted: false,
-    leaderboardSubmitted: false,
-    failedStage: null,
-    inFlight: null
-  };
-}
-
 function prepareFinalization(session){
-  if(session.mode === 'hardcore') return prepareHardcoreFinalization(session);
   clearGameTimers();
   G.screen='end';
 
   const now = new Date();
   const score = G.score;
   const modeBest = G.best;
-  const otherBest = finalizationDependencies.getBestScore(session.mode === 'daily' ? 'normal' : 'daily');
+  // Le hardcore a son propre record : il n'est comparé à aucun autre mode.
+  const otherBest = session.mode === 'hardcore'
+    ? 0
+    : finalizationDependencies.getBestScore(session.mode === 'daily' ? 'normal' : 'daily');
   const previousBest = Math.max(modeBest, otherBest);
   const isNew = score > modeBest;
   const beatsRecord = score > previousBest;
@@ -134,7 +101,11 @@ function prepareFinalization(session){
     ? finalizationDependencies.evaluateAchievements(previousProgress, {
         ...candidate,
         unlocked: { ...candidate.unlocked },
-        stats: { ...candidate.stats, recordsBroken: previousProgress.stats.recordsBroken }
+        stats: {
+          ...candidate.stats,
+          recordsBroken: previousProgress.stats.recordsBroken,
+          hardcoreRecordsBroken: previousProgress.stats.hardcoreRecordsBroken
+        }
       }, { ...completedSession, recordBroken: false }).progress
     : evaluated.progress;
   deepFreeze(candidate);

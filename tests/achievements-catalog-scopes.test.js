@@ -36,19 +36,24 @@ const EXPECTED_IDS = [
   'score_4000', 'score_6000', 'score_8000', 'score_12000', 'new_record', 'records_5',
   'no_error', 'insane_5', 'all_succeeded_v1', 'timing_exact', 'games_10',
   'games_50', 'games_100', 'games_500', 'seconds_3600', 'seconds_36000',
-  'all_seen_v1'
+  'all_seen_v1',
+  'hardcore_first_game', 'hardcore_score_2000', 'hardcore_score_4000',
+  'hardcore_score_6000', 'hardcore_records_3', 'hardcore_no_error',
+  'hardcore_comeback', 'hardcore_no_mercy', 'hardcore_streak_10',
+  'hardcore_insane_8', 'hardcore_timing_exact', 'hardcore_all_succeeded_v1'
 ];
 
 const EXPECTED_BY_CATEGORY = {
   consistency: EXPECTED_IDS.slice(0, 11),
   scores: EXPECTED_IDS.slice(11, 20),
   mastery: EXPECTED_IDS.slice(20, 24),
-  experience: EXPECTED_IDS.slice(24)
+  experience: EXPECTED_IDS.slice(24, 31),
+  hardcore: EXPECTED_IDS.slice(31)
 };
 
-test('catalog contains exactly the 31 approved achievements with stable IDs', () => {
-  assert.equal(ACHIEVEMENTS.length, 31);
-  assert.equal(new Set(ACHIEVEMENTS.map(item => item.id)).size, 31);
+test('catalog contains exactly the 43 approved achievements with stable IDs', () => {
+  assert.equal(ACHIEVEMENTS.length, 43);
+  assert.equal(new Set(ACHIEVEMENTS.map(item => item.id)).size, 43);
   assert.deepEqual(ACHIEVEMENTS.map(item => item.id), EXPECTED_IDS);
   assert.deepEqual(
     ACHIEVEMENTS.map(item => item.title),
@@ -59,7 +64,10 @@ test('catalog contains exactly the 31 approved achievements with stable IDs', ()
       'Sous tension', 'Surchauffe', 'Ça accélère', 'Hors limites', 'Nouveau record',
       'Record en série', 'Sans erreur', 'Fulgurant', 'Tous terrains',
       'Au centième', 'Habitué', 'Accro', 'Vétéran', 'Inarrêtable',
-      'Une heure chrono', 'Marathon', 'Tout vu'
+      'Une heure chrono', 'Marathon', 'Tout vu',
+      'Baptême du feu', 'Sang-froid', 'Nerfs d’acier', 'Sans filet',
+      'Record sous pression', 'Intouchable', 'Remontada', 'Pas de cadeau',
+      'Série de 10', 'Foudroyant', 'Chirurgical', 'Sans faiblesse'
     ]
   );
 });
@@ -69,7 +77,8 @@ test('catalog keeps the approved category keys and exact membership', () => {
     consistency: 'Assiduité',
     scores: 'Scores',
     mastery: 'Panache',
-    experience: 'Au compteur'
+    experience: 'Au compteur',
+    hardcore: 'Hardcore'
   });
   for(const [category, ids] of Object.entries(EXPECTED_BY_CATEGORY)){
     assert.deepEqual(
@@ -88,7 +97,10 @@ test('catalog conditions are known and use the approved thresholds', () => {
     'streak', 'returnAfterBreak', 'completeWeekend', 'dailyCount',
     'gamesCount', 'score', 'recordBroken', 'recordsCount', 'noError',
     'insaneCount', 'scopeSucceeded', 'timingExact', 'secondsCount',
-    'scopeSeen'
+    'scopeSeen', 'hardcoreGamesCount', 'hardcoreScore', 'hardcoreRecordsCount',
+    'hardcoreNoError', 'hardcoreComeback', 'hardcoreNoMercy',
+    'hardcoreSuccessStreak', 'hardcoreInsaneCount', 'hardcoreTimingExact',
+    'hardcoreScopeSucceeded'
   ]);
   for(const item of ACHIEVEMENTS){
     assert.ok(allowedConditions.has(item.condition), `${item.id}: unknown condition ${item.condition}`);
@@ -144,7 +156,7 @@ test('special achievements keep their approved conditions and scope references',
   }
 
   const scoped = ACHIEVEMENTS.filter(item => item.params.scopeId);
-  assert.deepEqual(scoped.map(item => item.id), ['all_succeeded_v1', 'all_seen_v1']);
+  assert.deepEqual(scoped.map(item => item.id), ['all_succeeded_v1', 'all_seen_v1', 'hardcore_all_succeeded_v1']);
   assert.ok(CHALLENGE_SCOPES.challenge_scope_v1);
 });
 

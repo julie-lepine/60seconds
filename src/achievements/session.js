@@ -22,7 +22,9 @@ function publicSnapshot(session){
     seenTypes: [...session.seenTypes],
     succeededTypes: [...session.succeededTypes],
     timingAttempts: session.timingAttempts.map(attempt => ({ ...attempt })),
-    timingExact: session.timingExact
+    timingExact: session.timingExact,
+    bestSuccessStreak: session.bestSuccessStreak,
+    floorReached: session.floorReached
   };
 }
 
@@ -39,6 +41,9 @@ export function createGameSession(mode, startedAt = Date.now()){
     succeededTypes: new Set(),
     timingAttempts: [],
     timingExact: false,
+    successStreak: 0,
+    bestSuccessStreak: 0,
+    floorReached: false,
     challengeSequence: 0,
     currentChallengeSequence: 0,
     currentChallengeType: null,
@@ -87,9 +92,12 @@ export function recordChallengeResult(context, kind, metadata = null){
 
   if(kind === 'bad'){
     activeSession.errors += 1;
+    activeSession.successStreak = 0;
   }else{
     activeSession.succeededTypes.add(context.challengeType);
     if(kind === 'insane') activeSession.insaneCount += 1;
+    activeSession.successStreak += 1;
+    activeSession.bestSuccessStreak = Math.max(activeSession.bestSuccessStreak, activeSession.successStreak);
   }
 
   const timing = metadata?.timing;
@@ -103,6 +111,13 @@ export function recordChallengeResult(context, kind, metadata = null){
       }
     }
   }
+  return true;
+}
+
+// HARDCORE : le score vient de tomber à 0 après une erreur (sert au succès « Remontada »).
+export function markScoreFloorReached(){
+  if(!activeSession || activeSession.status !== 'running') return false;
+  activeSession.floorReached = true;
   return true;
 }
 

@@ -75,12 +75,12 @@ html.is-native .ad-placeholder{visibility:hidden;}
 
 /* ---- HOME ---- */
 #screen-home{align-items:center;justify-content:center;gap:0;}
-.home-logo{text-align:center;margin-bottom:52px;}
+.home-logo{text-align:center;margin-bottom:30px;}
 .home-num{font-size:clamp(96px,32vw,140px);line-height:.82;}
 .home-word{margin-top:6px;font-weight:600;font-size:13px;letter-spacing:.55em;padding-left:.55em;color:var(--black-60);}
-.play-btn{width:168px;height:168px;border-radius:50%;background:var(--coral);border:none;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-weight:800;font-size:22px;letter-spacing:.04em;color:var(--on-coral);cursor:pointer;transition:transform .12s cubic-bezier(.2,1,.3,1);}
+.play-btn{width:168px;height:168px;border-radius:50%;background:var(--coral);border:none;display:flex;align-items:center;justify-content:center;font-family:'Archivo',sans-serif;font-weight:800;font-size:20px;line-height:1.2;letter-spacing:.04em;text-align:center;padding:0 22px;color:var(--on-coral);cursor:pointer;transition:transform .12s cubic-bezier(.2,1,.3,1);}
 .play-btn:active{transform:scale(.92);}
-.daily-link{margin-top:28px;width:236px;min-height:50px;border:1.5px solid var(--black);background:transparent;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--black);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:12px 16px;}
+.daily-link{margin-bottom:28px;width:236px;min-height:50px;border:1.5px solid var(--black);background:transparent;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--black);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:12px 16px;}
 .daily-link:active:not(.done){background:var(--black);color:var(--cream);}
 .daily-dot{width:7px;height:7px;border-radius:50%;background:var(--coral);flex:0 0 auto;}
 .daily-check{color:var(--coral);font-size:15px;line-height:1;}
@@ -278,15 +278,16 @@ html.is-native .ad-placeholder{visibility:hidden;}
 .consent-actions .navlink{letter-spacing:.08em;text-align:center;}
 
 /* ---- HARDCORE : lien d'accueil, score en jeu, pénalité ---- */
-.hardcore-link{margin-top:12px;min-height:34px;border:none;background:transparent;font-family:'Inter',sans-serif;font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--black-60);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:8px 16px;}
-.hardcore-link:active{color:var(--coral);}
+.hardcore-link{margin-top:28px;width:236px;min-height:50px;border:1.5px solid var(--black);background:transparent;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--black);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:12px 16px;}
+.hardcore-link:active{background:var(--black);color:var(--cream);}
 .hardcore-dot{width:7px;height:7px;border-radius:50%;background:var(--black);flex:0 0 auto;}
 .hc-score{margin-top:6px;font-size:20px;line-height:1;letter-spacing:-.01em;color:var(--black-60);}
 .feedback-penalty{display:block;margin-top:6px;font-size:.62em;letter-spacing:-.01em;color:var(--coral);}
 @media (max-height:700px){
   .home-logo{margin-bottom:32px;}
   .play-btn{width:148px;height:148px;}
-  .daily-link{margin-top:20px;}
+  .daily-link{margin-bottom:20px;}
+  .hardcore-link{margin-top:20px;}
 }
 
 /* ---- HARDCORE : palette inversée (fond noir, détails crème ou corail) ---- */

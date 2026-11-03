@@ -28,11 +28,11 @@ export function renderHome(){
         <div class="home-num display">60</div>
         <div class="home-word">${t('seconds')}</div>
       </div>
-      <button class="play-btn tap-safe" id="playBtn">${t('play')}</button>
       ${dailyRun
         ? `<div class="daily-link done"><span class="daily-check" aria-hidden="true">✓</span><span class="daily-done-label">${t('dailyDone')}</span><b class="daily-score">${fmt(dailyRun.score)}</b></div>`
         : `<button class="daily-link tap-safe" id="dailyBtn"><span class="daily-dot" aria-hidden="true"></span>${t('daily')}</button>`}
-      <button class="hardcore-link tap-safe" id="hardcoreBtn"><span class="hardcore-dot" aria-hidden="true"></span>${t('hardcore')}</button>
+      <button class="play-btn tap-safe" id="playBtn">${t('modeClassic')}</button>
+      <button class="hardcore-link tap-safe" id="hardcoreBtn"><span class="hardcore-dot" aria-hidden="true"></span>${t('modeHardcore')}</button>
       <div class="home-stats">
         <div class="home-stat">
           <div class="home-stat-label">${t('streak')}</div>

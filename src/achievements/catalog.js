@@ -13,7 +13,8 @@ export const ACHIEVEMENT_CATEGORIES = Object.freeze({
   consistency: 'Assiduité',
   scores: 'Scores',
   mastery: 'Panache',
-  experience: 'Au compteur'
+  experience: 'Au compteur',
+  hardcore: 'Hardcore'
 });
 
 export const ACHIEVEMENTS = Object.freeze([
@@ -50,7 +51,19 @@ export const ACHIEVEMENTS = Object.freeze([
   achievement('games_500', 'experience', 'Inarrêtable', 'Terminer 500 parties.', 'gamesCount', { count: 500 }),
   achievement('seconds_3600', 'experience', 'Une heure chrono', 'Cumuler 60 minutes de jeu.', 'secondsCount', { seconds: 3600 }),
   achievement('seconds_36000', 'experience', 'Marathon', 'Cumuler 10 heures de jeu.', 'secondsCount', { seconds: 36000 }),
-  achievement('all_seen_v1', 'experience', 'Tout vu', 'Rencontrer tous les types de défis.', 'scopeSeen', { scopeId: 'challenge_scope_v1' })
+  achievement('all_seen_v1', 'experience', 'Tout vu', 'Rencontrer tous les types de défis.', 'scopeSeen', { scopeId: 'challenge_scope_v1' }),
+  achievement('hardcore_first_game', 'hardcore', 'Baptême du feu', 'Terminer sa première partie hardcore.', 'hardcoreGamesCount', { count: 1 }),
+  achievement('hardcore_score_2000', 'hardcore', 'Sang-froid', 'Atteindre 2 000 points en hardcore.', 'hardcoreScore', { score: 2000 }),
+  achievement('hardcore_score_4000', 'hardcore', 'Nerfs d’acier', 'Atteindre 4 000 points en hardcore.', 'hardcoreScore', { score: 4000 }),
+  achievement('hardcore_score_6000', 'hardcore', 'Sans filet', 'Atteindre 6 000 points en hardcore.', 'hardcoreScore', { score: 6000 }),
+  achievement('hardcore_records_3', 'hardcore', 'Record sous pression', 'Battre son record hardcore 3 fois.', 'hardcoreRecordsCount', { count: 3 }),
+  achievement('hardcore_no_error', 'hardcore', 'Intouchable', 'Terminer une partie hardcore sans erreur.', 'hardcoreNoError'),
+  achievement('hardcore_comeback', 'hardcore', 'Remontada', 'Tomber à 0 point, puis finir une partie hardcore avec au moins 1 500 points.', 'hardcoreComeback', { score: 1500 }),
+  achievement('hardcore_no_mercy', 'hardcore', 'Pas de cadeau', 'Finir une partie hardcore à 2 000 points ou plus malgré au moins 5 erreurs.', 'hardcoreNoMercy', { score: 2000, errors: 5 }),
+  achievement('hardcore_streak_10', 'hardcore', 'Série de 10', 'Enchaîner 10 réussites d’affilée en hardcore.', 'hardcoreSuccessStreak', { count: 10 }),
+  achievement('hardcore_insane_8', 'hardcore', 'Foudroyant', 'Obtenir 8 résultats « Furieux » dans une partie hardcore.', 'hardcoreInsaneCount', { count: 8 }),
+  achievement('hardcore_timing_exact', 'hardcore', 'Chirurgical', 'Réussir parfaitement le défi de timing en hardcore.', 'hardcoreTimingExact'),
+  achievement('hardcore_all_succeeded_v1', 'hardcore', 'Sans faiblesse', 'Réussir chaque type de défi au moins une fois en hardcore.', 'hardcoreScopeSucceeded', { scopeId: 'challenge_scope_v1' })
 ]);
 
 export const ACHIEVEMENTS_BY_ID = Object.freeze(

@@ -54,7 +54,7 @@ process.env.VITE_SUPABASE_URL = 'https://example.supabase.co';
 process.env.VITE_SUPABASE_ANON_KEY = 'anon-key';
 
 const [
-  engine, session, endScreen, progress, storage, leaderboard, utils, { G }, { HARDCORE_PENALTY }, { translateForLanguage, SUPPORTED_LANGUAGES }
+  engine, session, endScreen, progress, storage, leaderboard, utils, { G }, { HARDCORE_PENALTY_STEP }, { translateForLanguage, SUPPORTED_LANGUAGES }
 ] = await Promise.all([
   import('../src/game/engine.js'),
   import('../src/achievements/session.js'),
@@ -108,13 +108,27 @@ test.after(() => {
   if(originalDocument) globalThis.document = originalDocument; else delete globalThis.document;
 });
 
-test('la pénalité hardcore est de 150 points', () => {
-  assert.equal(HARDCORE_PENALTY, 150);
+test('la pénalité hardcore commence à 50 et monte de 50 en 50', () => {
+  assert.equal(HARDCORE_PENALTY_STEP, 50);
+  assert.deepEqual([0, 1, 2, 3].map(n => engine.hardcorePenalty(n)), [50, 100, 150, 200]);
+});
+
+test('erreurs consécutives : la pénalité grimpe, une réussite la remet à 50', () => {
+  const run = (kind, pts, start, streak) => { G.hcErrorStreak = streak; return resolveResult(kind, pts, 'hardcore', start); };
+  assert.equal(run('bad', 0, 1000, 0).score, 950);
+  assert.equal(G.hcErrorStreak, 1);
+  assert.equal(run('bad', 0, 950, 1).score, 850);
+  assert.equal(run('bad', 0, 850, 2).score, 700);
+  assert.equal(G.hcErrorStreak, 3);
+  assert.equal(run('good', 150, 700, 3).score, 850);
+  assert.equal(G.hcErrorStreak, 0);
+  assert.equal(run('bad', 0, 850, G.hcErrorStreak).score, 800);
 });
 
 test('applyResultScore : une erreur retire la pénalité en hardcore, sans descendre sous 0', () => {
-  assert.equal(engine.applyResultScore(500, 'bad', 0, 'hardcore'), 350);
-  assert.equal(engine.applyResultScore(100, 'bad', 0, 'hardcore'), 0);
+  assert.equal(engine.applyResultScore(500, 'bad', 0, 'hardcore'), 450);
+  assert.equal(engine.applyResultScore(500, 'bad', 0, 'hardcore', 2), 350);
+  assert.equal(engine.applyResultScore(30, 'bad', 0, 'hardcore'), 0);
   assert.equal(engine.applyResultScore(0, 'bad', 0, 'hardcore'), 0);
   assert.equal(engine.applyResultScore(500, 'good', 150, 'hardcore'), 650);
   assert.equal(engine.applyResultScore(500, 'insane', 260, 'hardcore'), 760);
@@ -127,6 +141,7 @@ test('applyResultScore : aucune pénalité en normal et en quotidien', () => {
 });
 
 test('une erreur hardcore affiche la pénalité réellement retirée et met à jour le score en jeu', () => {
+  G.hcErrorStreak = 2;
   const result = resolveResult('bad', 0, 'hardcore', 500);
   assert.equal(result.score, 350);
   assert.match(result.html, /feedback display bad/);
@@ -135,9 +150,10 @@ test('une erreur hardcore affiche la pénalité réellement retirée et met à j
 });
 
 test('une erreur hardcore avec peu de points ne retire que ce qu’il reste', () => {
-  const result = resolveResult('bad', 0, 'hardcore', 80);
+  G.hcErrorStreak = 0;
+  const result = resolveResult('bad', 0, 'hardcore', 30);
   assert.equal(result.score, 0);
-  assert.match(result.html, /−80</);
+  assert.match(result.html, /−30</);
   const empty = resolveResult('bad', 0, 'hardcore', 0);
   assert.equal(empty.score, 0);
   assert.doesNotMatch(empty.html, /feedback-penalty/);
@@ -208,18 +224,19 @@ test('le libellé HARDCORE existe dans les quatre langues', () => {
   }
 });
 
-test('fin de partie hardcore : record et classement propres, succès et quotidien intacts', async () => {
+test('fin de partie hardcore : record et classement propres, la partie compte pour les succès et la série, pas pour le quotidien', async () => {
   store.clear();
+  const persisted = [];
   const calls = { persist: 0, daily: 0, saved: [], leaderboard: [], bestReads: [] };
   const scheduled = [];
   globalThis.setTimeout = (callback, delay) => { scheduled.push({ callback, delay }); return scheduled.length; };
   globalThis.clearTimeout = () => {};
   const empty = progress.createEmptyProgress('2026-10-01T00:00:00.000Z');
   endScreen.setEndGameDependenciesForTests({
-    buildCompletionCandidate: () => { throw new Error('les succès ne doivent pas être évalués en hardcore'); },
-    evaluateAchievements: () => { throw new Error('les succès ne doivent pas être évalués en hardcore'); },
+    buildCompletionCandidate: progress.buildCompletionCandidate,
+    evaluateAchievements: progress.evaluateAchievements,
     getAchievementProgress: () => empty,
-    persistAchievementProgress: async () => { calls.persist += 1; return true; },
+    persistAchievementProgress: async (next) => { calls.persist += 1; persisted.push(next); return true; },
     getBestScore: mode => { calls.bestReads.push(mode); return 400; },
     saveBestScore: (mode, score) => { calls.saved.push([mode, score]); return storage.STORAGE_WRITE_STATUS.saved; },
     saveTodayDailyRun: () => { calls.daily += 1; return storage.STORAGE_WRITE_STATUS.saved; },
@@ -230,7 +247,7 @@ test('fin de partie hardcore : record et classement propres, succès et quotidie
     session.createGameSession('hardcore');
     G.mode = 'hardcore';
     G.reduceMotion = true;
-    G.score = 900;
+    G.score = 2100;
     G.best = 400;
     G.screen = 'gameplay';
     await endScreen.endGame();
@@ -238,11 +255,24 @@ test('fin de partie hardcore : record et classement propres, succès et quotidie
     globalThis.setTimeout = originalSetTimeout;
     globalThis.clearTimeout = originalClearTimeout;
   }
-  assert.deepEqual(calls.bestReads, ['hardcore']);
-  assert.deepEqual(calls.saved, [['hardcore', 900]]);
-  assert.equal(calls.persist, 0);
+  assert.deepEqual(calls.bestReads, [], 'le hardcore n’est comparé à aucun autre record');
+  assert.deepEqual(calls.saved, [['hardcore', 2100]]);
+  assert.ok(calls.persist >= 1, 'la progression doit être sauvegardée');
+  const final = persisted[persisted.length - 1];
+  assert.equal(final.stats.hardcoreGames, 1);
+  assert.equal(final.stats.gamesCompleted, 1);
+  assert.equal(final.stats.hardcoreRecordsBroken, 1);
+  assert.equal(final.stats.recordsBroken, 0);
+  assert.equal(final.stats.currentStreak, 1);
+  assert.ok(final.unlocked.first_game, 'la partie hardcore compte comme une partie');
+  assert.ok(final.unlocked.hardcore_first_game);
+  assert.ok(final.unlocked.hardcore_score_2000);
+  assert.equal(final.unlocked.hardcore_score_4000, undefined);
+  assert.equal(final.unlocked.score_2500, undefined, 'un score hardcore ne débloque pas les succès du jeu normal');
+  assert.equal(final.unlocked.score_1000, undefined);
+  assert.equal(final.unlocked.new_record, undefined);
   assert.equal(calls.daily, 0);
-  assert.deepEqual(calls.leaderboard, [['hardcore', 900]]);
+  assert.deepEqual(calls.leaderboard, [['hardcore', 2100]]);
   assert.equal(session.getActiveGameSession().status, 'completed');
 
   const render = scheduled.find(item => item.delay === 650);
@@ -250,7 +280,7 @@ test('fin de partie hardcore : record et classement propres, succès et quotidie
   render.callback();
   const html = elements['screen-end'].innerHTML;
   assert.match(html, /againBtn/);
-  assert.doesNotMatch(html, /end-achievements/);
-  assert.doesNotMatch(html, /end-streak/);
+  assert.match(html, /end-achievements/);
+  assert.match(html, /end-streak/);
   endScreen.resetEndGameForTests();
 });

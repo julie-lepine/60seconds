@@ -69,7 +69,10 @@ export function createEmptyProgress(createdAt = new Date().toISOString()){
       succeededTypes: [],
       currentStreak: 0,
       longestStreak: 0,
-      lastPlayedLocalDate: null
+      lastPlayedLocalDate: null,
+      hardcoreGames: 0,
+      hardcoreRecordsBroken: 0,
+      hardcoreSucceededTypes: []
     }
   };
 }
@@ -116,7 +119,10 @@ export function normalizeProgress(raw){
         succeededTypes: uniqueStrings(stats.succeededTypes),
         currentStreak,
         longestStreak,
-        lastPlayedLocalDate: normalizeDateKey(stats.lastPlayedLocalDate)
+        lastPlayedLocalDate: normalizeDateKey(stats.lastPlayedLocalDate),
+        hardcoreGames: safeInteger(stats.hardcoreGames),
+        hardcoreRecordsBroken: safeInteger(stats.hardcoreRecordsBroken),
+        hardcoreSucceededTypes: uniqueStrings(stats.hardcoreSucceededTypes)
       }
     }
   };
@@ -185,7 +191,8 @@ function cloneProgress(progress){
     stats: {
       ...progress.stats,
       seenTypes: [...progress.stats.seenTypes],
-      succeededTypes: [...progress.stats.succeededTypes]
+      succeededTypes: [...progress.stats.succeededTypes],
+      hardcoreSucceededTypes: [...(progress.stats.hardcoreSucceededTypes || [])]
     }
   };
 }
@@ -204,7 +211,15 @@ export function buildCompletionCandidate(previous, session, completion){
   stats.gamesCompleted += 1;
   stats.playSeconds += COMPLETED_GAME_SECONDS;
   stats.seenTypes = uniqueStrings([...stats.seenTypes, ...session.seenTypes]);
-  stats.succeededTypes = uniqueStrings([...stats.succeededTypes, ...session.succeededTypes]);
+  // Une partie hardcore compte pour l'activité (série, parties, temps de jeu, types vus) ;
+  // ses réussites et son record alimentent des compteurs séparés.
+  const isHardcore = session.mode === 'hardcore';
+  if(isHardcore){
+    stats.hardcoreGames += 1;
+    stats.hardcoreSucceededTypes = uniqueStrings([...stats.hardcoreSucceededTypes, ...session.succeededTypes]);
+  }else{
+    stats.succeededTypes = uniqueStrings([...stats.succeededTypes, ...session.succeededTypes]);
+  }
 
   if(session.mode === 'daily' && stats.lastCountedDailyDate !== dailyDate){
     stats.dailyCompleted += 1;
@@ -212,7 +227,10 @@ export function buildCompletionCandidate(previous, session, completion){
   }
 
   const recordBroken = !!completion.recordBroken && Number(completion.previousBest) > 0;
-  if(recordBroken) stats.recordsBroken += 1;
+  if(recordBroken){
+    if(isHardcore) stats.hardcoreRecordsBroken += 1;
+    else stats.recordsBroken += 1;
+  }
 
   if(dayDifference == null){
     stats.currentStreak = 1;
@@ -249,7 +267,14 @@ export function buildCompletionCandidate(previous, session, completion){
   };
 }
 
+// Conditions de performance du jeu normal : une partie hardcore ne les déclenche pas.
+const NORMAL_PERFORMANCE_CONDITIONS = new Set([
+  'score', 'recordBroken', 'noError', 'insaneCount', 'timingExact'
+]);
+
 function achievementConditionMet(item, previous, candidate, session){
+  const hardcore = session.mode === 'hardcore';
+  if(hardcore && NORMAL_PERFORMANCE_CONDITIONS.has(item.condition)) return false;
   switch(item.condition){
     case 'streak':
       return candidate.stats.currentStreak >= item.params.days;
@@ -279,6 +304,26 @@ function achievementConditionMet(item, previous, candidate, session){
       return session.timingExact === true;
     case 'secondsCount':
       return candidate.stats.playSeconds >= item.params.seconds;
+    case 'hardcoreGamesCount':
+      return candidate.stats.hardcoreGames >= item.params.count;
+    case 'hardcoreRecordsCount':
+      return candidate.stats.hardcoreRecordsBroken >= item.params.count;
+    case 'hardcoreScopeSucceeded':
+      return countScopeProgress(candidate.stats.hardcoreSucceededTypes, item.params.scopeId).complete;
+    case 'hardcoreScore':
+      return hardcore && session.score >= item.params.score;
+    case 'hardcoreNoError':
+      return hardcore && session.challengesResolved > 0 && session.errors === 0;
+    case 'hardcoreComeback':
+      return hardcore && session.floorReached === true && session.score >= item.params.score;
+    case 'hardcoreNoMercy':
+      return hardcore && session.errors >= item.params.errors && session.score >= item.params.score;
+    case 'hardcoreSuccessStreak':
+      return hardcore && session.bestSuccessStreak >= item.params.count;
+    case 'hardcoreInsaneCount':
+      return hardcore && session.insaneCount >= item.params.count;
+    case 'hardcoreTimingExact':
+      return hardcore && session.timingExact === true;
     default:
       return false;
   }

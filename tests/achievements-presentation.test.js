@@ -34,13 +34,13 @@ const VISIBLE_WHEN_LOCKED = ACHIEVEMENTS
 
 test('presentation projects visible achievements in catalog and category order', () => {
   const result = project();
-  assert.equal(result.items.length, 30);
+  assert.equal(result.items.length, 42);
   assert.equal(byId(result, 'return_after_7_days'), undefined);
   assert.deepEqual(result.items.map(item => item.id), VISIBLE_WHEN_LOCKED);
   assert.deepEqual(result.categories.map(category => category.id), [
-    'consistency', 'scores', 'mastery', 'experience'
+    'consistency', 'scores', 'mastery', 'experience', 'hardcore'
   ]);
-  assert.equal(result.categories.flatMap(category => category.items).length, 30);
+  assert.equal(result.categories.flatMap(category => category.items).length, 42);
 });
 
 test('Retour en piste stays hidden until it is unlocked, then keeps catalog order', () => {
@@ -49,7 +49,7 @@ test('Retour en piste stays hidden until it is unlocked, then keeps catalog orde
   const result = project(progress);
   const item = byId(result, 'return_after_7_days');
 
-  assert.equal(result.items.length, 31);
+  assert.equal(result.items.length, 43);
   assert.equal(item.unlocked, true);
   assert.equal(item.displayType, 'unlocked');
   assert.deepEqual(
@@ -58,10 +58,10 @@ test('Retour en piste stays hidden until it is unlocked, then keeps catalog orde
   );
 });
 
-test('global counter uses only persisted unlocked IDs for 0/30 and 31/31', () => {
+test('global counter uses only persisted unlocked IDs for 0/42 and 43/43', () => {
   const empty = project();
   assert.equal(empty.unlockedCount, 0);
-  assert.equal(empty.totalCount, 30);
+  assert.equal(empty.totalCount, 42);
 
   const progress = createEmptyProgress();
   for(const item of ACHIEVEMENTS){
@@ -69,8 +69,8 @@ test('global counter uses only persisted unlocked IDs for 0/30 and 31/31', () =>
   }
   progress.unlocked.unknown_future_id = '2026-10-05T12:00:00.000Z';
   const complete = project(progress);
-  assert.equal(complete.unlockedCount, 31);
-  assert.equal(complete.totalCount, 31);
+  assert.equal(complete.unlockedCount, 43);
+  assert.equal(complete.totalCount, 43);
 });
 
 test('unlocked state and date come directly from persisted progress', () => {

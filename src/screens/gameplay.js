@@ -12,7 +12,7 @@ export function startPlay(){
   clearGameTimers();
   G.screen='gameplay'; G.score=0; G.lastSecMark=null; G.lastType=null;
   G.dailyPick = G.mode==='daily' ? makeDailyPicker() : null;
-  G.dailyIndex = 0; G.rng = null;
+  G.dailyIndex = 0; G.rng = null; G.hcErrorStreak = 0;
   createGameSession(G.mode);
   G.endTime = performance.now()+60000;
   view.innerHTML = `

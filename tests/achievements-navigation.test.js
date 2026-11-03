@@ -59,9 +59,9 @@ test('Home opens the complete achievement screen and its back action returns Hom
   elements.get('nav-achievements').onclick();
   assert.equal(G.screen, 'achievements');
   assert.match(view.innerHTML, /id="screen-achievements"/);
-  assert.equal((view.innerHTML.match(/data-achievement-id=/g) || []).length, 30);
+  assert.equal((view.innerHTML.match(/data-achievement-id=/g) || []).length, 42);
   assert.equal(view.innerHTML.includes('return_after_7_days'), false);
-  assert.equal((view.innerHTML.match(/data-achievement-category=/g) || []).length, 4);
+  assert.equal((view.innerHTML.match(/data-achievement-category=/g) || []).length, 5);
 
   elements.get('backAchievements').onclick();
   assert.equal(G.screen, 'home');

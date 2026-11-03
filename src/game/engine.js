@@ -1,12 +1,12 @@
 import { t } from '../i18n.js';
 import { G } from '../state.js';
-import { CHALLENGE_TYPES, HARDCORE_PENALTY } from '../constants.js';
+import { CHALLENGE_TYPES, HARDCORE_PENALTY_STEP } from '../constants.js';
 import { ri, fmt, clearChallengeTimers } from '../utils.js';
 import { makeDailyRng } from './daily.js';
 import { sInsane, sSuccess, sError } from '../audio.js';
 import { endGame } from '../screens/end.js';
 import { CHALLENGES } from '../challenges/challenges.js';
-import { markChallengeShown, recordChallengeResult } from '../achievements/session.js';
+import { markChallengeShown, recordChallengeResult, markScoreFloorReached } from '../achievements/session.js';
 
 export function pickType(){
   if(G.mode==='daily' && G.dailyPick) return G.dailyPick();
@@ -25,8 +25,12 @@ export function nextChallenge(){
   CHALLENGES[type](area, eventContext);
 }
 // HARDCORE : chaque erreur (ou temps écoulé) retire des points, sans descendre sous 0.
-export function applyResultScore(score, kind, points, mode){
-  if(mode==='hardcore' && kind==='bad') return Math.max(0, score - HARDCORE_PENALTY);
+// La pénalité grimpe de 50 en 50 pour des erreurs consécutives (errorStreak = erreurs d'affilée avant celle-ci).
+export function hardcorePenalty(errorStreak = 0){
+  return HARDCORE_PENALTY_STEP * (Math.max(0, errorStreak) + 1);
+}
+export function applyResultScore(score, kind, points, mode, errorStreak = 0){
+  if(mode==='hardcore' && kind==='bad') return Math.max(0, score - hardcorePenalty(errorStreak));
   return score + points;
 }
 export function resultFlash(kind, points, eventContext, metadata){
@@ -37,8 +41,10 @@ export function resultFlash(kind, points, eventContext, metadata){
   if(!recordChallengeResult(eventContext, kind, metadata)) return;
   G.flashLock=true;
   const before=G.score;
-  G.score = applyResultScore(G.score, kind, points, G.mode);
+  G.score = applyResultScore(G.score, kind, points, G.mode, G.hcErrorStreak || 0);
+  G.hcErrorStreak = kind==='bad' ? (G.hcErrorStreak || 0) + 1 : 0;
   const lost=Math.max(0, before-G.score);
+  if(lost>0 && G.score===0) markScoreFloorReached();
   const hcScore=document.getElementById('hcScore');
   if(hcScore) hcScore.textContent=fmt(G.score);
   const text = kind==='insane'?t('flashInsane'):(kind==='good'?t('flashGood'):t('flashBad'));

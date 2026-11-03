@@ -20,12 +20,13 @@ const UI_KEYS = [
   'achievementCategoryConsistency',
   'achievementCategoryScores',
   'achievementCategoryMastery',
-  'achievementCategoryExperience'
+  'achievementCategoryExperience',
+  'achievementCategoryHardcore'
 ];
 
-test('all 31 achievement titles and descriptions exist in all four languages', () => {
+test('all 43 achievement titles and descriptions exist in all four languages', () => {
   assert.deepEqual([...SUPPORTED_LANGUAGES], ['fr', 'en', 'es', 'de']);
-  assert.equal(ACHIEVEMENT_TRANSLATION_KEYS.length, 62);
+  assert.equal(ACHIEVEMENT_TRANSLATION_KEYS.length, 86);
 
   for(const language of SUPPORTED_LANGUAGES){
     for(const key of ACHIEVEMENT_TRANSLATION_KEYS){

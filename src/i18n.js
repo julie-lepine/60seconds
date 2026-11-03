@@ -8,6 +8,8 @@ const STRINGS = {
     navSettings: 'RÉGLAGES',
     seconds: 'SECONDES',
     play: 'JOUER',
+    modeClassic: 'MODE CLASSIQUE',
+    modeHardcore: 'MODE HARDCORE',
     daily: 'DÉFI DU JOUR',
     dailyDone: 'DÉFI TERMINÉ',
     record: 'RECORD',
@@ -86,6 +88,8 @@ const STRINGS = {
     navSettings: 'SETTINGS',
     seconds: 'SECONDS',
     play: 'PLAY',
+    modeClassic: 'CLASSIC MODE',
+    modeHardcore: 'HARDCORE MODE',
     daily: 'DAILY CHALLENGE',
     dailyDone: 'CHALLENGE COMPLETE',
     record: 'RECORD',
@@ -164,6 +168,8 @@ const STRINGS = {
     navSettings: 'AJUSTES',
     seconds: 'SEGUNDOS',
     play: 'JUGAR',
+    modeClassic: 'MODO CLÁSICO',
+    modeHardcore: 'MODO HARDCORE',
     daily: 'RETO DIARIO',
     dailyDone: 'RETO COMPLETADO',
     record: 'RÉCORD',
@@ -242,6 +248,8 @@ const STRINGS = {
     navSettings: 'OPTIONEN',
     seconds: 'SEKUNDEN',
     play: 'SPIELEN',
+    modeClassic: 'KLASSIK MODUS',
+    modeHardcore: 'HARDCORE-MODUS',
     daily: 'TAGESAUFGABE',
     dailyDone: 'AUFGABE ERLEDIGT',
     record: 'REKORD',
@@ -327,7 +335,8 @@ const ACHIEVEMENT_UI_STRINGS = {
     achievementCategoryConsistency: 'ASSIDUITÉ',
     achievementCategoryScores: 'SCORES',
     achievementCategoryMastery: 'PANACHE',
-    achievementCategoryExperience: 'AU COMPTEUR'
+    achievementCategoryExperience: 'AU COMPTEUR',
+    achievementCategoryHardcore: 'HARDCORE'
   },
   en: {
     achievements: 'ACHIEVEMENTS',
@@ -339,7 +348,8 @@ const ACHIEVEMENT_UI_STRINGS = {
     achievementCategoryConsistency: 'CONSISTENCY',
     achievementCategoryScores: 'SCORES',
     achievementCategoryMastery: 'FLAIR',
-    achievementCategoryExperience: 'MILEAGE'
+    achievementCategoryExperience: 'MILEAGE',
+    achievementCategoryHardcore: 'HARDCORE'
   },
   es: {
     achievements: 'LOGROS',
@@ -351,7 +361,8 @@ const ACHIEVEMENT_UI_STRINGS = {
     achievementCategoryConsistency: 'CONSTANCIA',
     achievementCategoryScores: 'PUNTUACIONES',
     achievementCategoryMastery: 'BRÍO',
-    achievementCategoryExperience: 'KILÓMETROS'
+    achievementCategoryExperience: 'KILÓMETROS',
+    achievementCategoryHardcore: 'HARDCORE'
   },
   de: {
     achievements: 'ERFOLGE',
@@ -363,7 +374,8 @@ const ACHIEVEMENT_UI_STRINGS = {
     achievementCategoryConsistency: 'AUSDAUER',
     achievementCategoryScores: 'PUNKTE',
     achievementCategoryMastery: 'SCHWUNG',
-    achievementCategoryExperience: 'KILOMETERSTAND'
+    achievementCategoryExperience: 'KILOMETERSTAND',
+    achievementCategoryHardcore: 'HARDCORE'
   }
 };
 
@@ -399,7 +411,19 @@ const ACHIEVEMENT_COPY = {
     games_500: ['Inarrêtable', 'Terminer 500 parties.'],
     seconds_3600: ['Une heure chrono', 'Cumuler 60 minutes de jeu.'],
     seconds_36000: ['Marathon', 'Cumuler 10 heures de jeu.'],
-    all_seen_v1: ['Tout vu', 'Rencontrer tous les types de défis.']
+    all_seen_v1: ['Tout vu', 'Rencontrer tous les types de défis.'],
+    hardcore_first_game: ['Baptême du feu', 'Terminer sa première partie hardcore.'],
+    hardcore_score_2000: ['Sang-froid', 'Atteindre 2 000 points en hardcore.'],
+    hardcore_score_4000: ['Nerfs d’acier', 'Atteindre 4 000 points en hardcore.'],
+    hardcore_score_6000: ['Sans filet', 'Atteindre 6 000 points en hardcore.'],
+    hardcore_records_3: ['Record sous pression', 'Battre son record hardcore 3 fois.'],
+    hardcore_no_error: ['Intouchable', 'Terminer une partie hardcore sans erreur.'],
+    hardcore_comeback: ['Remontada', 'Tomber à 0 point, puis finir une partie hardcore avec au moins 1 500 points.'],
+    hardcore_no_mercy: ['Pas de cadeau', 'Finir une partie hardcore à 2 000 points ou plus malgré au moins 5 erreurs.'],
+    hardcore_streak_10: ['Série de 10', 'Enchaîner 10 réussites d’affilée en hardcore.'],
+    hardcore_insane_8: ['Foudroyant', 'Obtenir 8 résultats « Furieux » dans une partie hardcore.'],
+    hardcore_timing_exact: ['Chirurgical', 'Réussir parfaitement le défi de timing en hardcore.'],
+    hardcore_all_succeeded_v1: ['Sans faiblesse', 'Réussir chaque type de défi au moins une fois en hardcore.']
   },
   en: {
     streak_2: ['Off to a start', 'Reach a 2-day streak.'],
@@ -432,7 +456,19 @@ const ACHIEVEMENT_COPY = {
     games_500: ['Unstoppable', 'Finish 500 games.'],
     seconds_3600: ['One hour on the clock', 'Accumulate 60 minutes of play.'],
     seconds_36000: ['Marathon', 'Accumulate 10 hours of play.'],
-    all_seen_v1: ['Seen it all', 'Encounter every challenge type.']
+    all_seen_v1: ['Seen it all', 'Encounter every challenge type.'],
+    hardcore_first_game: ['Baptism of fire', 'Finish your first hardcore game.'],
+    hardcore_score_2000: ['Cool head', 'Reach 2,000 points in hardcore.'],
+    hardcore_score_4000: ['Nerves of steel', 'Reach 4,000 points in hardcore.'],
+    hardcore_score_6000: ['No safety net', 'Reach 6,000 points in hardcore.'],
+    hardcore_records_3: ['Record under pressure', 'Beat your hardcore record 3 times.'],
+    hardcore_no_error: ['Untouchable', 'Finish a hardcore game without an error.'],
+    hardcore_comeback: ['Comeback', 'Drop to 0 points, then finish a hardcore game with at least 1,500 points.'],
+    hardcore_no_mercy: ['No mercy', 'Finish a hardcore game with 2,000 points or more despite at least 5 errors.'],
+    hardcore_streak_10: ['Streak of 10', 'Land 10 successes in a row in hardcore.'],
+    hardcore_insane_8: ['Thunderbolt', 'Get 8 “Insane” results in one hardcore game.'],
+    hardcore_timing_exact: ['Surgical', 'Complete the timing challenge perfectly in hardcore.'],
+    hardcore_all_succeeded_v1: ['No weak spot', 'Succeed at every challenge type at least once in hardcore.']
   },
   es: {
     streak_2: ['Buen comienzo', 'Alcanza una racha de 2 días.'],
@@ -465,7 +501,19 @@ const ACHIEVEMENT_COPY = {
     games_500: ['Imparable', 'Termina 500 partidas.'],
     seconds_3600: ['Una hora al reloj', 'Acumula 60 minutos de juego.'],
     seconds_36000: ['Maratón', 'Acumula 10 horas de juego.'],
-    all_seen_v1: ['Todo visto', 'Encuentra todos los tipos de reto.']
+    all_seen_v1: ['Todo visto', 'Encuentra todos los tipos de reto.'],
+    hardcore_first_game: ['Bautismo de fuego', 'Termina tu primera partida hardcore.'],
+    hardcore_score_2000: ['Sangre fría', 'Alcanza 2.000 puntos en hardcore.'],
+    hardcore_score_4000: ['Nervios de acero', 'Alcanza 4.000 puntos en hardcore.'],
+    hardcore_score_6000: ['Sin red', 'Alcanza 6.000 puntos en hardcore.'],
+    hardcore_records_3: ['Récord bajo presión', 'Bate tu récord hardcore 3 veces.'],
+    hardcore_no_error: ['Intocable', 'Termina una partida hardcore sin ningún error.'],
+    hardcore_comeback: ['Remontada', 'Baja a 0 puntos y luego termina una partida hardcore con al menos 1.500 puntos.'],
+    hardcore_no_mercy: ['Sin piedad', 'Termina una partida hardcore con 2.000 puntos o más a pesar de al menos 5 errores.'],
+    hardcore_streak_10: ['Racha de 10', 'Encadena 10 aciertos seguidos en hardcore.'],
+    hardcore_insane_8: ['Relámpago', 'Consigue 8 resultados «Furioso» en una partida hardcore.'],
+    hardcore_timing_exact: ['Quirúrgico', 'Supera a la perfección el reto de timing en hardcore.'],
+    hardcore_all_succeeded_v1: ['Sin puntos débiles', 'Acierta cada tipo de reto al menos una vez en hardcore.']
   },
   de: {
     streak_2: ['Guter Start', 'Erreiche eine Serie von 2 Tagen.'],
@@ -498,7 +546,19 @@ const ACHIEVEMENT_COPY = {
     games_500: ['Unaufhaltsam', 'Beende 500 Spiele.'],
     seconds_3600: ['Eine Stunde auf der Uhr', 'Sammle 60 Minuten Spielzeit.'],
     seconds_36000: ['Marathon', 'Sammle 10 Stunden Spielzeit.'],
-    all_seen_v1: ['Alles gesehen', 'Begegne allen Aufgabentypen.']
+    all_seen_v1: ['Alles gesehen', 'Begegne allen Aufgabentypen.'],
+    hardcore_first_game: ['Feuertaufe', 'Beende dein erstes Hardcore-Spiel.'],
+    hardcore_score_2000: ['Kühler Kopf', 'Erreiche 2.000 Punkte im Hardcore.'],
+    hardcore_score_4000: ['Nerven aus Stahl', 'Erreiche 4.000 Punkte im Hardcore.'],
+    hardcore_score_6000: ['Ohne Netz', 'Erreiche 6.000 Punkte im Hardcore.'],
+    hardcore_records_3: ['Rekord unter Druck', 'Brich deinen Hardcore-Rekord 3-mal.'],
+    hardcore_no_error: ['Unantastbar', 'Beende ein Hardcore-Spiel ohne Fehler.'],
+    hardcore_comeback: ['Aufholjagd', 'Fall auf 0 Punkte und beende dann ein Hardcore-Spiel mit mindestens 1.500 Punkten.'],
+    hardcore_no_mercy: ['Keine Gnade', 'Beende ein Hardcore-Spiel mit 2.000 Punkten oder mehr trotz mindestens 5 Fehlern.'],
+    hardcore_streak_10: ['10er-Serie', 'Schaffe 10 Erfolge in Folge im Hardcore.'],
+    hardcore_insane_8: ['Donnerschlag', 'Erziele 8 „Wahnsinn“-Ergebnisse in einem Hardcore-Spiel.'],
+    hardcore_timing_exact: ['Chirurgisch', 'Meistere die Timing-Aufgabe im Hardcore perfekt.'],
+    hardcore_all_succeeded_v1: ['Ohne Schwächen', 'Meistere jeden Aufgabentyp mindestens einmal im Hardcore.']
   }
 };
 

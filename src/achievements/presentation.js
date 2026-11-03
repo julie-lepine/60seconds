@@ -27,7 +27,12 @@ const PROGRESS_SOURCE_BY_ID = Object.freeze({
   games_500: 'games',
   seconds_3600: 'seconds',
   seconds_36000: 'seconds',
-  all_seen_v1: 'collectionSeen'
+  all_seen_v1: 'collectionSeen',
+  hardcore_score_2000: 'hardcoreScore',
+  hardcore_score_4000: 'hardcoreScore',
+  hardcore_score_6000: 'hardcoreScore',
+  hardcore_records_3: 'hardcoreRecords',
+  hardcore_all_succeeded_v1: 'hardcoreCollection'
 });
 
 const HIDDEN_UNTIL_UNLOCKED = new Set(['return_after_7_days']);
@@ -36,7 +41,8 @@ const CATEGORY_TRANSLATION_KEYS = Object.freeze({
   consistency: 'achievementCategoryConsistency',
   scores: 'achievementCategoryScores',
   mastery: 'achievementCategoryMastery',
-  experience: 'achievementCategoryExperience'
+  experience: 'achievementCategoryExperience',
+  hardcore: 'achievementCategoryHardcore'
 });
 
 const DATE_LOCALES = Object.freeze({
@@ -69,6 +75,12 @@ function metricFor(source, item, data){
       return { current: safeCount(data.bestScore), total: targetFor(item) };
     case 'records':
       return { current: safeCount(data.progress.stats.recordsBroken), total: targetFor(item) };
+    case 'hardcoreScore':
+      return { current: safeCount(data.hardcoreBestScore), total: targetFor(item) };
+    case 'hardcoreRecords':
+      return { current: safeCount(data.progress.stats.hardcoreRecordsBroken), total: targetFor(item) };
+    case 'hardcoreCollection':
+      return countScopeProgress(data.progress.stats.hardcoreSucceededTypes, item.params.scopeId);
     case 'games':
       return { current: safeCount(data.progress.stats.gamesCompleted), total: targetFor(item) };
     case 'seconds':
@@ -108,6 +120,7 @@ export function buildAchievementPresentation({
   progress,
   streakCount = 0,
   bestScore = 0,
+  hardcoreBestScore = 0,
   locale = lang,
   translate = t,
   catalog = ACHIEVEMENTS
@@ -119,6 +132,8 @@ export function buildAchievementPresentation({
     stats: {
       dailyCompleted: safeCount(progress?.stats?.dailyCompleted),
       recordsBroken: safeCount(progress?.stats?.recordsBroken),
+      hardcoreRecordsBroken: safeCount(progress?.stats?.hardcoreRecordsBroken),
+      hardcoreSucceededTypes: Array.isArray(progress?.stats?.hardcoreSucceededTypes) ? progress.stats.hardcoreSucceededTypes : [],
       gamesCompleted: safeCount(progress?.stats?.gamesCompleted),
       playSeconds: safeCount(progress?.stats?.playSeconds),
       seenTypes: Array.isArray(progress?.stats?.seenTypes) ? progress.stats.seenTypes : [],
@@ -132,7 +147,8 @@ export function buildAchievementPresentation({
     const metric = source ? metricFor(source, item, {
       progress: safeProgress,
       streakCount,
-      bestScore
+      bestScore,
+      hardcoreBestScore
     }) : null;
     const total = metric ? safeCount(metric.total) : null;
     const rawCurrent = metric ? safeCount(metric.current) : null;
