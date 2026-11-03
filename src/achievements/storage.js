@@ -4,6 +4,7 @@ import {
   createEmptyProgress,
   getEffectiveStreak,
   migrateLegacyProgress,
+  reconcileScoreAchievements,
   normalizeProgress
 } from './progress.js';
 
@@ -90,6 +91,11 @@ export async function initializeAchievementProgress(now = new Date()){
       progressCache = normalized.progress;
       initialized = true;
       storageStatus = 'loaded';
+      const reconciled = reconcileScoreAchievements(progressCache, {
+        bestScore: Math.max(getBestScore('normal'), getBestScore('daily')),
+        hardcoreBestScore: getBestScore('hardcore')
+      }, now.toISOString());
+      if(reconciled.added.length) await replaceProgress(reconciled.progress);
       return { progress: clone(progressCache), status: storageStatus, writable };
     }
     if(normalized.status === 'future'){

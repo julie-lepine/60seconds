@@ -184,6 +184,27 @@ export function migrateLegacyProgress(legacy = {}, migratedAt = new Date().toISO
   return progress;
 }
 
+// Rattrapage : les records enregistrés font foi. Un succès de score dont le seuil est déjà couvert par un record
+// (jeu normal / quotidien, ou hardcore) est débloqué même si la partie correspondante ne l'a pas évalué
+// (ancienne version, seuil ajouté plus tard, donnée importée…).
+export function reconcileScoreAchievements(progress, { bestScore = 0, hardcoreBestScore = 0 } = {}, now = new Date().toISOString()){
+  const normalBest = validatedScore(bestScore);
+  const hardcoreBest = validatedScore(hardcoreBestScore);
+  const next = cloneProgress(progress);
+  const added = [];
+  for(const item of ACHIEVEMENTS){
+    if(next.unlocked[item.id]) continue;
+    const fromScore = item.condition === 'score' && normalBest >= item.params.score;
+    const fromHardcoreScore = item.condition === 'hardcoreScore' && hardcoreBest >= item.params.score;
+    const fromHardcoreGame = item.id === 'hardcore_first_game' && hardcoreBest > 0;
+    if(fromScore || fromHardcoreScore || fromHardcoreGame){
+      next.unlocked[item.id] = now;
+      added.push(item.id);
+    }
+  }
+  return { progress: next, added };
+}
+
 function cloneProgress(progress){
   return {
     ...progress,
