@@ -25,8 +25,8 @@ export function renderScores(){
       <div class="scores-title display">${t('scores')}</div>
       <div class="scores-tabs">
         <button type="button" class="scores-tab" id="tabGeneral">${t('tabGeneral')}</button>
-        <button type="button" class="scores-tab" id="tabDaily">${t('tabDaily')}</button>
         <button type="button" class="scores-tab" id="tabHardcore">${t('hardcore')}</button>
+        <button type="button" class="scores-tab" id="tabDaily">${t('tabDaily')}</button>
       </div>
       <div class="scores-list" id="scoresBody"></div>
     </div>`;
