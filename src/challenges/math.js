@@ -1,13 +1,13 @@
 import { t } from '../i18n.js';
 import { G } from '../state.js';
-import { ri } from '../utils.js';
+import { ri, rnd, shuffle } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
 
 export function math(area, eventContext){
   const a=ri(2,9), b=ri(2,9); const correct=a*b;
   let opts=[correct];
-  while(opts.length<3){ const d=correct+ri(-12,12)*(Math.random()<.5?1:-1); if(d>0 && !opts.includes(d)) opts.push(d); }
-  opts.sort(()=>Math.random()-.5);
+  while(opts.length<3){ const d=correct+ri(-12,12)*(rnd()<.5?1:-1); if(d>0 && !opts.includes(d)) opts.push(d); }
+  shuffle(opts);
   area.innerHTML = `<div class="chal-label label">${t('math')}</div>
     <div class="chal-big display">${a} × ${b}</div>
     <div class="opt-list">${opts.map(o=>`<button class="opt-btn" data-v="${o}">${o}</button>`).join('')}</div>`;

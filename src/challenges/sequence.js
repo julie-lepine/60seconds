@@ -1,6 +1,6 @@
 import { t } from '../i18n.js';
 import { G } from '../state.js';
-import { ri } from '../utils.js';
+import { ri, shuffle } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
 
 function makeSeq(){
@@ -25,8 +25,7 @@ function nearbyOpts(missing, step){
   while(opts.length<3 && uniq.length){
     opts.push(uniq.splice(ri(0,uniq.length-1),1)[0]);
   }
-  opts.sort(()=>Math.random()-.5);
-  return opts;
+  return shuffle(opts);
 }
 
 export function sequence(area, eventContext){

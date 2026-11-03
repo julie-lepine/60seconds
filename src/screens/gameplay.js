@@ -12,12 +12,15 @@ export function startPlay(){
   clearGameTimers();
   G.screen='gameplay'; G.score=0; G.lastSecMark=null; G.lastType=null;
   G.dailyPick = G.mode==='daily' ? makeDailyPicker() : null;
+  G.dailyIndex = 0; G.rng = null;
   createGameSession(G.mode);
   G.endTime = performance.now()+60000;
   view.innerHTML = `
     <div class="screen" id="screen-gameplay">
       ${G.mode==='daily'?`<div class="mode-badge">${t('daily')}</div>`:''}
+      ${G.mode==='hardcore'?`<div class="mode-badge">${t('hardcore')}</div>`:''}
       <div class="timer display" id="timerNum">60.00</div>
+      ${G.mode==='hardcore'?'<div class="hc-score display" id="hcScore">0</div>':''}
       <div id="challengeArea"></div>
     </div>`;
   tickTimer();

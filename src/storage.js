@@ -4,6 +4,7 @@ import { Preferences } from '@capacitor/preferences';
 const KEYS = {
   normal: '60seconds_best_normal',
   daily: '60seconds_best_daily',
+  hardcore: '60seconds_best_hardcore',
   username: '60seconds_username',
   reduceMotion: '60seconds_reduce_motion',
   dailyRun: '60seconds_daily_run',
@@ -29,7 +30,9 @@ const EMPTY_STREAK = Object.freeze({
 let streak = { ...EMPTY_STREAK };
 
 function keyFor(mode){
-  return mode === 'daily' ? KEYS.daily : KEYS.normal;
+  if(mode === 'daily') return KEYS.daily;
+  if(mode === 'hardcore') return KEYS.hardcore;
+  return KEYS.normal;
 }
 
 function parseStored(raw){

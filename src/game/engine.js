@@ -1,7 +1,8 @@
 import { t } from '../i18n.js';
 import { G } from '../state.js';
-import { CHALLENGE_TYPES } from '../constants.js';
-import { ri, clearChallengeTimers } from '../utils.js';
+import { CHALLENGE_TYPES, HARDCORE_PENALTY } from '../constants.js';
+import { ri, fmt, clearChallengeTimers } from '../utils.js';
+import { makeDailyRng } from './daily.js';
 import { sInsane, sSuccess, sError } from '../audio.js';
 import { endGame } from '../screens/end.js';
 import { CHALLENGES } from '../challenges/challenges.js';
@@ -19,8 +20,14 @@ export function nextChallenge(){
   clearChallengeTimers();
   area.style.background=''; area.innerHTML='';
   const type=pickType();
+  G.rng = G.mode==='daily' ? makeDailyRng(G.dailyIndex++) : null;
   const eventContext=markChallengeShown(type);
   CHALLENGES[type](area, eventContext);
+}
+// HARDCORE : chaque erreur (ou temps écoulé) retire des points, sans descendre sous 0.
+export function applyResultScore(score, kind, points, mode){
+  if(mode==='hardcore' && kind==='bad') return Math.max(0, score - HARDCORE_PENALTY);
+  return score + points;
 }
 export function resultFlash(kind, points, eventContext, metadata){
   if(G.screen!=='gameplay') return;
@@ -29,10 +36,15 @@ export function resultFlash(kind, points, eventContext, metadata){
   if(!area) return;
   if(!recordChallengeResult(eventContext, kind, metadata)) return;
   G.flashLock=true;
-  G.score += points;
+  const before=G.score;
+  G.score = applyResultScore(G.score, kind, points, G.mode);
+  const lost=Math.max(0, before-G.score);
+  const hcScore=document.getElementById('hcScore');
+  if(hcScore) hcScore.textContent=fmt(G.score);
   const text = kind==='insane'?t('flashInsane'):(kind==='good'?t('flashGood'):t('flashBad'));
+  const penalty = lost>0 ? `<div class="feedback-penalty display">\u2212${fmt(lost)}</div>` : '';
   area.style.background='';
-  area.innerHTML = `<div class="feedback display ${kind==='insane'?'insane':(kind==='good'?'good':'bad')}">${text}</div>`;
+  area.innerHTML = `<div class="feedback display ${kind==='insane'?'insane':(kind==='good'?'good':'bad')}">${text}${penalty}</div>`;
   if(kind==='insane') sInsane(); else if(kind==='good') sSuccess(); else sError();
   clearTimeout(G.flashTimeout);
   G.flashTimeout=setTimeout(()=>{

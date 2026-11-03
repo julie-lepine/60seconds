@@ -5,6 +5,13 @@ export function seedFromDate(){
   const d=new Date();
   return d.getUTCFullYear()*10000+(d.getUTCMonth()+1)*100+d.getUTCDate();
 }
+// Un générateur par défi, dérivé de la date (UTC) et du rang du défi dans la partie :
+// le contenu d'un défi ne dépend ni de la vitesse du joueur ni des défis précédents.
+export function makeDailyRng(index, seed = seedFromDate()){
+  let h = Math.imul((seed ^ Math.imul(index + 1, 0x9E3779B1)) | 0, 0x85EBCA6B);
+  h ^= h >>> 15;
+  return mulberry32(h);
+}
 export function makeDailyPicker(){
   const rnd = mulberry32(seedFromDate());
   let last = null;

@@ -16,7 +16,7 @@ function statusHtml(text){
 
 export function renderScores(){
   G.screen = 'scores';
-  let mode = G.mode === 'daily' ? 'daily' : 'normal';
+  let mode = G.mode === 'daily' || G.mode === 'hardcore' ? G.mode : 'normal';
   let loadId = 0;
 
   view.innerHTML = `
@@ -26,17 +26,20 @@ export function renderScores(){
       <div class="scores-tabs">
         <button type="button" class="scores-tab" id="tabGeneral">${t('tabGeneral')}</button>
         <button type="button" class="scores-tab" id="tabDaily">${t('tabDaily')}</button>
+        <button type="button" class="scores-tab" id="tabHardcore">${t('hardcore')}</button>
       </div>
       <div class="scores-list" id="scoresBody"></div>
     </div>`;
 
   const tabGeneral = document.getElementById('tabGeneral');
   const tabDaily = document.getElementById('tabDaily');
+  const tabHardcore = document.getElementById('tabHardcore');
   const body = document.getElementById('scoresBody');
 
   function paintTabs(){
     tabGeneral.classList.toggle('on', mode === 'normal');
     tabDaily.classList.toggle('on', mode === 'daily');
+    tabHardcore.classList.toggle('on', mode === 'hardcore');
   }
 
   function paintList(rows, me){
@@ -80,6 +83,7 @@ export function renderScores(){
 
   tabGeneral.onclick = () => setMode('normal');
   tabDaily.onclick = () => setMode('daily');
+  tabHardcore.onclick = () => setMode('hardcore');
   document.getElementById('backHome').onclick = renderHome;
   setMode(mode);
 }

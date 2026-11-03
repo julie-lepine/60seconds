@@ -1,6 +1,6 @@
 import { t } from '../i18n.js';
 import { G } from '../state.js';
-import { fmt } from '../utils.js';
+import { fmt, setHardcoreTheme } from '../utils.js';
 import { ctx } from '../audio.js';
 import { getRecordScore, getTodayDailyRun } from '../storage.js';
 import { getAchievementStreakStatus } from '../achievements/storage.js';
@@ -12,6 +12,7 @@ import { renderAchievements } from './achievements.js';
 
 export function renderHome(){
   G.screen='home';
+  setHardcoreTheme(false);
   G.best = getRecordScore();
   const dailyRun = getTodayDailyRun();
   const streak = getAchievementStreakStatus();
@@ -31,6 +32,7 @@ export function renderHome(){
       ${dailyRun
         ? `<div class="daily-link done"><span class="daily-check" aria-hidden="true">✓</span><span class="daily-done-label">${t('dailyDone')}</span><b class="daily-score">${fmt(dailyRun.score)}</b></div>`
         : `<button class="daily-link tap-safe" id="dailyBtn"><span class="daily-dot" aria-hidden="true"></span>${t('daily')}</button>`}
+      <button class="hardcore-link tap-safe" id="hardcoreBtn"><span class="hardcore-dot" aria-hidden="true"></span>${t('hardcore')}</button>
       <div class="home-stats">
         <div class="home-stat">
           <div class="home-stat-label">${t('streak')}</div>
@@ -45,6 +47,7 @@ export function renderHome(){
     </div>`;
   document.getElementById('playBtn').onclick=()=>{ ctx(); startCountdown('normal'); };
   document.getElementById('dailyBtn')?.addEventListener('click', ()=>{ ctx(); startCountdown('daily'); });
+  document.getElementById('hardcoreBtn').onclick=()=>{ ctx(); startCountdown('hardcore'); };
   document.getElementById('nav-scores').onclick=renderScores;
   document.getElementById('nav-achievements').onclick=renderAchievements;
   document.getElementById('nav-settings').onclick=renderSettings;

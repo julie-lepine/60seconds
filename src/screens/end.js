@@ -73,7 +73,43 @@ function renderSaveError(state){
   if(retry) retry.onclick = () => { void endGame(); };
 }
 
+// HARDCORE : record et classement séparés ; les succès et la série ne sont pas touchés.
+function prepareHardcoreFinalization(session){
+  clearGameTimers();
+  G.screen='end';
+
+  const now = new Date();
+  const score = G.score;
+  const previousBest = finalizationDependencies.getBestScore('hardcore');
+  const isNew = score > previousBest;
+  const previousProgress = finalizationDependencies.getAchievementProgress();
+
+  return {
+    sessionId: session.sessionId,
+    mode: 'hardcore',
+    score,
+    previousBest,
+    isNew,
+    delta: score - previousBest,
+    now,
+    previousProgress,
+    candidate: null,
+    completedSession: { ...session, score, previousBest, recordBroken: isNew },
+    evaluated: { progress: previousProgress, newlyUnlocked: [] },
+    progressWithoutRecord: previousProgress,
+    progressionSaved: true,
+    recordSaved: !isNew,
+    recordBreakPersisted: true,
+    dailySaved: true,
+    sessionCompleted: false,
+    leaderboardSubmitted: false,
+    failedStage: null,
+    inFlight: null
+  };
+}
+
 function prepareFinalization(session){
+  if(session.mode === 'hardcore') return prepareHardcoreFinalization(session);
   clearGameTimers();
   G.screen='end';
 

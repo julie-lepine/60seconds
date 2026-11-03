@@ -29,7 +29,7 @@ function publicSnapshot(session){
 export function createGameSession(mode, startedAt = Date.now()){
   activeSession = {
     sessionId: makeSessionId(),
-    mode: mode === 'daily' ? 'daily' : 'normal',
+    mode: mode === 'daily' || mode === 'hardcore' ? mode : 'normal',
     startedAt: Number.isFinite(startedAt) ? startedAt : Date.now(),
     status: 'running',
     challengesResolved: 0,

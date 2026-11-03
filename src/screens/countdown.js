@@ -3,16 +3,18 @@ import { G } from '../state.js';
 import { sCountdown, sGo } from '../audio.js';
 import { getBestScore, getTodayDailyRun } from '../storage.js';
 import { view } from '../dom.js';
+import { setHardcoreTheme } from '../utils.js';
 import { startPlay } from './gameplay.js';
 
 export function startCountdown(mode){
   if(G.screen==='countdown' || G.screen==='gameplay') return;
   if(mode==='daily' && getTodayDailyRun()) return;
   G.mode=mode; G.best=getBestScore(mode); G.screen='countdown';
+  setHardcoreTheme(mode==='hardcore');
   const go = t('go');
   view.innerHTML = `
     <div class="screen" id="screen-countdown">
-      <div class="cd-pretitle">${mode==='daily'?t('daily'):t('title')}</div>
+      <div class="cd-pretitle">${mode==='daily'?t('daily'):(mode==='hardcore'?t('hardcore'):t('title'))}</div>
       <div class="cd-number display" id="cdNum">3</div>
     </div>`;
   const el=document.getElementById('cdNum');

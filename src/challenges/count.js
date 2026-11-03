@@ -1,6 +1,6 @@
 import { t } from '../i18n.js';
 import { G } from '../state.js';
-import { ri } from '../utils.js';
+import { ri, rnd, shuffle } from '../utils.js';
 import { resultFlash } from '../game/engine.js';
 
 function scatter(n){
@@ -9,8 +9,8 @@ function scatter(n){
   let guard=0;
   while(pts.length<n && guard<500){
     guard++;
-    const x=pad+Math.random()*(w-pad*2);
-    const y=pad+Math.random()*(h-pad*2);
+    const x=pad+rnd()*(w-pad*2);
+    const y=pad+rnd()*(h-pad*2);
     if(pts.every(p=>Math.hypot(p.x-x,p.y-y)>=minD)) pts.push({x,y});
   }
   while(pts.length<n){
@@ -27,8 +27,7 @@ function nearbyOpts(n){
     const i=ri(0,pool.length-1);
     opts.push(pool.splice(i,1)[0]);
   }
-  opts.sort(()=>Math.random()-.5);
-  return opts;
+  return shuffle(opts);
 }
 
 export function count(area, eventContext){

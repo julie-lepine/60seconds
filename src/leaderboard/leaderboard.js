@@ -51,10 +51,14 @@ async function supabaseFetch(path, options = {}){
   return { ok: true, status: res.status, data, error: null, contentRange };
 }
 
+function normalizeMode(mode){
+  return mode === 'daily' || mode === 'hardcore' ? mode : 'normal';
+}
+
 function boardArgs(mode, dailyDate){
   const isDaily = mode === 'daily';
   return {
-    p_mode: isDaily ? 'daily' : 'normal',
+    p_mode: normalizeMode(mode),
     p_daily_date: isDaily ? (dailyDate || localDailyDate()) : null
   };
 }
@@ -68,7 +72,7 @@ export function buildLeaderboardRow(mode, score){
   return {
     username,
     score: Math.round(n),
-    mode: isDaily ? 'daily' : 'normal',
+    mode: normalizeMode(mode),
     daily_date: isDaily ? localDailyDate() : null
   };
 }
