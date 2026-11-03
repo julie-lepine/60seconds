@@ -184,7 +184,7 @@ html.is-native .ad-placeholder{visibility:hidden;}
 .stroop-opts{max-width:100%;}
 
 /* feedback flash */
-.feedback{font-size:clamp(38px,11vw,48px);letter-spacing:-.01em;}
+.feedback{font-size:clamp(38px,11vw,48px);letter-spacing:-.01em;text-align:center;}
 .feedback.good{color:var(--black);}
 .feedback.insane{color:var(--coral);}
 .feedback.bad{color:var(--black-40);}
@@ -229,13 +229,32 @@ html.is-native .ad-placeholder{visibility:hidden;}
 
 /* ---- ACHIEVEMENTS ---- */
 #screen-achievements{padding:90px 28px calc(24px + env(safe-area-inset-bottom, 0px));overflow:hidden;}
-.achievements-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:24px;flex-shrink:0;}
+.achievements-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:12px;flex-shrink:0;}
 .achievements-title{font-size:34px;line-height:1;}
 .achievements-count{font-size:20px;line-height:1;color:var(--coral);white-space:nowrap;}
 .achievements-list{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:12px;}
-.achievement-section + .achievement-section{margin-top:34px;}
-.achievement-category{padding-bottom:10px;border-bottom:1px solid var(--coral);font-size:10px;line-height:1.3;letter-spacing:.18em;color:var(--black-60);font-weight:700;}
-.achievement-row{position:relative;padding:16px 0;}
+.achievements-bar{height:2px;margin-bottom:20px;background:var(--line);flex-shrink:0;}
+.achievements-bar span{display:block;height:100%;background:var(--coral);}
+.achievement-next{margin-bottom:30px;padding:16px;border:1.5px solid var(--black);}
+.achievement-next-label{font-size:9px;line-height:1.2;letter-spacing:.18em;color:var(--coral);font-weight:700;}
+.achievement-next-title{margin-top:8px;font-size:22px;line-height:1.1;letter-spacing:-.01em;}
+.achievement-next-state{margin-top:10px;font-size:11px;line-height:1.2;letter-spacing:.14em;color:var(--black);font-weight:700;}
+.achievement-next .achievement-progress{height:3px;}
+.achievement-section + .achievement-section{margin-top:30px;}
+.achievement-category{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--coral);font-size:10px;line-height:1.3;letter-spacing:.18em;color:var(--black-60);font-weight:700;}
+.achievement-category-count{color:var(--coral);}
+.achievement-section.hardcore .achievement-category{padding:9px 10px;border-bottom:none;background:var(--black);color:var(--cream);}
+.achievement-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;padding:12px 0;border:none;background:transparent;font-size:10px;line-height:1.2;letter-spacing:.16em;color:var(--black-60);font-weight:700;text-transform:uppercase;text-align:left;cursor:pointer;}
+.achievement-toggle.done{border-top:1px solid var(--line);color:var(--black-40);}
+.achievement-chevron{width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);transition:transform .15s ease;}
+.achievement-toggle[aria-expanded="true"] .achievement-chevron{transform:rotate(-135deg);}
+.achievement-fold[hidden],.achievement-toggle[hidden]{display:none;}
+.achievement-row{position:relative;padding:14px 0;}
+.achievement-row.locked .achievement-row-head{align-items:baseline;}
+.achievement-row.locked .achievement-state{margin-top:0;flex:0 0 auto;}
+.achievement-row.unlocked{padding:9px 0;}
+.achievement-row.unlocked .achievement-title{font-size:15px;}
+.achievement-row.unlocked .achievement-state{margin-top:3px;}
 .achievement-row-head{display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .achievement-title{font-size:18px;line-height:1.15;letter-spacing:-.01em;}
 .achievement-mark{width:8px;height:8px;border-radius:50%;background:var(--coral);flex:0 0 auto;}
@@ -315,6 +334,8 @@ html.hardcore .stroop-word.ink-black{color:#0B0B0A;background:#F2ECDE;padding:6p
 html.hardcore .stroop-word.ink-cream{color:#F2ECDE;background:none;padding:0;}
 
 /* ---- DAILY BADGE reused in gameplay header ---- */
+.quit-btn{position:absolute;top:14px;right:16px;z-index:6;min-height:44px;padding:0 8px;border:none;background:transparent;font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#8C8574;cursor:pointer;}
+.quit-btn.armed{color:var(--coral);}
 .mode-badge{position:absolute;top:22px;left:0;right:0;text-align:center;font-size:11px;letter-spacing:.2em;color:var(--coral);font-weight:700;}
 
 html.reduce .play-btn,

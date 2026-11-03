@@ -54,7 +54,7 @@ process.env.VITE_SUPABASE_URL = 'https://example.supabase.co';
 process.env.VITE_SUPABASE_ANON_KEY = 'anon-key';
 
 const [
-  engine, session, endScreen, progress, storage, leaderboard, utils, { G }, { HARDCORE_PENALTY_STEP }, { translateForLanguage, SUPPORTED_LANGUAGES }
+  engine, session, endScreen, progress, storage, leaderboard, utils, { G }, { HARDCORE_PENALTY_STEP, HARDCORE_PENALTY_CAP }, { translateForLanguage, SUPPORTED_LANGUAGES }
 ] = await Promise.all([
   import('../src/game/engine.js'),
   import('../src/achievements/session.js'),
@@ -108,21 +108,22 @@ test.after(() => {
   if(originalDocument) globalThis.document = originalDocument; else delete globalThis.document;
 });
 
-test('la pénalité hardcore commence à 50 et monte de 50 en 50', () => {
+test('la pénalité hardcore commence à 50, monte de 50 en 50 et plafonne à 300', () => {
   assert.equal(HARDCORE_PENALTY_STEP, 50);
-  assert.deepEqual([0, 1, 2, 3].map(n => engine.hardcorePenalty(n)), [50, 100, 150, 200]);
+  assert.equal(HARDCORE_PENALTY_CAP, 300);
+  assert.deepEqual([0, 1, 2, 3, 4, 5, 6, 20].map(n => engine.hardcorePenalty(n)), [50, 100, 150, 200, 250, 300, 300, 300]);
 });
 
-test('erreurs consécutives : la pénalité grimpe, une réussite la remet à 50', () => {
-  const run = (kind, pts, start, streak) => { G.hcErrorStreak = streak; return resolveResult(kind, pts, 'hardcore', start); };
+test('les erreurs s’accumulent sur la partie, une réussite ne remet pas la pénalité à zéro', () => {
+  const run = (kind, pts, start, errors) => { G.hcErrors = errors; return resolveResult(kind, pts, 'hardcore', start); };
   assert.equal(run('bad', 0, 1000, 0).score, 950);
-  assert.equal(G.hcErrorStreak, 1);
-  assert.equal(run('bad', 0, 950, 1).score, 850);
-  assert.equal(run('bad', 0, 850, 2).score, 700);
-  assert.equal(G.hcErrorStreak, 3);
-  assert.equal(run('good', 150, 700, 3).score, 850);
-  assert.equal(G.hcErrorStreak, 0);
-  assert.equal(run('bad', 0, 850, G.hcErrorStreak).score, 800);
+  assert.equal(G.hcErrors, 1);
+  assert.equal(run('good', 150, 950, 1).score, 1100);
+  assert.equal(G.hcErrors, 1, 'une réussite ne change pas le compteur');
+  assert.equal(run('bad', 0, 1100, 1).score, 1000);
+  assert.equal(G.hcErrors, 2);
+  assert.equal(run('bad', 0, 1000, 5).score, 700);
+  assert.equal(run('bad', 0, 1000, 9).score, 700);
 });
 
 test('applyResultScore : une erreur retire la pénalité en hardcore, sans descendre sous 0', () => {
@@ -141,7 +142,7 @@ test('applyResultScore : aucune pénalité en normal et en quotidien', () => {
 });
 
 test('une erreur hardcore affiche la pénalité réellement retirée et met à jour le score en jeu', () => {
-  G.hcErrorStreak = 2;
+  G.hcErrors = 2;
   const result = resolveResult('bad', 0, 'hardcore', 500);
   assert.equal(result.score, 350);
   assert.match(result.html, /feedback display bad/);
@@ -150,7 +151,7 @@ test('une erreur hardcore affiche la pénalité réellement retirée et met à j
 });
 
 test('une erreur hardcore avec peu de points ne retire que ce qu’il reste', () => {
-  G.hcErrorStreak = 0;
+  G.hcErrors = 0;
   const result = resolveResult('bad', 0, 'hardcore', 30);
   assert.equal(result.score, 0);
   assert.match(result.html, /−30</);

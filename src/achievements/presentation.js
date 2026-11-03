@@ -172,14 +172,42 @@ export function buildAchievementPresentation({
     });
   });
 
+  const order = new Map(items.map((item, index) => [item.id, index]));
+  // Verrouillés : les plus avancés d'abord (ratio de progression décroissant), puis ceux sans compteur dans l'ordre du catalogue.
+  const byProximity = (a, b) => {
+    const pa = a.progress == null ? -1 : a.progress;
+    const pb = b.progress == null ? -1 : b.progress;
+    return pb - pa || order.get(a.id) - order.get(b.id);
+  };
+  // Débloqués : les plus récents d'abord.
+  const byRecent = (a, b) => String(b.unlockedAt).localeCompare(String(a.unlockedAt)) || order.get(a.id) - order.get(b.id);
+
+  const lockedItems = items.filter(item => !item.unlocked);
+  const started = lockedItems.filter(item => item.progress != null && item.progress > 0 && item.progress < 1).sort(byProximity);
+  // Prochain succès : le plus proche d'être obtenu ; sinon le premier succès accessible (hors hardcore).
+  const next = started[0]
+    || lockedItems.find(item => item.category !== 'hardcore')
+    || lockedItems[0]
+    || null;
+
   return Object.freeze({
     items: Object.freeze(items),
+    next,
     categories: Object.freeze(
-      Object.keys(ACHIEVEMENT_CATEGORIES).map(category => Object.freeze({
-        id: category,
-        label: translate(CATEGORY_TRANSLATION_KEYS[category]),
-        items: Object.freeze(items.filter(item => item.category === category))
-      }))
+      Object.keys(ACHIEVEMENT_CATEGORIES).map(category => {
+        const own = items.filter(item => item.category === category);
+        const locked = own.filter(item => !item.unlocked).sort(byProximity);
+        const done = own.filter(item => item.unlocked).sort(byRecent);
+        return Object.freeze({
+          id: category,
+          label: translate(CATEGORY_TRANSLATION_KEYS[category]),
+          items: Object.freeze(own),
+          locked: Object.freeze(locked),
+          unlocked: Object.freeze(done),
+          unlockedCount: done.length,
+          totalCount: own.length
+        });
+      })
     ),
     unlockedCount: items.filter(item => item.unlocked).length,
     totalCount: items.length

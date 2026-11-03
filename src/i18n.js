@@ -10,6 +10,8 @@ const STRINGS = {
     play: 'JOUER',
     modeClassic: 'MODE CLASSIQUE',
     modeHardcore: 'MODE HARDCORE',
+    quit: 'QUITTER',
+    quitConfirm: 'CONFIRMER ?',
     daily: 'DÉFI DU JOUR',
     dailyDone: 'DÉFI TERMINÉ',
     record: 'RECORD',
@@ -90,6 +92,8 @@ const STRINGS = {
     play: 'PLAY',
     modeClassic: 'CLASSIC MODE',
     modeHardcore: 'HARDCORE MODE',
+    quit: 'QUIT',
+    quitConfirm: 'CONFIRM?',
     daily: 'DAILY CHALLENGE',
     dailyDone: 'CHALLENGE COMPLETE',
     record: 'RECORD',
@@ -170,6 +174,8 @@ const STRINGS = {
     play: 'JUGAR',
     modeClassic: 'MODO CLÁSICO',
     modeHardcore: 'MODO HARDCORE',
+    quit: 'SALIR',
+    quitConfirm: '¿CONFIRMAR?',
     daily: 'RETO DIARIO',
     dailyDone: 'RETO COMPLETADO',
     record: 'RÉCORD',
@@ -250,6 +256,8 @@ const STRINGS = {
     play: 'SPIELEN',
     modeClassic: 'KLASSIK MODUS',
     modeHardcore: 'HARDCORE-MODUS',
+    quit: 'BEENDEN',
+    quitConfirm: 'SICHER?',
     daily: 'TAGESAUFGABE',
     dailyDone: 'AUFGABE ERLEDIGT',
     record: 'REKORD',
@@ -336,7 +344,10 @@ const ACHIEVEMENT_UI_STRINGS = {
     achievementCategoryScores: 'SCORES',
     achievementCategoryMastery: 'PANACHE',
     achievementCategoryExperience: 'AU COMPTEUR',
-    achievementCategoryHardcore: 'HARDCORE'
+    achievementCategoryHardcore: 'HARDCORE',
+    achievementNext: 'PROCHAIN SUCCÈS',
+    achievementsShowMore: 'VOIR LES {count} AUTRES',
+    achievementsUnlockedFold: 'DÉBLOQUÉS ({count})'
   },
   en: {
     achievements: 'ACHIEVEMENTS',
@@ -349,7 +360,10 @@ const ACHIEVEMENT_UI_STRINGS = {
     achievementCategoryScores: 'SCORES',
     achievementCategoryMastery: 'FLAIR',
     achievementCategoryExperience: 'MILEAGE',
-    achievementCategoryHardcore: 'HARDCORE'
+    achievementCategoryHardcore: 'HARDCORE',
+    achievementNext: 'NEXT ACHIEVEMENT',
+    achievementsShowMore: 'SHOW {count} MORE',
+    achievementsUnlockedFold: 'UNLOCKED ({count})'
   },
   es: {
     achievements: 'LOGROS',
@@ -362,7 +376,10 @@ const ACHIEVEMENT_UI_STRINGS = {
     achievementCategoryScores: 'PUNTUACIONES',
     achievementCategoryMastery: 'BRÍO',
     achievementCategoryExperience: 'KILÓMETROS',
-    achievementCategoryHardcore: 'HARDCORE'
+    achievementCategoryHardcore: 'HARDCORE',
+    achievementNext: 'PRÓXIMO LOGRO',
+    achievementsShowMore: 'VER {count} MÁS',
+    achievementsUnlockedFold: 'DESBLOQUEADOS ({count})'
   },
   de: {
     achievements: 'ERFOLGE',
@@ -375,7 +392,10 @@ const ACHIEVEMENT_UI_STRINGS = {
     achievementCategoryScores: 'PUNKTE',
     achievementCategoryMastery: 'SCHWUNG',
     achievementCategoryExperience: 'KILOMETERSTAND',
-    achievementCategoryHardcore: 'HARDCORE'
+    achievementCategoryHardcore: 'HARDCORE',
+    achievementNext: 'NÄCHSTER ERFOLG',
+    achievementsShowMore: '{count} WEITERE ANZEIGEN',
+    achievementsUnlockedFold: 'FREIGESCHALTET ({count})'
   }
 };
 
