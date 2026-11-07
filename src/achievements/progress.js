@@ -59,6 +59,8 @@ export function createEmptyProgress(createdAt = new Date().toISOString()){
     createdAt,
     migratedAt: null,
     unlocked: {},
+    // Succès débloqués par rattrapage (record ou migration) : leur vraie date est inconnue, on ne l'affiche pas.
+    reconciled: [],
     stats: {
       gamesCompleted: 0,
       playSeconds: 0,
@@ -102,13 +104,16 @@ export function normalizeProgress(raw){
     ? raw.migratedAt
     : null;
 
+  const unlocked = normalizeUnlocked(raw.unlocked);
+
   return {
     status: 'valid',
     progress: {
       version: PROGRESS_VERSION,
       createdAt,
       migratedAt,
-      unlocked: normalizeUnlocked(raw.unlocked),
+      unlocked,
+      reconciled: uniqueStrings(raw.reconciled).filter(id => typeof unlocked[id] === 'string'),
       stats: {
         gamesCompleted: safeInteger(stats.gamesCompleted),
         playSeconds: safeInteger(stats.playSeconds),
@@ -179,6 +184,7 @@ export function migrateLegacyProgress(legacy = {}, migratedAt = new Date().toISO
     const unlockFromStreak = item.condition === 'streak' && legacyStreak && legacyStreak.currentStreak >= item.params.days;
     if(unlockFromScore || unlockFirstGame || unlockFromStreak){
       progress.unlocked[item.id] = migratedAt;
+      progress.reconciled.push(item.id);
     }
   }
   return progress;
@@ -199,6 +205,7 @@ export function reconcileScoreAchievements(progress, { bestScore = 0, hardcoreBe
     const fromHardcoreGame = item.id === 'hardcore_first_game' && hardcoreBest > 0;
     if(fromScore || fromHardcoreScore || fromHardcoreGame){
       next.unlocked[item.id] = now;
+      next.reconciled = uniqueStrings([...next.reconciled, item.id]);
       added.push(item.id);
     }
   }
@@ -209,6 +216,7 @@ function cloneProgress(progress){
   return {
     ...progress,
     unlocked: { ...progress.unlocked },
+    reconciled: [...(progress.reconciled || [])],
     stats: {
       ...progress.stats,
       seenTypes: [...progress.stats.seenTypes],

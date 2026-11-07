@@ -128,6 +128,7 @@ export function buildAchievementPresentation({
   const unlocked = progress?.unlocked && typeof progress.unlocked === 'object'
     ? progress.unlocked
     : {};
+  const reconciled = new Set(Array.isArray(progress?.reconciled) ? progress.reconciled : []);
   const safeProgress = {
     stats: {
       dailyCompleted: safeCount(progress?.stats?.dailyCompleted),
@@ -164,7 +165,8 @@ export function buildAchievementPresentation({
       description: copy.description,
       unlocked: isUnlocked,
       unlockedAt: isUnlocked ? unlocked[item.id] : null,
-      unlockedDate: isUnlocked ? formatAchievementUnlockDate(unlocked[item.id], locale) : null,
+      reconciled: isUnlocked && reconciled.has(item.id),
+      unlockedDate: isUnlocked && !reconciled.has(item.id) ? formatAchievementUnlockDate(unlocked[item.id], locale) : null,
       displayType: isUnlocked ? 'unlocked' : (metric ? 'progress' : 'locked'),
       currentValue: current,
       targetValue: total,
@@ -180,7 +182,9 @@ export function buildAchievementPresentation({
     return pb - pa || order.get(a.id) - order.get(b.id);
   };
   // Débloqués : les plus récents d'abord.
-  const byRecent = (a, b) => String(b.unlockedAt).localeCompare(String(a.unlockedAt)) || order.get(a.id) - order.get(b.id);
+  // Les succès rattrapés (date inconnue) passent après les autres.
+  const recency = item => (item.reconciled ? '' : String(item.unlockedAt));
+  const byRecent = (a, b) => recency(b).localeCompare(recency(a)) || order.get(a.id) - order.get(b.id);
 
   const lockedItems = items.filter(item => !item.unlocked);
   const started = lockedItems.filter(item => item.progress != null && item.progress > 0 && item.progress < 1).sort(byProximity);

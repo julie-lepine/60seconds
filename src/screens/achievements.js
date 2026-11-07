@@ -36,11 +36,17 @@ function achievementRow(item){
   if(item.unlocked){
     return `
     <article class="achievement-row unlocked" data-achievement-id="${item.id}">
-      <div class="achievement-row-head">
-        <div class="achievement-title display">${escapeHtml(item.title)}</div>
-        <span class="achievement-mark" aria-hidden="true"></span>
-      </div>
-      <div class="achievement-state ui">${achievementState(item)}</div>
+      <button class="achievement-summary" type="button" data-toggle="detail" aria-expanded="false">
+        <span class="achievement-row-head">
+          <span class="achievement-title display">${escapeHtml(item.title)}</span>
+          <span class="achievement-mark" aria-hidden="true"></span>
+        </span>
+        <span class="achievement-summary-foot">
+          <span class="achievement-state ui">${achievementState(item)}</span>
+          <span class="achievement-chevron" aria-hidden="true"></span>
+        </span>
+      </button>
+      <div class="achievement-description ui achievement-detail" data-fold="detail" hidden>${escapeHtml(item.description)}</div>
     </article>`;
   }
   return `
