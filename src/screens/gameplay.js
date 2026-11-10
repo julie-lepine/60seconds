@@ -46,6 +46,7 @@ export function startPlay(){
   G.dailyPick = G.mode==='daily' ? makeDailyPicker() : null;
   G.dailyIndex = 0; G.rng = null; G.hcErrors = 0;
   createGameSession(G.mode);
+  G.pauseStart = null;
   G.endTime = performance.now()+60000;
   view.innerHTML = `
     <div class="screen" id="screen-gameplay">

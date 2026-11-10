@@ -7,6 +7,7 @@ import { sInsane, sSuccess, sError } from '../audio.js';
 import { endGame } from '../screens/end.js';
 import { CHALLENGES } from '../challenges/challenges.js';
 import { markChallengeShown, recordChallengeResult, markScoreFloorReached } from '../achievements/session.js';
+import { shouldShowTip, showTip } from './tips.js';
 
 export function pickType(){
   if(G.mode==='daily' && G.dailyPick) return G.dailyPick();
@@ -22,6 +23,10 @@ export function nextChallenge(){
   const type=pickType();
   G.rng = G.mode==='daily' ? makeDailyRng(G.dailyIndex++) : null;
   const eventContext=markChallengeShown(type);
+  if(shouldShowTip(type)){
+    showTip(area, type, () => CHALLENGES[type](area, eventContext));
+    return;
+  }
   CHALLENGES[type](area, eventContext);
 }
 // HARDCORE : chaque erreur (ou temps écoulé) retire des points, sans descendre sous 0.

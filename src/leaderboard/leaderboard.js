@@ -28,7 +28,7 @@ export function localDailyDate(now = new Date()){
   return `${y}-${m}-${d}`;
 }
 
-async function supabaseFetch(path, options = {}){
+export async function supabaseFetch(path, options = {}){
   const url = publicEnv('VITE_SUPABASE_URL').replace(/\/$/, '');
   const key = publicEnv('VITE_SUPABASE_ANON_KEY');
   if(!url || !key) return { ok: false, status: 0, data: null, error: 'not-configured' };

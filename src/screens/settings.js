@@ -8,11 +8,14 @@ import { view } from '../dom.js';
 import { renderHome } from './home.js';
 import { renderUsername } from './username.js';
 import { renderConsent } from './consent.js';
+import { isNotificationSupported, getNotificationPrefs, saveNotificationPrefs, enableNotifications, disableNotifications, syncNotifications } from '../notifications.js';
 
 export function renderSettings(){
   G.screen='settings';
   const tracking = getAdsTracking();
   const native = Capacitor.isNativePlatform();
+  const notif = getNotificationPrefs();
+  const notifSupported = isNotificationSupported();
   view.innerHTML = `
     <div class="screen" id="screen-settings">
       <div class="topnav"><div class="navlink" id="backHome2">← ${t('home')}</div><div></div></div>
@@ -26,6 +29,9 @@ export function renderSettings(){
       </div>
       <div class="set-row"><div class="set-name ui">${t('sound')}</div><div class="toggle ${G.sound?'on':''}" id="tgSound"><div class="knob"></div></div></div>
       <div class="set-row"><div class="set-name ui">${t('reduceMotion')}</div><div class="toggle ${G.reduceMotion?'on':''}" id="tgMotion"><div class="knob"></div></div></div>
+      ${notifSupported?`<div class="set-row"><div class="set-name ui">${t('notifSetting')}</div><div class="toggle ${notif.enabled?'on':''}" id="tgNotif"><div class="knob"></div></div></div>
+      <div class="set-note ui" id="notifBlocked" hidden>${t('notifBlocked')}</div>
+      <div class="set-row" id="notifTimeRow" ${notif.enabled?'':'hidden'}><div class="set-name ui">${t('notifTimeLabel')}</div><input class="set-time" id="notifTime" type="time" value="${notif.time}"></div>`:''}
       <div class="set-row"><div class="set-name ui">${t('adsTracking')}</div><div class="toggle ${tracking?'on':''}" id="tgTracking"><div class="knob"></div></div></div>
       <div class="set-row">
         <div class="set-name ui">${t('privacy')}</div>
@@ -55,6 +61,28 @@ export function renderSettings(){
     const on=saveReduceMotion(!G.reduceMotion);
     e.currentTarget.classList.toggle('on', on);
   };
+  document.getElementById('tgNotif')?.addEventListener('click', async (e)=>{
+    const toggle = e.currentTarget;
+    const row = document.getElementById('notifTimeRow');
+    const blocked = document.getElementById('notifBlocked');
+    if(toggle.classList.contains('on')){
+      toggle.classList.remove('on');
+      if(row) row.hidden = true;
+      if(blocked) blocked.hidden = true;
+      await disableNotifications();
+      return;
+    }
+    const result = await enableNotifications();
+    const granted = result === 'granted';
+    toggle.classList.toggle('on', granted);
+    if(row) row.hidden = !granted;
+    if(blocked) blocked.hidden = granted;
+  });
+  document.getElementById('notifTime')?.addEventListener('change', (e)=>{
+    if(!e.currentTarget.value) return;
+    saveNotificationPrefs({ time: e.currentTarget.value });
+    void syncNotifications();
+  });
   document.getElementById('tgTracking').onclick=(e)=>{
     const on=saveAdsTracking(!getAdsTracking());
     e.currentTarget.classList.toggle('on', on);

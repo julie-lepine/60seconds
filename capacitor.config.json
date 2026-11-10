@@ -5,6 +5,12 @@
   "android": {
     "adjustMarginsForEdgeToEdge": "auto"
   },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon",
+      "iconColor": "#FF4438"
+    }
+  },
   "ios": {
     "contentInset": "never",
     "preferredContentMode": "mobile"

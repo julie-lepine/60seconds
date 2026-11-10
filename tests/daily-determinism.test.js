@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+// Les consignes du premier passage ne doivent pas s'intercaler dans ces tests.
+globalThis.localStorage = { getItem: () => JSON.stringify(['tap','math','timing','oddoneout','reaction','memory','greater','count','evenodd','leftright','goNoGo','sequence','direction','stroop']), setItem: () => {}, removeItem: () => {} };
 const originalDocument = globalThis.document;
 const originalMathRandom = Math.random;
 const originalCancelAnimationFrame = globalThis.cancelAnimationFrame;

@@ -14,6 +14,7 @@ import { startCountdown } from './countdown.js';
 import { renderHome } from './home.js';
 import { shareChallenge } from '../share.js';
 import { flameHtml, snowflakeSvg } from '../streak.js';
+import { syncNotifications, shouldOfferNotifications, enableNotifications, markNotificationsAsked } from '../notifications.js';
 import {
   beginSessionFinalization,
   completeSessionFinalization,
@@ -152,6 +153,10 @@ function renderCompletedEnd(state){
   const freezeHtml = freezeMessages.length
     ? `<div class="end-freeze" id="freezeLines">${freezeMessages.map(m => `<div class="end-freeze-line ui">${snowflakeSvg}${m}</div>`).join('')}</div>`
     : '';
+  // Après le premier défi du jour : proposer le rappel (une seule fois, mobile uniquement).
+  const offerHtml = shouldOfferNotifications(state.mode)
+    ? `<div class="notif-offer" id="notifOffer"><div class="notif-q ui" id="notifQ">${t('notifAsk')}</div><div class="notif-actions" id="notifActions"><button class="notif-yes tap-safe" id="notifYes" type="button">${t('notifYes')}</button><button class="notif-later tap-safe" id="notifLater" type="button">${t('notifLater')}</button></div></div>`
+    : '';
   const newlyUnlocked = state.evaluated.newlyUnlocked;
   const visibleUnlocked = newlyUnlocked.slice(0, 3);
   const remainingUnlocked = Math.max(0, newlyUnlocked.length - visibleUnlocked.length);
@@ -179,6 +184,7 @@ function renderCompletedEnd(state){
       ${unlockedHtml}
       ${again}
       <button class="challenge-btn${state.mode==='daily'?' lead':''}" id="challengeBtn" type="button">${t('shareChallenge')}</button>
+      ${offerHtml}
       <div class="home-link" id="homeLink">${t('home')}</div>`;
     if(recordBeaten) el.querySelector('#deltaLine').classList.add('new');
     const scoreEl=document.getElementById('scoreNum');
@@ -189,6 +195,7 @@ function renderCompletedEnd(state){
       document.getElementById('freezeLines')?.classList.add('show');
       document.getElementById('againBtn')?.classList.add('show');
       document.getElementById('challengeBtn')?.classList.add('show');
+      document.getElementById('notifOffer')?.classList.add('show');
       document.getElementById('homeLink')?.classList.add('show');
     }else{
       animateScore(scoreEl, state.score, ()=>{
@@ -198,6 +205,7 @@ function renderCompletedEnd(state){
         setTimeout(()=>{
           document.getElementById('againBtn')?.classList.add('show');
           document.getElementById('challengeBtn')?.classList.add('show');
+          document.getElementById('notifOffer')?.classList.add('show');
           document.getElementById('homeLink')?.classList.add('show');
         },250);
       });
@@ -214,6 +222,17 @@ function renderCompletedEnd(state){
       }else{
         button.dataset.busy = '0';
       }
+    });
+    document.getElementById('notifYes')?.addEventListener('click', async () => {
+      const result = await enableNotifications();
+      const q = document.getElementById('notifQ');
+      const actions = document.getElementById('notifActions');
+      if(actions) actions.remove();
+      if(q) q.textContent = result === 'granted' ? t('notifEnabledMsg') : t('notifBlocked');
+    });
+    document.getElementById('notifLater')?.addEventListener('click', () => {
+      markNotificationsAsked();
+      document.getElementById('notifOffer')?.remove();
     });
     document.getElementById('homeLink').onclick=renderHome;
   }, 650);
@@ -280,6 +299,8 @@ async function runFinalization(state){
           finalizationDependencies.submitLeaderboardScore(state.mode, state.score, getEffectiveStreak(state.evaluated.progress, state.now).count)
         ).catch(() => null);
       }catch{}
+      // Reprogramme les rappels : la partie du jour vient d'être jouée.
+      try{ void syncNotifications().catch(() => null); }catch{}
     }
 
     sImpact();
