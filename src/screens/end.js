@@ -12,6 +12,7 @@ import { submitLeaderboardScore } from '../leaderboard/leaderboard.js';
 import { view } from '../dom.js';
 import { startCountdown } from './countdown.js';
 import { renderHome } from './home.js';
+import { shareChallenge } from '../share.js';
 import {
   beginSessionFinalization,
   completeSessionFinalization,
@@ -169,6 +170,7 @@ function renderCompletedEnd(state){
       ${streakResult.increased ? `<div class="end-streak ui" id="streakLine"><span class="streak-flame" aria-hidden="true"></span>${streakText}</div>` : ''}
       ${unlockedHtml}
       ${again}
+      <button class="challenge-btn${state.mode==='daily'?' lead':''}" id="challengeBtn" type="button">${t('shareChallenge')}</button>
       <div class="home-link" id="homeLink">${t('home')}</div>`;
     if(recordBeaten) el.querySelector('#deltaLine').classList.add('new');
     const scoreEl=document.getElementById('scoreNum');
@@ -177,6 +179,7 @@ function renderCompletedEnd(state){
       document.getElementById('deltaLine')?.classList.add('show');
       document.getElementById('streakLine')?.classList.add('show');
       document.getElementById('againBtn')?.classList.add('show');
+      document.getElementById('challengeBtn')?.classList.add('show');
       document.getElementById('homeLink')?.classList.add('show');
     }else{
       animateScore(scoreEl, state.score, ()=>{
@@ -184,11 +187,24 @@ function renderCompletedEnd(state){
         document.getElementById('streakLine')?.classList.add('show');
         setTimeout(()=>{
           document.getElementById('againBtn')?.classList.add('show');
+          document.getElementById('challengeBtn')?.classList.add('show');
           document.getElementById('homeLink')?.classList.add('show');
         },250);
       });
     }
     document.getElementById('againBtn')?.addEventListener('click', ()=>startCountdown(state.mode));
+    document.getElementById('challengeBtn')?.addEventListener('click', async event => {
+      const button = event.currentTarget;
+      if(button.dataset.busy === '1') return;
+      button.dataset.busy = '1';
+      const result = await shareChallenge(state.mode, state.score);
+      if(result === 'copied'){
+        button.textContent = t('shareCopied');
+        setTimeout(()=>{ button.textContent = t('shareChallenge'); button.dataset.busy = '0'; }, 1800);
+      }else{
+        button.dataset.busy = '0';
+      }
+    });
     document.getElementById('homeLink').onclick=renderHome;
   }, 650);
 }

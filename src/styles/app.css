@@ -207,6 +207,10 @@ html.is-native .ad-placeholder{visibility:hidden;}
 .end-achievements + .again-btn{margin-top:24px;}
 .again-btn{margin-top:56px;padding:18px 46px;background:var(--black);color:var(--cream);border:none;font-family:'Archivo',sans-serif;font-weight:800;font-size:16px;letter-spacing:.08em;cursor:pointer;opacity:0;transition:opacity .3s,transform .12s;}
 .again-btn.show{opacity:1;}
+.challenge-btn{margin-top:14px;padding:13px 30px;background:transparent;color:var(--black);border:1.5px solid var(--black);font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;letter-spacing:.1em;cursor:pointer;opacity:0;transition:opacity .3s,transform .12s;}
+.challenge-btn.lead{margin-top:44px;}
+.challenge-btn.show{opacity:1;}
+.challenge-btn:active{transform:scale(.95);}
 .again-btn:active{transform:scale(.95);}
 .home-link{margin-top:20px;font-size:12px;letter-spacing:.14em;color:var(--black-40);font-weight:600;cursor:pointer;opacity:0;transition:opacity .3s;}
 .home-link.show{opacity:1;}
@@ -347,6 +351,7 @@ html.hardcore .stroop-word.ink-cream{color:#F2ECDE;background:none;padding:0;}
 html.reduce .play-btn,
 html.reduce .stop-btn,
 html.reduce .again-btn,
+html.reduce .challenge-btn,
 html.reduce .pseudo-btn,
 html.reduce .tap-target,
 html.reduce .timer,
@@ -360,6 +365,7 @@ html.reduce .home-link{
 html.reduce .play-btn:active,
 html.reduce .stop-btn:active,
 html.reduce .again-btn:active,
+html.reduce .challenge-btn:active,
 html.reduce .pseudo-btn:active{
   transform:none;
 }
@@ -370,4 +376,5 @@ html.reduce .timer.critical{animation:none;}
   .end-score{font-size:64px;}
   .end-delta{margin-top:12px;}
   .again-btn{margin-top:28px;}
+  .challenge-btn.lead{margin-top:28px;}
 }
