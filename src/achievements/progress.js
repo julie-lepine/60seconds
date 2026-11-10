@@ -3,6 +3,10 @@ import { countScopeProgress } from './scopes.js';
 
 export const PROGRESS_VERSION = 1;
 export const COMPLETED_GAME_SECONDS = 60;
+// Gel de série : 1 gel gagné tous les 7 jours de série, 2 en stock au maximum.
+// Un gel couvre un jour manqué ; il n'est consommé que s'il sauve réellement la série.
+export const STREAK_FREEZE_EVERY = 7;
+export const STREAK_FREEZE_CAP = 2;
 
 function safeInteger(value){
   return Number.isSafeInteger(value) && value >= 0 ? value : 0;
@@ -71,6 +75,7 @@ export function createEmptyProgress(createdAt = new Date().toISOString()){
       succeededTypes: [],
       currentStreak: 0,
       longestStreak: 0,
+      streakFreezes: 0,
       lastPlayedLocalDate: null,
       hardcoreGames: 0,
       hardcoreRecordsBroken: 0,
@@ -124,6 +129,7 @@ export function normalizeProgress(raw){
         succeededTypes: uniqueStrings(stats.succeededTypes),
         currentStreak,
         longestStreak,
+        streakFreezes: Math.min(STREAK_FREEZE_CAP, safeInteger(stats.streakFreezes)),
         lastPlayedLocalDate: normalizeDateKey(stats.lastPlayedLocalDate),
         hardcoreGames: safeInteger(stats.hardcoreGames),
         hardcoreRecordsBroken: safeInteger(stats.hardcoreRecordsBroken),
@@ -261,6 +267,8 @@ export function buildCompletionCandidate(previous, session, completion){
     else stats.recordsBroken += 1;
   }
 
+  let freezeUsed = 0;
+  let freezeEarned = false;
   if(dayDifference == null){
     stats.currentStreak = 1;
     stats.lastPlayedLocalDate = localDate;
@@ -270,8 +278,22 @@ export function buildCompletionCandidate(previous, session, completion){
     stats.currentStreak = Math.max(1, stats.currentStreak + 1);
     stats.lastPlayedLocalDate = localDate;
   }else if(dayDifference > 1){
-    stats.currentStreak = 1;
+    // Jours manqués : les gels en stock sauvent la série s'ils couvrent tout l'écart.
+    const gap = dayDifference - 1;
+    if(stats.currentStreak > 0 && stats.streakFreezes >= gap){
+      stats.streakFreezes -= gap;
+      freezeUsed = gap;
+      stats.currentStreak = Math.max(1, stats.currentStreak + 1);
+    }else{
+      stats.currentStreak = 1;
+    }
     stats.lastPlayedLocalDate = localDate;
+  }
+  // Un nouveau palier de 7 jours rapporte un gel (dans la limite du stock).
+  if(stats.lastPlayedLocalDate === localDate && dayDifference != null && dayDifference > 0
+    && stats.currentStreak % STREAK_FREEZE_EVERY === 0 && stats.streakFreezes < STREAK_FREEZE_CAP){
+    stats.streakFreezes += 1;
+    freezeEarned = true;
   }
   stats.longestStreak = Math.max(stats.longestStreak, stats.currentStreak);
 
@@ -291,6 +313,8 @@ export function buildCompletionCandidate(previous, session, completion){
       dailyDate,
       recordBroken,
       missedDays,
+      freezeUsed,
+      freezeEarned,
       completedWeekend: dayDifference === 1 && previousWasSaturday && currentIsSunday
     }
   };
@@ -379,9 +403,13 @@ export function getEffectiveStreak(progress, now = new Date()){
   const today = dateOrdinal(localDateKey(now));
   const last = dateOrdinal(progress?.stats?.lastPlayedLocalDate);
   const daysSince = today != null && last != null ? today - last : null;
-  const active = daysSince != null && daysSince >= 0 && daysSince <= 1;
+  const freezes = Math.min(STREAK_FREEZE_CAP, safeInteger(progress?.stats?.streakFreezes));
+  // Un gel en stock maintient la série affichée tant qu'il couvre l'écart (elle est sauvée à la prochaine partie).
+  const active = daysSince != null && daysSince >= 0
+    && (daysSince <= 1 || (daysSince - 1 <= freezes && safeInteger(progress?.stats?.currentStreak) > 0));
   return {
     count: active ? safeInteger(progress?.stats?.currentStreak) : 0,
+    freezes,
     completedToday: daysSince === 0,
     longest: safeInteger(progress?.stats?.longestStreak),
     lastCompletedLocalDate: progress?.stats?.lastPlayedLocalDate || null

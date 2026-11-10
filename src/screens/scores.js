@@ -2,12 +2,14 @@ import { t } from '../i18n.js';
 import { G } from '../state.js';
 import { escapeHtml, fmt } from '../utils.js';
 import { getUsername } from '../storage.js';
-import { getLeaderboard, getPlayerRank } from '../leaderboard/leaderboard.js';
+import { getLeaderboard, getPlayerRank, getBoard } from '../leaderboard/leaderboard.js';
+import { buildBoardLayout } from '../leaderboard/board-layout.js';
+import { badgeHtml } from '../streak.js';
 import { view } from '../dom.js';
 import { renderHome } from './home.js';
 
-function scoreRow(rank, name, score, me){
-  return `<div class="score-row ${me ? 'me' : ''}"><div class="rank ui">${rank}</div><div class="name ui">${escapeHtml(name)}</div><div class="val display">${fmt(score)}</div></div>`;
+function scoreRow(rank, name, score, me, streak = 0){
+  return `<div class="score-row ${me ? 'me' : ''}"><div class="rank ui">${rank}</div><div class="name ui">${escapeHtml(name)}${badgeHtml(streak)}</div><div class="val display">${fmt(score)}</div></div>`;
 }
 
 function statusHtml(text){
@@ -17,6 +19,7 @@ function statusHtml(text){
 export function renderScores(){
   G.screen = 'scores';
   let mode = G.mode === 'daily' || G.mode === 'hardcore' ? G.mode : 'normal';
+  let period = 'month';
   let loadId = 0;
 
   view.innerHTML = `
@@ -28,6 +31,11 @@ export function renderScores(){
         <button type="button" class="scores-tab" id="tabHardcore">${t('hardcore')}</button>
         <button type="button" class="scores-tab" id="tabDaily">${t('tabDaily')}</button>
       </div>
+      <div class="scores-period" id="scoresPeriod">
+        <button type="button" class="scores-pill" id="periodMonth">${t('periodMonth')}</button>
+        <button type="button" class="scores-pill" id="periodAll">${t('periodAll')}</button>
+        <span class="scores-note ui" id="periodNote">${t('periodNote')}</span>
+      </div>
       <div class="scores-list" id="scoresBody"></div>
     </div>`;
 
@@ -35,11 +43,38 @@ export function renderScores(){
   const tabDaily = document.getElementById('tabDaily');
   const tabHardcore = document.getElementById('tabHardcore');
   const body = document.getElementById('scoresBody');
+  const periodBar = document.getElementById('scoresPeriod');
+  const periodMonth = document.getElementById('periodMonth');
+  const periodAll = document.getElementById('periodAll');
+  const periodNote = document.getElementById('periodNote');
 
   function paintTabs(){
     tabGeneral.classList.toggle('on', mode === 'normal');
     tabDaily.classList.toggle('on', mode === 'daily');
     tabHardcore.classList.toggle('on', mode === 'hardcore');
+    // Le défi du jour a déjà sa propre période : pas de filtre MOIS / TOUT.
+    periodBar.hidden = mode === 'daily';
+    periodMonth.classList.toggle('on', period === 'month');
+    periodAll.classList.toggle('on', period === 'all');
+    periodNote.hidden = period !== 'month';
+  }
+
+  function paintBoard(board){
+    const username = getUsername();
+    const { items, me } = buildBoardLayout(board.rows, username);
+    if(!items.length){
+      body.innerHTML = statusHtml(t('noScores'));
+      return;
+    }
+    let html = '';
+    if(me){
+      const pct = me.percent ? ` · TOP ${me.percent} %` : '';
+      html += `<div class="scores-summary ui">${t('yourRank')} <b>${fmt(me.rank)}</b> / ${fmt(me.total)}${pct}</div>`;
+    }
+    html += items.map(it => it.type === 'gap'
+      ? '<div class="score-gap ui" aria-hidden="true">···</div>'
+      : scoreRow(it.rank, it.name, it.score, it.me, it.streak)).join('');
+    body.innerHTML = html;
   }
 
   function paintList(rows, me){
@@ -63,6 +98,13 @@ export function renderScores(){
   async function load(){
     const id = ++loadId;
     body.innerHTML = statusHtml(t('loading'));
+    const board = await getBoard(mode, period);
+    if(id !== loadId || G.screen !== 'scores') return;
+    if(!board.error){
+      paintBoard(board);
+      return;
+    }
+    // Migration 005 pas encore exécutée (ou réseau) : ancien classement, tout l'historique.
     const [{ rows, error }, me] = await Promise.all([
       getLeaderboard(mode),
       getPlayerRank(mode)
@@ -81,6 +123,14 @@ export function renderScores(){
     load();
   }
 
+  function setPeriod(next){
+    period = next;
+    paintTabs();
+    load();
+  }
+
+  periodMonth.onclick = () => setPeriod('month');
+  periodAll.onclick = () => setPeriod('all');
   tabGeneral.onclick = () => setMode('normal');
   tabDaily.onclick = () => setMode('daily');
   tabHardcore.onclick = () => setMode('hardcore');

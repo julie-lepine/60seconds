@@ -63,34 +63,45 @@ function boardArgs(mode, dailyDate){
   };
 }
 
-export function buildLeaderboardRow(mode, score){
+export function buildLeaderboardRow(mode, score, streak){
   const username = getUsername();
   if(!username) return null;
   const n = Number(score);
   if(!Number.isFinite(n) || n < 0) return null;
   const isDaily = mode === 'daily';
-  return {
+  const row = {
     username,
     score: Math.round(n),
     mode: normalizeMode(mode),
     daily_date: isDaily ? localDailyDate() : null
   };
+  // Série en cours (badge du classement). Absente si 0 ou inconnue.
+  const days = Math.floor(Number(streak));
+  if(Number.isFinite(days) && days > 0) row.streak = Math.min(days, 10000);
+  return row;
 }
 
-export async function submitLeaderboardScore(mode, score){
+export async function submitLeaderboardScore(mode, score, streak){
   try{
     if(!configured()){
       logDev('submit skipped', 'not-configured');
       return null;
     }
-    const row = buildLeaderboardRow(mode, score);
+    const row = buildLeaderboardRow(mode, score, streak);
     if(!row) return null;
-    const { ok, error } = await supabaseFetch('leaderboard', {
+    const send = body => supabaseFetch('leaderboard', {
       method: 'POST',
       headers: { Prefer: 'return=minimal' },
-      body: JSON.stringify(row)
+      body: JSON.stringify(body)
     });
-    if(!ok){ logDev('submit failed', error); return null; }
+    let result = await send(row);
+    if(!result.ok && row.streak != null && result.status === 400){
+      // Colonne « streak » pas encore créée (migration 006) : le score ne doit jamais se perdre.
+      const { streak: _ignored, ...plain } = row;
+      result = await send(plain);
+      if(result.ok) return plain;
+    }
+    if(!result.ok){ logDev('submit failed', result.error); return null; }
     return row;
   }catch(err){
     logDev('submit failed', err);
@@ -110,6 +121,43 @@ export async function getLeaderboard(mode, dailyDate){
   }catch(err){
     logDev('fetch failed', err);
     return { rows: [], error: 'request-failed' };
+  }
+}
+
+function normalizePeriod(period){
+  return period === 'month' ? 'month' : 'all';
+}
+
+// Top 10 + voisins du joueur + total de joueurs classés (une ligne par joueur).
+// Renvoie { error } si la fonction SQL est absente (migration 005 non exécutée) :
+// l'écran retombe alors sur l'ancien classement.
+export async function getBoard(mode, period, dailyDate){
+  try{
+    if(!configured()) return { rows: [], total: 0, error: 'not-configured' };
+    const { ok, data, error } = await supabaseFetch('rpc/leaderboard_board', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...boardArgs(mode, dailyDate),
+        p_period: normalizePeriod(period),
+        p_username: getUsername() || null,
+        p_top: 10,
+        p_around: 1
+      })
+    });
+    if(!ok){ logDev('board failed', error); return { rows: [], total: 0, error: error || 'request-failed' }; }
+    const rows = (Array.isArray(data) ? data : [])
+      .map(r => ({
+        rank: Number(r.rank),
+        username: String(r.username ?? ''),
+        score: Number(r.score),
+        total: Number(r.total),
+        streak: Number.isFinite(Number(r.streak)) && Number(r.streak) > 0 ? Number(r.streak) : 0
+      }))
+      .filter(r => Number.isFinite(r.rank) && r.rank >= 1 && Number.isFinite(r.score));
+    return { rows, total: rows.length ? rows[0].total : 0, error: null };
+  }catch(err){
+    logDev('board failed', err);
+    return { rows: [], total: 0, error: 'request-failed' };
   }
 }
 

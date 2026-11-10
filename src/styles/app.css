@@ -94,6 +94,25 @@ html.is-native .ad-placeholder{visibility:hidden;}
 .home-stat-divider{width:1px;height:34px;background:var(--line);}
 .streak-flame{position:relative;width:10px;height:14px;display:inline-block;flex:0 0 auto;background:var(--coral);border-radius:70% 30% 65% 35%;transform:rotate(45deg);}
 .streak-flame::after{content:'';position:absolute;width:5px;height:7px;right:1px;bottom:1px;background:var(--cream);border-radius:70% 30% 65% 35%;}
+/* La flamme grandit et s'embrase aux paliers 2 / 7 / 14 / 30 / 60 / 100 jours. */
+.streak-flame.t2,.streak-flame.t3{width:12px;height:17px;}
+.streak-flame.t2::after,.streak-flame.t3::after{width:6px;height:9px;}
+.streak-flame.t3{box-shadow:0 0 7px var(--coral);}
+.streak-flame.t4{width:14px;height:20px;box-shadow:0 0 9px var(--coral);}
+.streak-flame.t4::after{width:7px;height:10px;background:#FFB020;}
+.streak-flame.t5{width:14px;height:20px;background:#FFB020;box-shadow:0 0 10px #FFB020;}
+.streak-flame.t5::after{width:7px;height:10px;background:var(--coral);}
+.streak-flame.t6{width:16px;height:23px;background:#FFB020;box-shadow:0 0 14px #FFB020;animation:flamePulse 1.6s ease-in-out infinite;}
+.streak-flame.t6::after{width:8px;height:12px;background:var(--coral);}
+@keyframes flamePulse{50%{box-shadow:0 0 22px #FFB020;}}
+html.reduce .streak-flame.t6{animation:none;}
+.streak-badge{display:inline-flex;align-items:center;gap:6px;margin-left:10px;font-family:'Archivo',sans-serif;font-weight:800;font-size:12px;color:var(--black-60);vertical-align:middle;}
+.streak-badge .streak-flame{margin-right:2px;transform:rotate(45deg) scale(.8);}
+.freeze-chip{display:inline-flex;align-items:center;gap:4px;margin-left:10px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--black-40);}
+.freeze-icon{display:block;}
+.end-freeze{margin-top:10px;display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.14em;color:var(--black-60);font-weight:700;opacity:0;transition:opacity .3s;}
+.end-freeze-line{display:flex;align-items:center;gap:8px;}
+.end-freeze.show{opacity:1;}
 
 /* ---- COUNTDOWN ---- */
 #screen-countdown{align-items:center;justify-content:center;}
@@ -221,6 +240,14 @@ html.is-native .ad-placeholder{visibility:hidden;}
 .scores-tabs{display:flex;gap:24px;margin-bottom:8px;flex-shrink:0;}
 .scores-tab{font-family:'Inter',sans-serif;font-weight:600;font-size:11px;letter-spacing:.16em;color:var(--black-40);cursor:pointer;padding:8px 0;background:none;border:none;}
 .scores-tab.on{color:var(--coral);}
+.scores-period{display:flex;align-items:center;gap:8px;margin:6px 0 4px;flex-shrink:0;flex-wrap:wrap;}
+.scores-period[hidden],.scores-note[hidden]{display:none;}
+.scores-pill{font-family:'Inter',sans-serif;font-weight:600;font-size:10px;letter-spacing:.16em;color:var(--black-40);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer;}
+.scores-pill.on{color:var(--black);border-color:var(--black);}
+.scores-note{font-size:9px;letter-spacing:.12em;font-weight:600;color:var(--black-40);margin-left:4px;}
+.scores-summary{padding:12px 0 6px;font-size:11px;letter-spacing:.14em;font-weight:600;color:var(--black-40);}
+.scores-summary b{color:var(--coral);font-size:14px;}
+.score-gap{text-align:center;padding:6px 0;letter-spacing:.4em;color:var(--black-40);font-weight:600;border-bottom:1px solid var(--line);}
 .scores-list{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
 .scores-status{padding:28px 0;font-size:12px;letter-spacing:.14em;font-weight:600;color:var(--black-40);}
 .scores-rest{margin-top:12px;padding-top:4px;border-top:1px solid var(--line);}
@@ -340,8 +367,8 @@ html.hardcore .choice-btn.right,
 html.hardcore .key:active{color:var(--on-coral);}
 html.hardcore .reaction-full.wait{background:#0B0B0A;}
 html.hardcore .wait .reaction-text{color:#E7DFCB;}
-html.hardcore .stroop-word.ink-black{color:#0B0B0A;background:#F2ECDE;padding:6px 18px;}
-html.hardcore .stroop-word.ink-cream{color:#F2ECDE;background:none;padding:0;}
+/* Défi des couleurs : en hardcore, les encres suivent l'inversion de la palette (noir ↔ crème) ;
+   la bande revient donc à l'encre qui se confond avec le fond, comme en mode normal. */
 
 /* ---- DAILY BADGE reused in gameplay header ---- */
 .quit-btn{position:absolute;top:14px;right:16px;z-index:6;min-height:44px;padding:0 8px;border:none;background:transparent;font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#8C8574;cursor:pointer;}
@@ -358,6 +385,7 @@ html.reduce .timer,
 html.reduce .toggle,
 html.reduce .toggle .knob,
 html.reduce .end-delta,
+html.reduce .end-freeze,
 html.reduce .end-streak,
 html.reduce .home-link{
   transition:none;

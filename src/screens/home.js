@@ -5,6 +5,7 @@ import { ctx } from '../audio.js';
 import { getRecordScore, getTodayDailyRun } from '../storage.js';
 import { getAchievementStreakStatus } from '../achievements/storage.js';
 import { view } from '../dom.js';
+import { flameHtml, snowflakeSvg } from '../streak.js';
 import { startCountdown } from './countdown.js';
 import { renderScores } from './scores.js';
 import { renderSettings } from './settings.js';
@@ -36,7 +37,7 @@ export function renderHome(){
       <div class="home-stats">
         <div class="home-stat">
           <div class="home-stat-label">${t('streak')}</div>
-          <div class="home-stat-value"><span class="streak-flame" aria-hidden="true"></span>${streakText}</div>
+          <div class="home-stat-value">${flameHtml(streak.count)}${streakText}${streak.freezes > 0 ? `<span class="freeze-chip" title="${t('freezeLabel')}" aria-label="${t('freezeLabel')} ${streak.freezes}">${snowflakeSvg}${streak.freezes}</span>` : ''}</div>
         </div>
         <div class="home-stat-divider" aria-hidden="true"></div>
         <div class="home-stat">

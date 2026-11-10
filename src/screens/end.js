@@ -13,6 +13,7 @@ import { view } from '../dom.js';
 import { startCountdown } from './countdown.js';
 import { renderHome } from './home.js';
 import { shareChallenge } from '../share.js';
+import { flameHtml, snowflakeSvg } from '../streak.js';
 import {
   beginSessionFinalization,
   completeSessionFinalization,
@@ -145,6 +146,12 @@ function renderCompletedEnd(state){
   streakResult.increased =
     state.previousProgress.stats.lastPlayedLocalDate !== effectiveProgress.stats.lastPlayedLocalDate;
   const streakText = t(streakResult.count === 1 ? 'streakDay' : 'streakDays', { count: fmt(streakResult.count) });
+  const freezeMessages = [];
+  if(state.completedSession.freezeUsed) freezeMessages.push(t('freezeUsed'));
+  if(state.completedSession.freezeEarned) freezeMessages.push(t('freezeEarned'));
+  const freezeHtml = freezeMessages.length
+    ? `<div class="end-freeze" id="freezeLines">${freezeMessages.map(m => `<div class="end-freeze-line ui">${snowflakeSvg}${m}</div>`).join('')}</div>`
+    : '';
   const newlyUnlocked = state.evaluated.newlyUnlocked;
   const visibleUnlocked = newlyUnlocked.slice(0, 3);
   const remainingUnlocked = Math.max(0, newlyUnlocked.length - visibleUnlocked.length);
@@ -167,7 +174,8 @@ function renderCompletedEnd(state){
       <div class="end-label label">${t('score')}</div>
       <div class="end-score display" id="scoreNum">0</div>
       <div class="end-delta ui" id="deltaLine">${summary}</div>
-      ${streakResult.increased ? `<div class="end-streak ui" id="streakLine"><span class="streak-flame" aria-hidden="true"></span>${streakText}</div>` : ''}
+      ${streakResult.increased ? `<div class="end-streak ui" id="streakLine">${flameHtml(streakResult.count)}${streakText}</div>` : ''}
+      ${freezeHtml}
       ${unlockedHtml}
       ${again}
       <button class="challenge-btn${state.mode==='daily'?' lead':''}" id="challengeBtn" type="button">${t('shareChallenge')}</button>
@@ -178,6 +186,7 @@ function renderCompletedEnd(state){
       if(scoreEl) scoreEl.textContent=fmt(state.score);
       document.getElementById('deltaLine')?.classList.add('show');
       document.getElementById('streakLine')?.classList.add('show');
+      document.getElementById('freezeLines')?.classList.add('show');
       document.getElementById('againBtn')?.classList.add('show');
       document.getElementById('challengeBtn')?.classList.add('show');
       document.getElementById('homeLink')?.classList.add('show');
@@ -185,6 +194,7 @@ function renderCompletedEnd(state){
       animateScore(scoreEl, state.score, ()=>{
         document.getElementById('deltaLine')?.classList.add('show');
         document.getElementById('streakLine')?.classList.add('show');
+        document.getElementById('freezeLines')?.classList.add('show');
         setTimeout(()=>{
           document.getElementById('againBtn')?.classList.add('show');
           document.getElementById('challengeBtn')?.classList.add('show');
@@ -267,7 +277,7 @@ async function runFinalization(state){
       state.leaderboardSubmitted = true;
       try{
         void Promise.resolve(
-          finalizationDependencies.submitLeaderboardScore(state.mode, state.score)
+          finalizationDependencies.submitLeaderboardScore(state.mode, state.score, getEffectiveStreak(state.evaluated.progress, state.now).count)
         ).catch(() => null);
       }catch{}
     }
