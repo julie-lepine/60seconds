@@ -10,6 +10,6 @@ export const STORE_URLS = Object.freeze({
   android: 'https://play.google.com/store/apps/details?id=com.hfc.sixtyseconds'
 });
 // Utilisée seulement si la version native est introuvable (le plugin @capacitor/app la fournit sur mobile).
-export const FALLBACK_APP_VERSION = '1.1';
+export const FALLBACK_APP_VERSION = '1.1.1';
 export const HARDCORE_PENALTY_CAP = 300;
 export const CHALLENGE_TYPES = ['tap','math','timing','oddoneout','reaction','memory','greater','count','evenodd','leftright','goNoGo','sequence','direction','stroop'];
