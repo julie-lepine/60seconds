@@ -72,11 +72,21 @@ export function renderSettings(){
       await disableNotifications();
       return;
     }
-    const result = await enableNotifications();
-    const granted = result === 'granted';
+    if(toggle.dataset.busy === '1') return;
+    toggle.dataset.busy = '1';
+    let granted = false;
+    try{
+      granted = (await enableNotifications()) === 'granted';
+    }catch(error){
+      granted = false;
+    }
+    toggle.dataset.busy = '';
     toggle.classList.toggle('on', granted);
     if(row) row.hidden = !granted;
-    if(blocked) blocked.hidden = granted;
+    if(blocked){
+      blocked.textContent = t('notifBlocked');
+      blocked.hidden = granted;
+    }
   });
   document.getElementById('notifTime')?.addEventListener('change', (e)=>{
     if(!e.currentTarget.value) return;

@@ -2,6 +2,7 @@
 // À chaque ouverture / fin de partie, on annule tout puis on reprogramme les 7 prochains jours :
 // un joueur qui a déjà joué n'est donc jamais notifié pour rien.
 import { Capacitor } from '@capacitor/core';
+import { LocalNotifications as NativeLocalNotifications } from '@capacitor/local-notifications';
 import { t } from './i18n.js';
 import { getTodayDailyRun } from './storage.js';
 import { getAchievementStreakStatus } from './achievements/storage.js';
@@ -19,6 +20,20 @@ const MORNING_ID_BASE = 1000;
 const EVENING_ID = 2000;
 // Si le rappel du joueur est déjà tard, pas de second rappel le même soir.
 const EVENING_MIN_GAP_HOUR = 19;
+
+let lastError = '';
+export function getLastNotificationError(){ return lastError; }
+
+// Evite qu'une demande de permission qui ne répond jamais fige l'interface.
+function withTimeout(promise, ms = 15000){
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('timeout')), ms);
+    Promise.resolve(promise).then(
+      value => { clearTimeout(timer); resolve(value); },
+      error => { clearTimeout(timer); reject(error); }
+    );
+  });
+}
 
 export function isNotificationSupported(){
   try{ return Capacitor.isNativePlatform(); }catch{ return false; }
@@ -89,9 +104,10 @@ export function planNotifications({ now = new Date(), time = DEFAULT_TIME, daily
   return plan;
 }
 
-async function loadPlugin(options){
-  if(options.LocalNotifications) return options.LocalNotifications;
-  return (await import('@capacitor/local-notifications')).LocalNotifications;
+// IMPORTANT : fonction synchrone. Un plugin Capacitor ne doit jamais etre "await" ni renvoye par une
+// fonction async : le proxy du plugin est traite comme une promesse et l'appel ne se termine jamais.
+function loadPlugin(options){
+  return options.LocalNotifications || NativeLocalNotifications;
 }
 
 // Reprogramme (ou annule) les rappels selon les réglages. Ne lève jamais d'erreur.
@@ -100,7 +116,7 @@ export async function syncNotifications(options = {}){
   const native = options.native ?? isNotificationSupported();
   if(!native) return 'unsupported';
   try{
-    const LN = await loadPlugin(options);
+    const LN = loadPlugin(options);
     const prefs = getNotificationPrefs();
     const pending = await LN.getPending();
     if(pending?.notifications?.length){
@@ -135,19 +151,28 @@ export async function enableNotifications(options = {}){
   if(!native) return 'unsupported';
   saveNotificationPrefs({ asked: true });
   try{
-    const LN = await loadPlugin(options);
-    let permission = await LN.checkPermissions();
+    lastError = '';
+    const LN = loadPlugin(options);
+    let permission = await withTimeout(LN.checkPermissions());
     if(permission?.display !== 'granted'){
-      permission = await LN.requestPermissions();
+      permission = await withTimeout(LN.requestPermissions(), 30000);
     }
     if(permission?.display !== 'granted'){
+      lastError = `permission: ${permission?.display ?? 'inconnue'}`;
       saveNotificationPrefs({ enabled: false });
       return 'denied';
     }
     saveNotificationPrefs({ enabled: true });
-    await syncNotifications({ ...options, LocalNotifications: LN });
+    // La programmation ne doit jamais bloquer l'activation : permission accordée = rappel activé.
+    try{
+      const synced = await withTimeout(syncNotifications({ ...options, LocalNotifications: LN }), 10000);
+      if(synced !== 'scheduled') lastError = `programmation: ${synced}`;
+    }catch(error){
+      lastError = `programmation: ${String(error?.message || error || 'erreur')}`;
+    }
     return 'granted';
-  }catch{
+  }catch(error){
+    lastError = String(error?.message || error || 'erreur');
     saveNotificationPrefs({ enabled: false });
     return 'denied';
   }
