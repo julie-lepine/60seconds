@@ -83,12 +83,13 @@ html.is-native .ad-placeholder{visibility:hidden;}
 .daily-wrap{margin-bottom:28px;display:flex;flex-direction:column;align-items:center;}
 .daily-wrap .daily-link{margin-bottom:0;}
 .daily-caption{margin-top:9px;max-width:320px;text-align:center;font-size:10px;line-height:1.4;letter-spacing:.1em;font-weight:600;color:var(--black-40);}
-.daily-link.todo{background:var(--black);color:var(--cream);}
-.daily-link.todo:active{background:transparent;color:var(--black);}
+.daily-link.todo{background:transparent;color:var(--black);}
+.daily-link.todo:active{background:var(--black);color:var(--cream);}
 .daily-link.todo .daily-dot{background:var(--coral);}
 .hardcore-link{width:auto;min-width:236px;}
 .hc-label,.hc-best{white-space:nowrap;}
-.hc-best{color:var(--black-40);font-weight:600;font-size:11px;letter-spacing:.06em;}
+.hc-best{color:rgba(242,236,222,.6);font-weight:600;font-size:11px;letter-spacing:.06em;}
+.hardcore-link:active .hc-best{color:var(--black-40);}
 .home-stat-streak{flex:1.45;}
 .home-stat-label .freeze-chip{margin-left:6px;letter-spacing:.04em;}
 .daily-link{margin-bottom:28px;width:236px;min-height:50px;border:1.5px solid var(--black);background:transparent;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--black);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:12px 16px;}
@@ -217,9 +218,11 @@ html.reduce .tip-btn:active{transform:none;}
 .dir-grid .choice-btn{min-height:96px;font-size:clamp(32px,10vw,44px);}
 
 /* stroop */
-.stroop-word.ink-black{color:var(--black);}
+/* Les encres gardent leur vrai aspect dans les deux modes (couleurs fixes, jamais celles de la palette inversée).
+   Une bande de la couleur opposée est ajoutée à l'encre qui se confond avec le fond. */
+.stroop-word.ink-black{color:#0B0B0A;}
 .stroop-word.ink-coral{color:var(--coral);}
-.stroop-word.ink-cream{color:var(--cream);background:var(--black);padding:6px 18px;}
+.stroop-word.ink-cream{color:#F2ECDE;background:#0B0B0A;padding:6px 18px;}
 .stroop-opts{max-width:100%;}
 
 /* feedback flash */
@@ -372,9 +375,10 @@ html.reduce .update-go:active{transform:none;}
 .consent-actions .navlink{letter-spacing:.08em;text-align:center;}
 
 /* ---- HARDCORE : lien d'accueil, score en jeu, pénalité ---- */
-.hardcore-link{margin-top:28px;width:236px;min-height:50px;border:1.5px solid var(--black);background:transparent;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--black);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:12px 16px;}
-.hardcore-link:active{background:var(--black);color:var(--cream);}
-.hardcore-dot{width:7px;height:7px;border-radius:50%;background:var(--black);flex:0 0 auto;}
+.hardcore-link{margin-top:28px;width:236px;min-height:50px;border:1.5px solid var(--black);background:var(--black);font-family:'Inter',sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cream);display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:12px 16px;}
+.hardcore-link:active{background:transparent;color:var(--black);}
+.hardcore-dot{width:7px;height:7px;border-radius:50%;background:var(--cream);flex:0 0 auto;}
+.hardcore-link:active .hardcore-dot{background:var(--black);}
 .hc-score{margin-top:6px;font-size:20px;line-height:1;letter-spacing:-.01em;color:var(--black-60);}
 .feedback-penalty{display:block;margin-top:6px;font-size:.62em;letter-spacing:-.01em;color:var(--coral);}
 @media (max-height:700px){
@@ -407,8 +411,10 @@ html.hardcore .choice-btn.right,
 html.hardcore .key:active{color:var(--on-coral);}
 html.hardcore .reaction-full.wait{background:#0B0B0A;}
 html.hardcore .wait .reaction-text{color:#E7DFCB;}
-/* Défi des couleurs : en hardcore, les encres suivent l'inversion de la palette (noir ↔ crème) ;
-   la bande revient donc à l'encre qui se confond avec le fond, comme en mode normal. */
+/* Défi des couleurs : en hardcore, NOIR reste noir et CRÈME reste crème. Le fond étant noir, c'est NOIR
+   qui reçoit la bande claire ; CRÈME se lit directement sur le fond. */
+html.hardcore .stroop-word.ink-black{color:#0B0B0A;background:#F2ECDE;padding:6px 18px;}
+html.hardcore .stroop-word.ink-cream{color:#F2ECDE;background:transparent;padding:0;}
 
 /* ---- DAILY BADGE reused in gameplay header ---- */
 .quit-btn{position:absolute;top:14px;right:16px;z-index:6;min-height:44px;padding:0 8px;border:none;background:transparent;font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#8C8574;cursor:pointer;}
